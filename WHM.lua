@@ -31,7 +31,8 @@ function job_setup()
     state.Buff['Dark Arts']       = buffactive['Dark Arts'] or false
     state.Buff['Addendum: White'] = buffactive['Addendum: White'] or false
     state.Buff['Addendum: Black'] = buffactive['Addendum: Black'] or false
-    state.Buff['Divine Caress'] = buffactive['Divine Caress'] or false
+    state.Buff['Divine Caress']   = buffactive['Divine Caress'] or false
+    state.Buff.doom = buffactive.doom or false
 
     state.texts_event_id = nil
     state.aeonic_aftermath_precast = false
@@ -49,6 +50,7 @@ function user_setup()
     state.WeaponskillMode:options('Normal', 'Acc', 'NoDmg')
     state.CastingMode:options('Normal', 'Resistant', 'Enmity')          -- Cycle with F10
     state.IdleMode:options('Normal', 'PDT', 'MEVA', 'Rf')               -- Cycle with F11, set to PDT with ^F11, reset with !F11
+    state.MagicalDefenseMode:options('MEVA', 'MEVARf')                  -- Cycle with @z
     state.CombatWeapon = M{['description']='Combat Weapon'}
     if S{'DNC','NIN'}:contains(player.sub_job) then
         state.CombatWeapon:options('YagTP','MaxTP','YagAsc','MaxAsc','DayAsc','Staff')
@@ -102,6 +104,7 @@ function user_setup()
     send_command('bind !space gs c set DefenseMode Physical')
     send_command('bind @space gs c set DefenseMode Magical')
     send_command('bind !@space gs c reset DefenseMode')
+    send_command('bind @z gs c cycle MagicalDefenseMode')
     -- JA binds
     send_command('bind ^` input /ja "Divine Seal" <me>')
     send_command('bind !` input /ja Devotion')
@@ -163,6 +166,7 @@ function user_setup()
     send_command('bind ^@e gs c set CombatWeapon MaxAsc')
     send_command('bind ^\\\\ gs c toggle WSMsg')
     send_command('bind ^@\\\\ gs c toggle DiaMsg')
+    send_command('bind ^c gs c OmenCure')
     send_command('bind @c input /ma Blink <me>')
     send_command('bind @v input /ma Aquaveil <me>')
     send_command('bind !g input /ma Phalanx <me>')
@@ -234,6 +238,25 @@ function user_setup()
     send_command('bind ^@4 input /ma Barstonra <me>')
     send_command('bind ^@5 input /ma Barthundra <me>')
     send_command('bind ^@6 input /ma Barwatera <me>')
+    -- Alliance cure keybinds
+    send_command('bind ^numpad1 input /ma "Cure IV" <a10>')
+    send_command('bind ^numpad2 input /ma "Cure IV" <a11>')
+    send_command('bind ^numpad3 input /ma "Cure IV" <a12>')
+    send_command('bind ^numpad4 input /ma "Cure IV" <a13>')
+    send_command('bind ^numpad5 input /ma "Cure IV" <a14>')
+    send_command('bind ^numpad6 input /ma "Cure IV" <a15>')
+    send_command('bind !numpad1 input /ma "Cure IV" <a20>')
+    send_command('bind !numpad2 input /ma "Cure IV" <a21>')
+    send_command('bind !numpad3 input /ma "Cure IV" <a22>')
+    send_command('bind !numpad4 input /ma "Cure IV" <a23>')
+    send_command('bind !numpad5 input /ma "Cure IV" <a24>')
+    send_command('bind !numpad6 input /ma "Cure IV" <a25>')
+    send_command('bind ^numpad7 input /ma Paralyna  <a10>')
+    send_command('bind ^numpad8 input /ma Silena    <a10>')
+    send_command('bind ^numpad9 input /ma Cursna    <a10>')
+    send_command('bind !numpad7 input /ma Paralyna  <a20>')
+    send_command('bind !numpad8 input /ma Silena    <a20>')
+    send_command('bind !numpad9 input /ma Cursna    <a20>')
 
     select_default_macro_book()
 end
@@ -247,6 +270,7 @@ function user_unload()
     send_command('unbind !space')
     send_command('unbind @space')
     send_command('unbind !@space')
+    send_command('unbind @z')
     send_command('unbind ^1')
     send_command('unbind ^2')
     send_command('unbind ^3')
@@ -282,6 +306,7 @@ function user_unload()
     send_command('unbind ^=')
     send_command('unbind @-')
     send_command('unbind @=')
+    send_command('unbind ^c')
     send_command('unbind @c')
     send_command('unbind @v')
     send_command('unbind !g')
@@ -337,6 +362,24 @@ function user_unload()
     send_command('unbind !^3')
     send_command('unbind !^4')
     send_command('unbind !^5')
+    send_command('unbind ^numpad1')
+    send_command('unbind ^numpad2')
+    send_command('unbind ^numpad3')
+    send_command('unbind ^numpad4')
+    send_command('unbind ^numpad5')
+    send_command('unbind ^numpad6')
+    send_command('unbind ^numpad7')
+    send_command('unbind ^numpad8')
+    send_command('unbind ^numpad9')
+    send_command('unbind !numpad1')
+    send_command('unbind !numpad2')
+    send_command('unbind !numpad3')
+    send_command('unbind !numpad4')
+    send_command('unbind !numpad5')
+    send_command('unbind !numpad6')
+    send_command('unbind !numpad7')
+    send_command('unbind !numpad8')
+    send_command('unbind !numpad9')
 
     destroy_state_text()
 end
@@ -371,12 +414,15 @@ function init_gear_sets()
         head="Nahtirah Hat",neck="Orunmila's Torque",ear1="Malignance Earring",ear2="Etiolation Earring",
         body="Inyanga Jubbah +2",hands="Fanatic Gloves",ring2="Kishar Ring",
         back=gear.FCCape,waist="Embla Sash",legs="Ayanmo Cosciales +2",feet="Telchine Pigaches"}
-    -- cast time -70%
     sets.precast.FC['Enhancing Magic'] = set_combine(sets.precast.FC, {waist="Siegel Sash"})
     sets.precast.FC['Healing Magic'] = set_combine(sets.precast.FC, {legs="Ebers Pantaloons +1"})
     sets.precast.FC.StatusRemoval = set_combine(sets.precast.FC['Healing Magic'], {main="Yagrush",sub="Genmei Shield"})
     sets.precast.FC.Cure = set_combine(sets.precast.FC['Healing Magic'], {body="Heka's Kalasiris",feet="Hygieia Clogs +1"})
     sets.precast.FC.CureSolace = set_combine(sets.precast.FC.Cure, {})
+    sets.precast.FC.OmenCure = {main="Yagrush",sub="Genmei Shield",ammo="Sapience Orb",
+        head="Piety Cap",neck="Orunmila's Torque",ear1="Malignance Earring",ear2="Mendicant's Earring",
+        body="Heka's Kalasiris",hands="Volte Gloves",ring1="Inyanga Ring",ring2="Kishar Ring",
+        back=gear.FCCape,waist="Embla Sash",legs=empty,feet="Hygieia Clogs +1"}
     sets.precast.FC.Curaga = set_combine(sets.precast.FC.Cure, {})
     sets.impact = {head=empty,body="Twilight Cloak"}
     sets.precast.FC.Impact = set_combine(sets.precast.FC, sets.impact)
@@ -423,6 +469,10 @@ function init_gear_sets()
     sets.midcast.Curaga.Enmity = set_combine(sets.midcast.Cure.Enmity, {})
     sets.midcast.CureSolace.Enmity = set_combine(sets.midcast.Cure.Enmity, {})
     -- cure+50%, solace+10%, enm+38 (and -25 from tranquil heart), pdt-50, mdt-21
+    sets.midcast.OmenCure = {main="Asclepius",sub="Ammurapi Shield",ammo="Staunch Tathlum +1",
+        head="Theophany Cap +3",neck="Nodens Gorget",ear1="Glorious Earring",ear2="Etiolation Earring",
+        body="Chironic Doublet",hands="Telchine Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
+        back="Moonbeam Cape",waist="Gishdubar Sash",legs="Ebers Pantaloons +1",feet="Skaoi Boots"}
 
     sets.midcast.StatusRemoval = {main="Yagrush",sub="Genmei Shield",head="Ebers Cap +1",legs="Ebers Pantaloons +1"}
     sets.midcast.Erase = set_combine(sets.midcast.StatusRemoval, {neck="Cleric's Torque"})
@@ -473,7 +523,6 @@ function init_gear_sets()
         head="Inyanga Tiara +2",neck="Unmoving Collar +1",ear1="Cryptic Earring",ear2="Trux Earring",
         body="Inyanga Jubbah +2",hands="Inyanga Dastanas +2",ring1="Supershear Ring",ring2="Eihwaz Ring",
         back=gear.MEVACape,waist="Goading Belt",legs="Inyanga Shalwar +2",feet="Inyanga Crackows +2"}
-    -- enm+48
     sets.midcast.Flash.Resistant = set_combine(sets.midcast.Repose, {})
 
     sets.midcast.Drain = set_combine(sets.midcast.Repose, {main="Rubicundity",sub="Ammurapi Shield",
@@ -488,7 +537,6 @@ function init_gear_sets()
         head="Theophany Cap +3",neck="Erra Pendant",ear1="Malignance Earring",ear2="Regal Earring",
         body="Theophany Briault +3",hands="Kaykaus Cuffs +1",ring1=gear.Lstikini,ring2=gear.Rstikini,
         back=gear.ENMCape,waist="Luminary Sash",legs="Chironic Hose",feet="Theophany Duckbills +3"}
-    -- enf.skill=507, m.acc+724, mnd+255
     sets.midcast.Sleep = set_combine(sets.midcast['Enfeebling Magic'], {ring2="Kishar Ring"})
     sets.midcast.Bind = set_combine(sets.midcast.Sleep, {})
     sets.midcast.Gravity = set_combine(sets.midcast.Sleep, {})
@@ -506,28 +554,24 @@ function init_gear_sets()
         head="Inyanga Tiara +2",neck="Loricate Torque +1",ear1="Thureous Earring",ear2="Etiolation Earring",
         body="Theophany Briault +3",hands="Volte Gloves",ring1="Inyanga Ring",ring2="Defending Ring",
         back=gear.MEVACape,waist="Slipor Sash",legs="Inyanga Shalwar +2",feet="Herald's Gaiters"}
-    -- refresh+7~8, pdt-50, mdt-47, meva+499
     sets.idle.PDT = set_combine(sets.idle, {main="Asclepius",sub="Genmei Shield",ammo="Staunch Tathlum +1",
         neck="Warder's Charm +1",ring1="Vocane Ring +1",feet="Inyanga Crackows +2"})
-    -- refresh+6~8, pdt-50, mdt-50, meva+654
     sets.idle.MEVA = set_combine(sets.idle, {main="Reikikon",sub="Enki Strap",ammo="Staunch Tathlum +1",
         neck="Warder's Charm +1",body="Inyanga Jubbah +2",ring1="Inyanga Ring",feet="Inyanga Crackows +2"})
-    -- refresh+5~7, pdt-20, mdt-37, meva+716
     sets.idle.Rf = set_combine(sets.idle, {main="Bolelabunga",sub="Genmei Shield",ammo="Homiliary",
-        ring1="Inyanga Ring",ring2=gear.Rstikini,feet="Inyanga Crackows +2"})
-    -- refresh+9~10, pdt-28, mdt-32, meva+617
+        ear1="Genmei Earring",ring1="Inyanga Ring",ring2=gear.Rstikini,feet="Inyanga Crackows +2"})
     sets.latent_refresh = {ammo="Homiliary",waist="Fucho-no-obi"}
     sets.buff.doom = {neck="Nicander's Necklace",ring1="Saida Ring",waist="Gishdubar Sash"}
 
-    sets.defense.PDT = set_combine(sets.idle.PDT, {})
-    sets.defense.MDT = set_combine(sets.idle.MEVA, {})
+    sets.defense.PDT    = set_combine(sets.idle.PDT, {})
+    sets.defense.MEVA   = set_combine(sets.idle.MEVA, {})
+    sets.defense.MEVARf = set_combine(sets.idle.Rf, {main="Asclepius",sub="Genmei Shield"})
     sets.Kiting = {feet="Herald's Gaiters"}
 
     sets.engaged = {main="Yagrush",sub="Genmei Shield",ammo="Amar Cluster",
         head="Ayanmo Zucchetto +2",neck="Combatant's Torque",ear1="Brutal Earring",ear2="Telos Earring",
         body="Ayanmo Corazza +2",hands="Ayanmo Manopolas +2",ring1="Ilabrat Ring",ring2="Petrov Ring",
         back=gear.TPCape,waist="Windbuffet Belt +1",legs="Ayanmo Cosciales +2",feet="Battlecast Gaiters"}
-    -- acc~1132, stp+41, da+14, ta+2, qa+2, pdt-40, mdt-17
     sets.engaged.Acc = set_combine(sets.engaged, {ear1="Dignitary's Earring",ring2="Cacoethic Ring +1"})
     sets.engaged.PDef = set_combine(sets.engaged, {ring1="Vocane Ring +1",ring2="Defending Ring"})
     sets.engaged.Acc.PDef = set_combine(sets.engaged.Acc, {ring1="Vocane Ring +1",ring2="Defending Ring"})
@@ -539,13 +583,15 @@ function init_gear_sets()
     -- Sets that depend upon idle sets
     sets.midcast.FastRecast = set_combine(sets.idle.PDT, {main="Asclepius",sub="Genmei Shield",waist="Goading Belt"})
     sets.midcast['Dia II'] = set_combine(sets.idle, sets.TreasureHunter)
+    sets.midcast.Stone     = set_combine(sets.idle, sets.TreasureHunter)
+    sets.midcast.Stonega   = set_combine(sets.idle, sets.TreasureHunter)
     sets.midcast.Blink = set_combine(sets.idle.PDT, {ammo="Staunch Tathlum +1",
         hands="Chironic Gloves",legs="Lengo Pants",feet="Theophany Duckbills +3"})
 
     sets.encumber = {ammo="Homiliary",
         head="Theophany Cap +3",neck="Orunmila's Torque",ear1="Glorious Earring",ear2="Novia Earring",
         body="Ebers Bliaud +1",hands="Fanatic Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.FCCape,waist="Fucho-no-obi",legs="Ebers Pantaloons +1",feet="Medium's Sabots"}
+        back=gear.FCCape,waist="Embla Sash",legs="Ebers Pantaloons +1",feet="Medium's Sabots"}
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -560,6 +606,10 @@ function job_precast(spell, action, spellMap, eventArgs)
     elseif spell.type == 'WeaponSkill' then
         state.aeonic_aftermath_precast = (buffactive["Aftermath: Lv.1"] or buffactive["Aftermath: Lv.2"] or buffactive["Aftermath: Lv.3"])
         custom_aftermath_timers_precast(spell)
+    elseif classes.CustomClass == 'OmenCure' then
+        if not (spell.target.type == 'SELF' and spell.english == 'Cure III') then
+            classes.CustomClass = nil
+        end
     end
 end
 
@@ -593,21 +643,23 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
     if state.Buff['Divine Caress'] and spellMap == 'StatusRemoval' and spell.english ~= 'Erase' then
         equip(sets.buff['Divine Caress'])
         if spell.english == 'Cursna' then
-            equip({back=gear.ENMCape})
+            equip({back=gear.MEVACape})
         end
     elseif S{'Cure','CureSolace','Curaga'}:contains(spellMap) then
         if gear.ElementalObi.name == gear.default.obi_waist then
-            equip({waist="Rumination Sash"})
+            if spell.target.type == 'SELF' and S{'Cure','CureSolace'}:contains(spellMap) then
+                equip({waist="Gishdubar Sash"})
+            else
+                equip({waist="Rumination Sash"})
+            end
         end
+    elseif spellMap == 'Refresh' and spell.target.type == 'SELF' then
+        equip({waist="Gishdubar Sash"})
     elseif spellMap == 'BarElement' and not state.Buff['Light Arts'] then
         equip(sets.midcast.BarElement.NoGrimoire)
     end
-    if spell.target.type == 'SELF' then
-        if S{'Cure','Curaga','Refresh'}:contains(spellMap) then
-            equip({waist="Gishdubar Sash"})
-        elseif spell.english == 'Cursna' then
-            equip(sets.buff.doom)
-        end
+    if spell.target.type == 'SELF' and spell.english == 'Cursna' and state.Buff.doom then
+        equip(sets.buff.doom)
     end
 end
 
@@ -731,6 +783,9 @@ function customize_idle_set(idleSet)
     if player.mpp < 60 and state.DefenseMode.value == 'None' then
         idleSet = set_combine(idleSet, sets.latent_refresh)
     end
+    if buffactive['Reive Mark'] then
+        if player.inventory["Arciela's Grace +1"] then idleSet = set_combine(idleSet, {neck="Arciela's Grace +1"}) end
+    end
     return idleSet
 end
 
@@ -842,6 +897,9 @@ function job_self_command(cmdParams, eventArgs)
         for _,ws in ipairs(info.ws_binds[info.weapon_type[state.CombatWeapon.value]]) do
             add_to_chat(122, "%3s : %s":format(ws.bind,ws.ws))
         end
+    elseif cmdParams[1] == 'OmenCure' then
+        classes.CustomClass = 'OmenCure'
+        add_to_chat(122, 'OmenCure until an aftercast')
     elseif cmdParams[1] == 'save' then
         local setname = "temp"
         if cmdParams[2] then

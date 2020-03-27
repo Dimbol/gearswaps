@@ -97,7 +97,6 @@ function user_setup()
         augments={'Mag. Acc.+19 "Mag.Atk.Bns."+19','Enmity-2','MND+4','Mag. Acc.+4','"Mag.Atk.Bns."+15'}}
     gear.herc_head_wsd  = {name="Herculean Helm",
         augments={'"Cure" spellcasting time -10%','Pet: INT+6','Weapon skill damage +9%'}}
-    gear.herc_body_wsd  = {name="Herculean Vest", augments={'Attack+26','Weapon skill damage +4%','Accuracy+11'}}
     gear.herc_hands_wsd = {name="Herculean Gloves",
         augments={'Accuracy+25 Attack+25','Weapon skill damage +3%','DEX+3','Accuracy+14','Attack+5'}}
     gear.herc_feet_wsd  = {name="Herculean Boots",
@@ -532,7 +531,7 @@ function init_gear_sets()
         hands=gear.taeon_hands_phlx,legs=gear.taeon_legs_phlx,feet=gear.taeon_feet_phlx})
     sets.midcast.BarElement = {neck="Incanter's Torque",ear1="Andoaa Earring",ear2="Mimir Earring",
         ring1=gear.Lstikini,ring2=gear.Rstikini,waist="Olympus Sash"}
-    sets.midcast.Phalanx = set_combine(sets.midcast.phlx, sets.midcast.BarElement)
+    sets.midcast.Phalanx = set_combine(sets.phlx, sets.midcast.BarElement)  -- tiers every 10 skill up to 300
     sets.midcast['Enfeebling Magic'] = {ammo="Yamarang",
         head="Mummu Bonnet +2",neck="Assassin's Gorget +2",ear1="Gwati Earring",ear2="Dignitary's Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1=gear.Lstikini,ring2=gear.Rstikini,
@@ -578,7 +577,10 @@ function init_gear_sets()
         head="Turms Cap +1",neck="Assassin's Gorget +2",ear1="Eabani Earring",ear2="Sherida Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.IdleCape,waist="Engraved Belt",legs="Malignance Tights",feet="Malignance Boots"}
-    sets.defense.MEVATH = set_combine(sets.defense.MEVA, {head="Adhemar Bonnet +1",hands="Plunderer's Armlets +3",waist="Reiki Yotai"})
+    sets.defense.MEVATH = {ammo="Yamarang",
+        head="Adhemar Bonnet +1",neck="Assassin's Gorget +2",ear1="Eabani Earring",ear2="Sherida Earring",
+        body="Malignance Tabard",hands="Plunderer's Armlets +3",ring1="Vocane Ring +1",ring2="Gere Ring",
+        back=gear.TPCape,waist="Reiki Yotai",legs="Malignance Tights",feet="Malignance Boots"}
 
     sets.Kiting = {feet="Pillager's Poulaines +3"}
     sets.buff.sleep = {head="Frenzy Sallet"}

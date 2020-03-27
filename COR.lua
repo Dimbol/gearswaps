@@ -633,6 +633,8 @@ end
 function job_post_precast(spell, action, spellMap, eventArgs)
     if (spell.type == 'CorsairRoll' or spell.english == "Double-Up") and state.LuzafRing.value then
         equip(sets.precast.LuzafRing)
+    elseif spell.type == 'WeaponSkill' and buffactive['elvorseal'] then
+        if player.inventory["Heidrek Boots"] then equip({feet="Heidrek Boots"}) end
     end
 end
 
@@ -806,6 +808,12 @@ end
 
 -- Modify the default melee set after it was constructed.
 function customize_melee_set(meleeSet)
+    if buffactive['elvorseal'] then
+        if player.inventory["Heidrek Gloves"] then meleeSet = set_combine(meleeSet, {hands="Heidrek Gloves"}) end
+        if state.DefenseMode.value ~= 'None' then
+            if player.inventory["Heidrek Harness"] then meleeSet = set_combine(meleeSet, {body="Heidrek Harness"}) end
+        end
+    end
     if state.Buff.doom then
         meleeSet = set_combine(meleeSet, sets.buff.doom)
     end

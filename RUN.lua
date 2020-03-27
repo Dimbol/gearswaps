@@ -925,6 +925,8 @@ function job_post_precast(spell, action, spellMap, eventArgs)
         if state.OFAhp.value then
             equip(sets.precast.JA['One for All'].hp)
         end
+    elseif spell.type == 'WeaponSkill' and buffactive['elvorseal'] then
+        if player.inventory["Heidrek Boots"] then equip({feet="Heidrek Boots"}) end
     end
 end
 
@@ -1128,6 +1130,14 @@ end
 
 -- Modify the default melee set after it was constructed.
 function customize_melee_set(meleeSet)
+    if buffactive['elvorseal'] then
+        if state.DefenseMode.value == 'None' then
+            if player.inventory["Heidrek Gloves"] then meleeSet = set_combine(meleeSet, {hands="Heidrek Gloves"}) end
+            if state.HybridMode.value == 'Normal' then
+                if player.inventory["Heidrek Harness"] then meleeSet = set_combine(meleeSet, {body="Heidrek Harness"}) end
+            end
+        end
+    end
     if state.StatusDefenseMode.value ~= 'None' then
         meleeSet = set_combine(meleeSet, sets.defense[state.StatusDefenseMode.value])
     end

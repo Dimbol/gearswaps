@@ -888,6 +888,9 @@ end
 
 -- Modify the default idle set after it was constructed.
 function customize_idle_set(idleSet)
+    if buffactive['Reive Mark'] then
+        if player.inventory["Arciela's Grace +1"] then idleSet = set_combine(idleSet, {neck="Arciela's Grace +1"}) end
+    end
     if player.mpp < 51 and state.IdleMode.value ~= 'PDT' and state.DefenseMode.value == 'None' then
         idleSet = set_combine(idleSet, sets.latent_refresh)
     end

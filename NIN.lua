@@ -80,7 +80,7 @@ function user_setup()
     state.CastingMode:options('Enmity','Normal')                -- Cycle with F10
     state.IdleMode:options('Normal','PDT','Rf','EvaPDT')        -- Cycle with F11, reset with !F11
     state.PhysicalDefenseMode:options('EvaPDT')                 -- Cycle with !z
-    state.MagicalDefenseMode:options('MEVA')                    -- Cycle with @z, also switched by AutoHybrid
+    state.MagicalDefenseMode:options('MEVA')                    -- Cycle with @z
     state.CombatWeapon = M{['description']='Combat Weapon'}     -- Set with !^q through !^r and others
     state.CombatWeapon:options('Heishi','HeiShu','HeiBlur','HeiMalev','HeiTP','Kikoku','KiBlur','KiTP',
                                'AEDagger','SCDagger','GKatana','NaegBlur','NaegTP','None')
@@ -126,7 +126,8 @@ function user_setup()
         augments={'Mag. Acc.+19 "Mag.Atk.Bns."+19','Enmity-2','MND+4','Mag. Acc.+4','"Mag.Atk.Bns."+15'}}
     gear.herc_head_wsd  = {name="Herculean Helm",
         augments={'"Cure" spellcasting time -10%','Pet: INT+6','Weapon skill damage +9%'}}
-    gear.herc_body_wsd  = {name="Herculean Vest", augments={'INT+7','CHR+2','Weapon skill damage +5%','Accuracy+8 Attack+8'}}
+    gear.herc_body_wsd  = {name="Herculean Vest",
+        augments={'Weapon skill damage +5%','STR+8','Accuracy+6 Attack+6','Mag. Acc.+7 "Mag.Atk.Bns."+7'}}
     gear.herc_hands_wsd = {name="Herculean Gloves",
         augments={'Accuracy+25 Attack+25','Weapon skill damage +3%','DEX+3','Accuracy+14','Attack+5'}}
     gear.herc_feet_wsd  = {name="Herculean Boots",
