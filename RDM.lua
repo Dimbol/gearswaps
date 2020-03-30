@@ -58,8 +58,7 @@ function user_setup()
     state.IdleMode:options('Normal','PDT')                              -- Cycle with F11
     state.CombatWeapon = M{['description']='Combat Weapon'}             -- Cycle with @F9
     if S{'DNC','NIN'}:contains(player.sub_job) then
-        state.CombatWeapon:options('SeqTern','SeqTernBow','NaegThib','NaegThiBow',
-                                   'MaxThib','MaxThiBow','TaurTern','TaMalev','None')--,'trials')
+        state.CombatWeapon:options('SeqTern','NaegThib','MaxThib','TaurTern','TaMalev')--,'trials')
 		state.CombatForm:set('DW')
     else
         state.CombatWeapon:options('Sequence','NaegAmmu','NaegBow','Tauret','None')
@@ -620,14 +619,14 @@ function init_gear_sets()
         head="Vitiation Chapeau +1",neck="Loricate Torque +1",ear1="Genmei Earring",ear2="Etiolation Earring",
         body="Jhakri Robe +2",hands="Volte Gloves",ring1=gear.Lstikini,ring2="Defending Ring",
         back=gear.IdleCape,waist="Flume Belt +1",legs="Carmine Cuisses +1",feet="Atrophy Boots +3"}
-    -- refresh+11~12, pdt-42, mdt-19, meva+461
+    -- refresh+11~12, pdt-42, mdt-16, meva+461
     sets.idle.PDT = set_combine(sets.idle, {main="Mafic Cudgel",sub="Genmei Shield",ammo="Staunch Tathlum +1",
         body="Atrophy Tabard +3",neck="Warder's Charm +1",ear1="Thureous Earring",
         ring1="Vocane Ring +1",waist="Slipor Sash",legs="Lengo Pants",feet="Atrophy Boots +3"})
-    -- refresh+6, pdt-50, mdt-27, meva+557
-    sets.idle.MEVA = set_combine(sets.idle.PDT, {
+    -- refresh+6, pdt-50, mdt-24, meva+557
+    sets.idle.MEVA = set_combine(sets.idle.PDT, {main="Daybreak",sub="Genmei Shield",
         head="Ea Hat +1",body="Malignance Tabard",legs="Malignance Tights",feet="Malignance Boots"})
-    -- refresh+1, pdt-50, mdt-27, meva+657 FIXME
+    -- refresh+2, pdt-50, dt-41, meva+724
     sets.latent_refresh = {waist="Fucho-no-obi"}
     sets.buff.doom = {neck="Nicander's Necklace",ring1="Saida Ring",waist="Gishdubar Sash"}
 

@@ -252,10 +252,8 @@ function user_setup()
     send_command('bind !numpad5 input /ma "Cure IV" <a24>')
     send_command('bind !numpad6 input /ma "Cure IV" <a25>')
     send_command('bind ^numpad7 input /ma Paralyna  <a10>')
-    send_command('bind ^numpad8 input /ma Silena    <a10>')
     send_command('bind ^numpad9 input /ma Cursna    <a10>')
     send_command('bind !numpad7 input /ma Paralyna  <a20>')
-    send_command('bind !numpad8 input /ma Silena    <a20>')
     send_command('bind !numpad9 input /ma Cursna    <a20>')
 
     select_default_macro_book()
@@ -369,7 +367,6 @@ function user_unload()
     send_command('unbind ^numpad5')
     send_command('unbind ^numpad6')
     send_command('unbind ^numpad7')
-    send_command('unbind ^numpad8')
     send_command('unbind ^numpad9')
     send_command('unbind !numpad1')
     send_command('unbind !numpad2')
@@ -378,7 +375,6 @@ function user_unload()
     send_command('unbind !numpad5')
     send_command('unbind !numpad6')
     send_command('unbind !numpad7')
-    send_command('unbind !numpad8')
     send_command('unbind !numpad9')
 
     destroy_state_text()
@@ -556,7 +552,7 @@ function init_gear_sets()
         back=gear.MEVACape,waist="Slipor Sash",legs="Inyanga Shalwar +2",feet="Herald's Gaiters"}
     sets.idle.PDT = set_combine(sets.idle, {main="Asclepius",sub="Genmei Shield",ammo="Staunch Tathlum +1",
         neck="Warder's Charm +1",ring1="Vocane Ring +1",feet="Inyanga Crackows +2"})
-    sets.idle.MEVA = set_combine(sets.idle, {main="Reikikon",sub="Enki Strap",ammo="Staunch Tathlum +1",
+    sets.idle.MEVA = set_combine(sets.idle, {main="Daybreak",sub="Genmei Shield",ammo="Staunch Tathlum +1",
         neck="Warder's Charm +1",body="Inyanga Jubbah +2",ring1="Inyanga Ring",feet="Inyanga Crackows +2"})
     sets.idle.Rf = set_combine(sets.idle, {main="Bolelabunga",sub="Genmei Shield",ammo="Homiliary",
         ear1="Genmei Earring",ring1="Inyanga Ring",ring2=gear.Rstikini,feet="Inyanga Crackows +2"})

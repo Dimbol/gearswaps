@@ -111,7 +111,8 @@ function job_setup()
     state.Buff.Valiance = buffactive.Valiance or false
     state.Buff.Vallation = buffactive.Vallation or false
     state.Buff.Embolden = buffactive.Embolden or false
-    state.Buff.doom = buffactive.doom or false
+    state.Buff.sleep = buffactive.sleep or false
+    state.Buff.doom  = buffactive.doom or false
     state.texts_event_id = nil
     state.aeonic_aftermath_precast = false
 end
@@ -125,7 +126,7 @@ function user_setup()
     state.OffenseMode:options('Normal','None')                      -- Cycle with F9, set with !w, !@w
     state.HybridMode:options('Normal','PDef','PDef2')               -- Cycle with ^space
     state.WeaponskillMode:options('Normal','Tank','Acc')            -- Cycle with @F9
-    state.CastingMode:options('Tank','FullENM','Paranoid','MAcc')   -- Cycle with F10, reset with !F10, set with ^c, !@c
+    state.CastingMode:options('Tank','Paranoid','MAcc')             -- Cycle with F10, reset with !F10, set with ^c, !@c
     state.IdleMode:options('Normal','Refresh','Kite')               -- Cycle with F11, reset with !F11
     state.PhysicalDefenseMode:options('Parry','ParryAcc','ParryRf','Kite') -- Cycle with !z
     state.MagicalDefenseMode:options('MEVA','MDT50')                -- Cycle with @z, set to MDT50 with !@z
@@ -143,8 +144,8 @@ function user_setup()
 
     info.sird_spells = S{'Aquaveil','Crusade','Foil','Stoneskin',
         'Cocoon','Healing Breeze','Wild Carrot','Sheep Song','Stinking Gas','Geist Wall'}
-    info.recast_ids = {["One for All"]=118,["Gambit"]=116,["Rayke"]=119,["Battuta"]=120,
-        ["Pflug"]=59,["Vallation"]=23,["Valiance"]=113,["Liement"]=117}
+    info.recast_ids = L{{name="Battuta",id=120},{name="Vallation",id=23},{name="Liement",id=117},{name="Valiance",id=113},
+                        {name="One for All",id=118},{name="Gambit",id=116},{name="Rayke",id=119}}
 
     -- Mote-libs handle obis, gorgets, and other elemental things.
     -- These are default fallbacks if situationally appropriate gear is not available.
@@ -155,7 +156,8 @@ function user_setup()
     -- Augmented items get variables for convenience and specificity
     gear.TPCape   = {name="Ogma's cape", augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','"Dbl.Atk."+10','Phys. dmg. taken-10%'}}
     gear.ResoCape = {name="Ogma's cape", augments={'STR+20','Accuracy+20 Attack+20','STR+10','"Dbl.Atk."+10','Phys. dmg. taken-10%'}}
-    gear.DimiCape = {name="Ogma's cape", augments={'DEX+20','Accuracy+20 Attack+20','DEX+10','Weapon skill damage +10%','Phys. dmg. taken-10%'}}
+    gear.DimiCape = {name="Ogma's cape",
+        augments={'DEX+20','Accuracy+20 Attack+20','DEX+10','Weapon skill damage +10%','Phys. dmg. taken-10%'}}
     gear.MEVACape = {name="Ogma's cape", augments={'HP+60','Eva.+20 /Mag. Eva.+20','Mag. Evasion+10','Enmity+10','Phys. dmg. taken-10%'}}
     gear.FCCape   = {name="Ogma's cape", augments={'HP+60','HP+20','"Fast Cast"+10'}}
     gear.taeon_head_sird  = {name="Taeon Chapeau", augments={'Spell interruption rate down -7%'}}
@@ -706,7 +708,12 @@ function init_gear_sets()
         body=hpgear["Futhark Coat +3"],hands=hpgear["Runeist's Mitons +3"],ring1=gear.Lstikini,ring2=gear.Rstikini,
         back=gear.MEVACape,waist="Olympus Sash",legs=hpgear["Carmine Cuisses +1"],feet="Erilaz Greaves +1"}
     sets.midcast.Temper = set_combine(sets.midcast['Enhancing Magic'], {})
-    -- skill=523, dur+35, pdt-16, mdt-5, bdt-5, 2592 hp /drk
+    -- skill=523, dur+35, pdt-16, mdt-5, bdt-5, 2592 hp /drk (risky spell)
+    sets.midcast.Temper.Paranoid = {main=hpgear["Epeolatry"],sub="Refined Grip +1",ammo="Staunch Tathlum +1",
+        head=hpgear["Erilaz Galea +1"],neck=hpgear["Futhark Torque +2"],ear1="Andoaa Earring",ear2="Mimir Earring",
+        body=hpgear["Futhark Coat +3"],hands=hpgear["Runeist's Mitons +3"],ring1=gear.Lstikini,ring2="Defending Ring",
+        back=gear.MEVACape,waist="Flume Belt +1",legs=hpgear["Carmine Cuisses +1"],feet="Erilaz Greaves +1"}
+    -- skill=500, dur+35, pdt-50, mdt-29, bdt-29, 2652 hp /drk
     sets.midcast.Phalanx = {main="Deacon Sword",sub=empty,ammo="Staunch Tathlum +1",
         head=hpgear["Futhark Bandeau +3"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2="Mimir Earring",
         body=gear.taeon_body_phlx,hands=gear.taeon_hands_phlx,ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
@@ -1144,7 +1151,7 @@ function customize_melee_set(meleeSet)
     if state.Buff.Embolden then
         meleeSet = set_combine(meleeSet, sets.buff.Embolden)
     end
-    if state.Buff.Sleep then
+    if state.Buff.sleep then
         meleeSet = set_combine(meleeSet, sets.buff.Sleep)
     end
     if state.Buff.doom then
@@ -1298,27 +1305,29 @@ end
 -- prints recast messages using add_to_chat()
 function report_ja_recasts()
     local all_ja_recasts = windower.ffxi.get_ability_recasts()
-    local available_count = 0
-    local available_msg = "OK:"
-    local unavailable_count = 0
-    local unavailable_msg = "XX:"
+    local available_list = L{}
+    local unavailable_list = L{}
 
-    for ability,recast_id in pairs(info.recast_ids) do
-        local r = all_ja_recasts[recast_id]
+    for ability in info.recast_ids:it() do
+        local r = all_ja_recasts[ability.id]
         if r > 0 then
-            unavailable_count = unavailable_count + 1
-            unavailable_msg = unavailable_msg .. " [%s](%d)":format(ability,r)
+            unavailable_list:append({text="[%s](%d)":format(ability.name,r),r=r})
         else
-            available_count = available_count + 1
-            available_msg = available_msg .. " [%s]":format(ability)
+            available_list:append("[%s]":format(ability.name))
         end
     end
 
-    if available_count > 0 then
-        add_to_chat(121, available_msg)
+    if not available_list:empty() then
+        add_to_chat(121, "OK: " .. available_list:concat(' '))
     end
-    if unavailable_count > 0 then
-        add_to_chat(123, unavailable_msg)
+    if not unavailable_list:empty() then
+        unavailable_list:sort(function(a,b) return a.r < b.r end)
+        if unavailable_list:length() <= 5 then
+            add_to_chat(123, "XX: " .. unavailable_list:map(table.get-{'text'}):concat(' '))
+        else
+            add_to_chat(123, "XX: " .. unavailable_list:slice(1,5):map(table.get-{'text'}):concat(' '))
+            add_to_chat(123, "XX: " .. unavailable_list:slice(  6):map(table.get-{'text'}):concat(' '))
+        end
     end
 end
 

@@ -73,7 +73,7 @@ end
 
 -- Setup vars that are user-dependent.  Can override this function in a sidecar file.
 function user_setup()
-    state.OffenseMode:options('Normal','MEVA','Acc')            -- Cycle with F9 or @c
+    state.OffenseMode:options('Normal','MEVA','Acc','None')     -- Cycle with F9 or @c
     state.HybridMode:options('Normal','PDef')                   -- Cycle with ^F9
     state.RangedMode:options('Blink','Shuriken','Tathlum')      -- Cycle with !F9, set with ^-, ^=, ^backspace
     state.WeaponskillMode:options('Normal','NoDmg')             -- Cycle with @F9
@@ -83,7 +83,7 @@ function user_setup()
     state.MagicalDefenseMode:options('MEVA')                    -- Cycle with @z
     state.CombatWeapon = M{['description']='Combat Weapon'}     -- Set with !^q through !^r and others
     state.CombatWeapon:options('Heishi','HeiShu','HeiBlur','HeiMalev','HeiTP','Kikoku','KiBlur','KiTP',
-                               'AEDagger','SCDagger','GKatana','NaegBlur','NaegTP','None')
+                               'AEDagger','SCDagger','GKatana','NaegBlur','NaegTP')
     state.WSBinds = M{['description']='WS Binds',['string']=''}
 
     state.MagicBurst = M(false, 'Magic Burst')                  -- Toggle with ^z
@@ -185,7 +185,7 @@ function user_setup()
     send_command('bind !z  gs c cycle PhysicalDefenseMode')
     send_command('bind @z  gs c cycle MagicalDefenseMode')
     send_command('bind !w  gs c reset OffenseMode')
-    send_command('bind !@w gs c set CombatWeapon None')
+    send_command('bind !@w gs c set   OffenseMode None')
     send_command('bind !^q gs c set CombatWeapon AEDagger')
     send_command('bind ^@q gs c set CombatWeapon SCDagger')
     send_command('bind !^w gs c set CombatWeapon Heishi')
@@ -517,7 +517,6 @@ end
 function init_gear_sets()
 
     sets.weapons = {}
-    sets.weapons.None = {}
     sets.weapons.Heishi   = {main="Heishi Shorinken",sub="Ochu"}
     sets.weapons.HeiShu   = {main="Heishi Shorinken",sub="Shuhansadamune"}
     sets.weapons.HeiBlur  = {main="Heishi Shorinken",sub="Blurred Knife +1"}
@@ -784,7 +783,7 @@ function job_precast(spell, action, spellMap, eventArgs)
         state.aeonic_aftermath_precast = (buffactive["Aftermath: Lv.1"] or buffactive["Aftermath: Lv.2"] or buffactive["Aftermath: Lv.3"])
     elseif state.SIRDUtsu.value and spellMap == 'Utsusemi' then
         enable('main','sub')
-        state.CombatWeapon:set('None')
+        state.OffenseMode:set('None')
     end
 end
 
@@ -827,14 +826,14 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
         if state.MagicBurst.value then
             equip(sets.midcast.ElementalNinjutsu.MB)
         end
-        if state.CombatWeapon.value == 'None' and state.RangedMode.value == 'Blink' and spell.english:startswith('Raiton') then
+        if state.OffenseMode.value == 'None' and state.RangedMode.value == 'Blink' and spell.english:startswith('Raiton') then
             equip(sets.donargun)
         end
         if state.Buff.Futae then
             equip(sets.buff.Futae)
         end
     elseif spellMap == 'EnfeeblingNinjutsu' then
-        if state.CombatWeapon.value == 'None' and state.RangedMode.value == 'Blink' then
+        if state.OffenseMode.value == 'None' and state.RangedMode.value == 'Blink' then
             equip(sets.kajabow)
         end
     elseif spellMap == 'Utsusemi' then

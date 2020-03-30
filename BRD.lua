@@ -552,7 +552,7 @@ function init_gear_sets()
     sets.midcast.Threnody.MaxDur = set_combine(sets.midcast.Lullaby.MaxDur, {range="Gjallarhorn",body="Mousai Manteel +1"})
     sets.midcast['Pining Nocturne'].MaxDur = set_combine(sets.midcast.Lullaby.MaxDur, {range="Gjallarhorn"})
 
-    sets.midcast.Cure = {main="Sangoma",sub="Genmei Shield",
+    sets.midcast.Cure = {main="Daybreak",sub="Genmei Shield",
         head="Vanya Hood",neck="Loricate Torque +1",ear1="Genmei Earring",ear2="Mendicant's Earring",
         body="Chironic Doublet",hands="Inyanga Dastanas +2",ring1="Vocane Ring +1",ring2="Defending Ring",
         back="Moonbeam Cape",waist=gear.ElementalObi,legs="Ayanmo Cosciales +2",feet="Vanya Clogs"}
@@ -563,10 +563,10 @@ function init_gear_sets()
         ring1="Haoma's Ring",ring2="Haoma's Ring",feet="Vanya Clogs"}
     -- healing skill 242, cursna +45 (est. 26% success)
 
-    sets.midcast.EnhancingDuration = {main="Sangoma",sub="Ammurapi Shield",
+    sets.midcast.EnhancingDuration = {main="Daybreak",sub="Ammurapi Shield",
         head="Telchine Cap",body="Telchine Chasuble",hands="Telchine Gloves",
         waist="Embla Sash",legs="Telchine Braconi",feet="Telchine Pigaches"}
-    sets.midcast['Enhancing Magic'] = {main="Sangoma",sub="Ammurapi Shield",
+    sets.midcast['Enhancing Magic'] = {main="Daybreak",sub="Ammurapi Shield",
         head="Telchine Cap",neck="Incanter's Torque",ear1="Andoaa Earring",ear2="Mimir Earring",
         body="Telchine Chasuble",hands="Inyanga Dastanas +2",ring1=gear.Lstikini,ring2=gear.Rstikini,
         back="Perimede Cape",waist="Embla Sash",legs="Telchine Braconi",feet="Telchine Pigaches"}
@@ -600,9 +600,9 @@ function init_gear_sets()
     sets.idle.MEVA = set_combine(sets.idle, {
         neck="Warder's Charm +1",ear1="Eabani Earring",ring1="Inyanga Ring",feet="Inyanga Crackows +2"})
     -- refresh+5, pdt-34, mdt-43, meva+707
-    sets.idle.Refresh = set_combine(sets.idle.MEVA, {main="Sangoma",sub="Genmei Shield",
+    sets.idle.Refresh = set_combine(sets.idle.MEVA, {main="Daybreak",sub="Genmei Shield",
         ring1="Inyanga Ring",ring2=gear.Rstikini})
-    -- refresh+8, pdt-24, mdt-27, meva+694
+    -- refresh+8, pdt-24, mdt-27, meva+724
     sets.latent_refresh = {waist="Fucho-no-obi"}
     sets.zendik = {body="Zendik Robe"}
     sets.buff.doom = {neck="Nicander's Necklace",ring1="Saida Ring",waist="Gishdubar Sash"}
