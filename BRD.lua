@@ -1,9 +1,5 @@
 -- Modified from 'https://github.com/Kinematics/GearSwap-Jobs/blob/master/BRD.lua'
 -- Defines gearsets and job keybinds for BRD.
--- TODO lullaby pdef midcast set and toggle
--- TODO bring in nin ws bind code
--- TODO fix/extend stnpc pianissimo code
--- TODO test new pianissimo code
 
 texts = require('texts')
 
@@ -49,20 +45,20 @@ end
 
 -- Setup vars that are user-dependent.  Can override this function in a sidecar file.
 function user_setup()
-    state.OffenseMode:options('None', 'Normal', 'Acc')                  -- Cycle with F9, will swap weapon
-    state.HybridMode:options('Normal', 'PDef')                          -- Cycle with ^F9
-    state.CastingMode:options('Normal', 'Resistant')                    -- Cycle with F10
-    state.IdleMode:options('Normal', 'Refresh', 'PDT', 'MEVA')          -- Cycle with F11, reset with !F11
+    state.OffenseMode:options('None','Normal','Acc')                    -- Cycle with F9, will swap weapon
+    state.HybridMode:options('Normal','PDef')                           -- Cycle with ^F9
+    state.CastingMode:options('Normal','Resistant')                     -- Cycle with F10
+    state.IdleMode:options('Normal','Refresh','PDT','MEVA')             -- Cycle with F11, reset with !F11
     state.CombatWeapon = M{['description']='Combat Weapon'}             -- Cycle with @F9
     if S{'DNC','NIN'}:contains(player.sub_job) then
-        state.CombatWeapon:options('CarnSari','AenTwash','AenBlur','TwashCent','NaegCent','Xoanon')
+        state.CombatWeapon:options('CarnSari','AenBlur','AenTwash','TwashCent','NaegCent','Xoanon')
 		state.CombatForm:set('DW')
     else
-        state.CombatWeapon:options('Carn','Aeneas','Twashtar','Xoanon')
+        state.CombatWeapon:options('Carn','Aeneas','Twashtar','Naegling','Xoanon')
 		state.CombatForm:reset()
     end
     state.WSBinds = M{['description']='WS Binds',['string']=''}
-    state.ExtraSongsMode = M{['description']='Extra Songs', 'None', 'Dummy', 'FullLength'}  -- Set/unset with !c/!@c
+    state.ExtraSongsMode = M{['description']='Extra Songs','None','Dummy','FullLength'}  -- Set/unset with !c/!@c
     state.DummySongs = {['1']="Bewitching Etude",['2']="Enchanting Etude"}
 
     state.HarpLullaby = M(false, 'Harp Lullaby Radius')                 -- Toggle with !z
@@ -97,6 +93,7 @@ function user_setup()
     send_command('unbind ^F10')
     send_command('unbind ^F11')
     send_command('unbind ^F12')
+    send_command('bind %` gs c update user')
     send_command('bind F9   gs c cycle OffenseMode')
     send_command('bind !F9  gs c reset OffenseMode')
     send_command('bind @F9  gs c cycle CombatWeapon')
@@ -112,10 +109,11 @@ function user_setup()
     send_command('bind !@space gs c reset DefenseMode')
     send_command('bind !w  gs c   set OffenseMode Normal')
     send_command('bind !@w gs c reset OffenseMode')
-    send_command('bind !^q gs c set CombatWeapon CarnSari')
-    send_command('bind !^w gs c set CombatWeapon AenTwash')
-    send_command('bind !^e gs c set CombatWeapon TwashCent')
-    send_command('bind !^r gs c set CombatWeapon NaegCent')
+    send_command('bind !^q gs c weap Carn')
+    send_command('bind !^w gs c weap Aen')
+    send_command('bind ^@w gs c weap Aen Twash')
+    send_command('bind !^e gs c weap Twash')
+    send_command('bind !^r gs c weap Naeg')
     send_command('bind ^\\\\ gs c toggle WSMsg')
     send_command('bind ^@\\\\ gs c toggle DiaMsg')
     send_command('bind !F12 gs c cycle TreasureMode')
@@ -124,7 +122,7 @@ function user_setup()
     send_command('bind !@z gs c toggle LongSongs')
     send_command('bind !c  gs c set ExtraSongsMode Dummy')
     send_command('bind !@c gs c reset ExtraSongsMode')
-    send_command('bind ^@backspace gs c ListWS')
+    send_command('bind %\\\\ gs c ListWS')
     -- JA binds
     send_command('bind !^` input /ja "Soul Voice" <me>')
     send_command('bind ^@` input /ja "Clarion Call" <me>')
@@ -140,15 +138,12 @@ function user_setup()
 
     send_command('bind ^1  input /ma "Carnage Elegy"')
     send_command('bind ^@1 input /ma "Carnage Elegy" <stnpc>')
-    send_command('bind ^2  input /ma "Foe Lullaby II"')
-    send_command('bind ^@2 input /ma "Foe Lullaby II" <stnpc>')
+    send_command('bind ^2  input /ma "Foe Lullaby II" <stnpc>')
+    send_command('bind ^@2 input /ma Foe Lullaby <stnpc>')
     send_command('bind ^3  input /ma "Horde Lullaby II"')
     send_command('bind ^@3 input /ma "Horde Lullaby II" <stnpc>')
     send_command('bind ^4  input /ma "Pining Nocturne"')
     send_command('bind ^@4 input /ma "Foe Requiem VII"')
-
-    send_command('bind @F2 input /ma "Dia II"')
-    send_command('bind @F3 input /ma Silence')
 
     send_command('bind !3 gs c dummy 1')
     send_command('bind !4 gs c dummy 2')
@@ -187,28 +182,28 @@ function user_setup()
 
     info.weapon_type = {['Carn']='Dagger',['CarnSari']='Dagger',['Twashtar']='Dagger',['TwashCent']='Dagger',
                         ['Aeneas']='Dagger',['AenTwash']='Dagger',['AenBlur']='Dagger',
-                        ['NaegCent']='Sword',['Xoanon']='Staff'}
-    info.ws_binds = {
-        ['Dagger']={
-        [1]={bind='!^1',ws='"Energy Drain"'},
-        [2]={bind='!^2',ws='"Rudra\'s Storm"'},
-        [3]={bind='!^3',ws='"Mordant Rime"'},
-        [4]={bind='!^4',ws='"Evisceration"'},
-        [5]={bind='!^5',ws='"Exenterator"'},
-        [6]={bind='!^6',ws='"Aeolian Edge"'},
-        [7]={bind='!^7',ws='"Cyclone"'},
-        [8]={bind='!^d',ws='"Shadowstitch"'}},
-        ['Sword']={
-        [1]={bind='!^1',ws='"Sanguine Blade"'},
-        [2]={bind='!^3',ws='"Savage Blade"'},
-        [3]={bind='!^6',ws='"Circle Blade"'},
-        [4]={bind='!^d',ws='"Flat Blade"'}},
-        ['Staff']={
-        [1]={bind='!^1',ws='"Shell Crusher"'},
-        [2]={bind='!^2',ws='"Shattersoul"'},
-        [3]={bind='!^3',ws='"Retribution"'},
-        [4]={bind='!^4',ws='"Spirit Taker"'},
-        [5]={bind='!^6',ws='"Cataclysm"'}}}
+                        ['Naegling']='Sword',['NaegCent']='Sword',['Xoanon']='Staff'}
+    info.ws_binds = T{
+        ['Dagger']=L{
+            {bind='!^1|%1',ws='"Energy Drain"'},
+            {bind='!^2|%2',ws='"Rudra\'s Storm"'},
+            {bind='!^3|%3',ws='"Mordant Rime"'},
+            {bind='!^4|%4',ws='"Evisceration"'},
+            {bind='!^5|%5',ws='"Exenterator"'},
+            {bind='!^6|%6',ws='"Aeolian Edge"'},
+            {bind='!^7|%7',ws='"Cyclone"'},
+            {bind='!^d',ws='"Shadowstitch"'}},
+        ['Sword']=L{
+            {bind='!^1|%1',ws='"Sanguine Blade"'},
+            {bind='!^3|%3',ws='"Savage Blade"'},
+            {bind='!^6|%6',ws='"Circle Blade"'},
+            {bind='!^d',ws='"Flat Blade"'}},
+        ['Staff']=L{
+            {bind='!^1|%1',ws='"Shell Crusher"'},
+            {bind='!^2|%2',ws='"Shattersoul"'},
+            {bind='!^3|%3',ws='"Retribution"'},
+            {bind='!^4|%4',ws='"Spirit Taker"'},
+            {bind='!^6|%6',ws='"Cataclysm"'}}}
     set_weaponskill_keybinds()
 
     send_command('bind !b input /ma "Horde Lullaby"')
@@ -234,39 +229,10 @@ function user_setup()
         send_command('bind @6 input /ma Viruna')
         send_command('bind @7 input /ma Cursna')
         send_command('bind @F1 input /ma Erase')
+        send_command('bind @F2 input /ma "Dia II"')
+        send_command('bind @F3 input /ma Silence')
     elseif player.sub_job == 'BLM' then
         send_command('bind @` input /ja "Elemental Seal" <me>')
-    elseif player.sub_job == 'RDM' then
-        send_command('bind !1 input /ma "Cure III" <stpc>')
-        send_command('bind !2 input /ma "Cure IV" <stpc>')
-        send_command('bind !d input /ma Dispel')
-        send_command('bind !g input /ma Phalanx <me>')
-        send_command('bind !@g input /ma Stoneskin <me>')
-        send_command('bind @c input /ma Blink <me>')
-        send_command('bind @v input /ma Aquaveil <me>')
-        send_command('bind !f input /ma Haste')
-        send_command('bind !@f input /ma Flurry')
-        send_command('bind !b input /ma Refresh')
-    elseif player.sub_job == 'SCH' then
-        --send_command('bind @tab gs c penuparsi')
-        --send_command('bind @q gs c celeralac')
-        --send_command('bind ^@q gs c accemani')
-        --send_command('bind ^- input /ja "Light Arts" <me>') -- use twice for addendum
-        --send_command('bind ^= input /ja "Dark Arts" <me>')  -- use twice for addendum
-        send_command('bind !1 input /ma "Cure III" <stpc>')
-        send_command('bind !d input /ma Dispel')
-        send_command('bind !@g input /ma Stoneskin <me>')
-        send_command('bind @c input /ma Blink <me>')
-        send_command('bind @v input /ma Aquaveil <me>')
-        -- Status cure binds (never want to fumble these)
-        send_command('bind @1 input /ma Poisona')
-        send_command('bind @2 input /ma Paralyna')
-        send_command('bind @3 input /ma Blindna')
-        send_command('bind @4 input /ma Silena')
-        send_command('bind @5 input /ma Stona')
-        send_command('bind @6 input /ma Viruna')
-        send_command('bind @7 input /ma Cursna')
-        send_command('bind @F1 input /ma Erase')
     elseif player.sub_job == 'DNC' then
         send_command('bind !1 input /ja "Curing Waltz II" <stpc>')
         send_command('bind !2 input /ja "Curing Waltz III" <stpc>')
@@ -296,6 +262,7 @@ end
 
 -- Called when this job file is unloaded (eg: job change)
 function user_unload()
+    send_command('unbind %`')
     send_command('unbind ^space')
     send_command('unbind !space')
     send_command('unbind @space')
@@ -309,6 +276,7 @@ function user_unload()
     send_command('unbind !@w')
     send_command('unbind !^q')
     send_command('unbind !^w')
+    send_command('unbind ^@w')
     send_command('unbind !^e')
     send_command('unbind !^r')
     send_command('unbind ^\\\\')
@@ -355,7 +323,7 @@ function user_unload()
     send_command('unbind ^@-')
     send_command('unbind !=')
     send_command('unbind ^=')
-    send_command('unbind ^@backspace')
+    send_command('unbind %\\\\')
     send_command('unbind !backspace')
     send_command('unbind !^backspace')
     send_command('unbind !@backspace')
@@ -374,6 +342,13 @@ function user_unload()
     send_command('unbind !^5')
     send_command('unbind !^6')
     send_command('unbind !^7')
+    send_command('unbind %1')
+    send_command('unbind %2')
+    send_command('unbind %3')
+    send_command('unbind %4')
+    send_command('unbind %5')
+    send_command('unbind %6')
+    send_command('unbind %7')
     send_command('unbind !^d')
     send_command('unbind !^b')
     send_command('unbind !1')
@@ -422,6 +397,7 @@ function init_gear_sets()
     sets.weapons.AenTwash  = {main="Aeneas",sub="Twashtar"}
     sets.weapons.TwashBlur = {main="Twashtar",sub="Blurred Knife +1"}
     sets.weapons.TwashCent = {main="Twashtar",sub="Centovente"}
+    sets.weapons.Naegling  = {main="Naegling",sub="Centovente"}
     sets.weapons.NaegCent  = {main="Naegling",sub="Centovente"}
     sets.weapons.Xoanon    = {main="Xoanon",sub="Bloodrain Strap"}
     sets.weapons.Sari      = {main="Taming Sari",sub="Genmei Shield"}
@@ -590,7 +566,7 @@ function init_gear_sets()
 
     -- Sets to return to when not performing an action.
 
-    sets.idle = {main="Odium",sub="Genmei Shield",
+    sets.idle = {main="Daybreak",sub="Genmei Shield",
         head="Inyanga Tiara +2",neck="Loricate Torque +1",ear1="Genmei Earring",ear2="Etiolation Earring",
         body="Inyanga Jubbah +2",hands="Volte Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.MEVACape,waist="Flume Belt +1",legs="Inyanga Shalwar +2",feet="Fili Cothurnes +1"}
@@ -605,7 +581,7 @@ function init_gear_sets()
     -- refresh+8, pdt-24, mdt-27, meva+724
     sets.latent_refresh = {waist="Fucho-no-obi"}
     sets.zendik = {body="Zendik Robe"}
-    sets.buff.doom = {neck="Nicander's Necklace",ring1="Saida Ring",waist="Gishdubar Sash"}
+    sets.buff.doom = {neck="Nicander's Necklace",ring1="Eshmun's Ring",waist="Gishdubar Sash"}
 
     sets.defense.PDT = sets.idle.PDT
     sets.defense.MDT = sets.idle.MEVA
@@ -839,17 +815,19 @@ end
 
 -- Modify the default idle set after it was constructed.
 function customize_idle_set(idleSet)
-    if player.mpp < 51 and state.IdleMode.value == 'Refresh' and S{'WHM','SCH','RDM'}:contains(player.sub_job) then
-        idleSet = set_combine(idleSet, sets.latent_refresh)
-    end
-    if state.ZendikIdle.value and state.DefenseMode.value == 'None' then
-        idleSet = set_combine(idleSet, sets.zendik)
-    end
-    if state.Fishing.value and state.DefenseMode.value == 'None' then
-        idleSet = set_combine(idleSet, sets.Fishing)
-        if state.Kiting.value then
-            idleSet = set_combine(idleSet, sets.Kiting)
+    if state.DefenseMode.value == 'None' then
+        if player.mpp < 51 and state.IdleMode.value == 'Refresh' and S{'WHM','SCH','RDM'}:contains(player.sub_job) then
+            idleSet = set_combine(idleSet, sets.latent_refresh)
         end
+        if state.ZendikIdle.value then
+            idleSet = set_combine(idleSet, sets.zendik)
+        end
+        if state.Fishing.value then
+            idleSet = set_combine(idleSet, sets.Fishing)
+        end
+    end
+    if has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
+        idleSet = set_combine(sets.defense.PDT, {})
     end
     if state.Buff.doom then
         idleSet = set_combine(idleSet, sets.buff.doom)
@@ -859,13 +837,11 @@ end
 
 -- Modify the default melee set after it was constructed.
 function customize_melee_set(meleeSet)
-    if state.CombatWeapon.value == 'None' then
-        meleeSet = sets.idle[state.IdleMode.value] or sets.idle
-        if player.mpp < 51 and state.IdleMode.value == 'Refresh' and S{'WHM','SCH','RDM'}:contains(player.sub_job) then
-            meleeSet = set_combine(meleeSet, sets.latent_refresh)
-        end
-    else
+    if state.DefenseMode.value == 'None' then
         meleeSet = set_combine(meleeSet, sets.weapons[state.CombatWeapon.value])
+    end
+    if has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
+        meleeSet = set_combine(sets.defense.PDT, {})
     end
     if state.Buff.doom then
         meleeSet = set_combine(meleeSet, sets.buff.doom)
@@ -887,7 +863,7 @@ function display_current_job_state(eventArgs)
     local msg = ''
     eventArgs.handled = true
 
-    if state.OffenseMode.value ~= 'None' and state.CombatWeapon.value ~= 'None' then
+    if state.OffenseMode.value ~= 'None' then
         msg = 'TP['
         msg = msg .. state.CombatWeapon.value
         if state.OffenseMode.value ~= 'Normal' then
@@ -977,8 +953,29 @@ function job_self_command(cmdParams, eventArgs)
         end
     elseif cmdParams[1] == 'ListWS' then
         add_to_chat(122, 'ListWS:')
-        for _,ws in ipairs(info.ws_binds[info.weapon_type[state.CombatWeapon.value]]) do
+        for ws in info.ws_binds[info.weapon_type[state.CombatWeapon.value]]:it() do
             add_to_chat(122, "%3s : %s":format(ws.bind,ws.ws))
+        end
+    elseif cmdParams[1] == 'weap' then
+        -- sets CombatWeapon to the first matching value by prefix and optional suffix
+        if #cmdParams < 2 then return end
+        local prefix = cmdParams[2] or nil
+        local suffix = cmdParams[3] or nil
+        local weapons = L{}
+        for i,v in ipairs(state.CombatWeapon) do
+            if type(v) == 'string' then weapons:append(v) end
+        end
+
+        weapons = weapons:filter(function(w) return w:startswith(prefix) end)
+        if suffix then
+            local weapons_with_suffix = weapons:filter(function(w) return w:endswith(suffix) end)
+            if not weapons_with_suffix:empty() then weapons = weapons_with_suffix end
+        end
+
+        if weapons:empty() then
+            add_to_chat(123, 'no matching weapon for '..prefix..''..(suffix and '..'..suffix or ''))
+        else
+            handle_set({'CombatWeapon',weapons[1]})
         end
     elseif cmdParams[1] == 'mooglehp' then
         equip({neck="Sanctity Necklace",ear1="Thureous Earring",ear2="Etiolation Earring",
@@ -993,7 +990,7 @@ end
 
 -- Handle auto-targetting based on local setup.
 function job_auto_change_target(spell, action, spellMap, eventArgs)
-    if spell.target.raw == ('<stpc>') then
+    if spell.target.raw == '<stpc>' then
         if spell.type == 'BardSong' then
             if state.Buff.Pianissimo then
                 if player.target and player.target.isallymember then
@@ -1019,12 +1016,20 @@ function job_auto_change_target(spell, action, spellMap, eventArgs)
         elseif 'NPC' == player.target.type and player.target.name ~= 'Luopan' then
             add_to_chat(122,'Is this a trust? ['..player.target.name..']')
         end
-    elseif spell.target.raw == ('<t>') and spell.targets.Enemy then
+    elseif spell.target.raw == '<stnpc>' and spell.targets.Enemy and player.status ~= 'Engaged' then
+        if 'MONSTER' == player.target.type
+        or 'PLAYER'  == player.target.type and windower.ffxi.get_mob_by_index(player.target.index).charmed then
+            -- Likewise for crowd-control while unengaged.
+            change_target('<t>')
+            eventArgs.handled = true
+        end
+    elseif spell.target.raw == '<t>' and spell.targets.Enemy and player.target.type ~= 'MONSTER' then
         if not player.target.name
-        or S{'SELF','PLAYER'}:contains(player.target.type)
-        or 'NPC' == player.target.type and (npcs.Trust:contains(player.target.name) or player.target.name == 'Luopan') then
-            if not S{'Cure','Lullaby'}:contains(spellMap) then
-                -- Change some enfeebles to fall back to <bt> when watching a player.
+        or 'SELF'   == player.target.type
+        or 'PLAYER' == player.target.type and not windower.ffxi.get_mob_by_index(player.target.index).charmed
+        or 'NPC'    == player.target.type and (npcs.Trust:contains(player.target.name) or player.target.name == 'Luopan') then
+            if spellMap ~= 'Cure' then
+                -- Change enfeebles and such to fall back to <bt> when watching a player.
                 change_target('<bt>')
                 eventArgs.handled = true
             end
@@ -1147,10 +1152,7 @@ function set_weaponskill_keybinds()
     if state.CombatWeapon.value == 'None' then return end
     local cur_weapon_type = info.weapon_type[state.CombatWeapon.value]
     if state.WSBinds.value ~= cur_weapon_type then
-        for _,ws in ipairs(info.ws_binds[cur_weapon_type]) do
-            --if state.WSBinds.has_value then
-            --    add_to_chat(104, "bind %s input /ws %s":format(ws.bind,ws.ws))
-            --end
+        for ws in info.ws_binds[cur_weapon_type]:it() do
             send_command("bind %s input /ws %s":format(ws.bind,ws.ws))
         end
         state.WSBinds:set(cur_weapon_type)

@@ -61,19 +61,20 @@ end
 
 -- Setup vars that are user-dependent.  Can override this function in a sidecar file.
 function user_setup()
-    state.OffenseMode:options('Normal','MDef','Acc','Acc+')     -- Cycle with F9, set with !w, @c, !c, !@c
+    state.OffenseMode:options('Normal','MDef','Acc')            -- Cycle with F9, set with !w, @c, !c, !@c
     state.HybridMode:options('Normal','PDef')                   -- Cycle with ^F9
     state.WeaponskillMode:options('Normal','Acc','NoDmg')       -- Cycle with @F9
     state.CastingMode:options('TH','MAcc')                      -- Cycle with F10
     state.IdleMode:options('Normal','Eva','Rf','STP')           -- Cycle with F11
     state.PhysicalDefenseMode:options('EvaPDT','EvaEng','Kite') -- Cycle with !z
-    state.MagicalDefenseMode:options('MEVA','MEVATH')           -- Cycle with @z
+    state.MagicalDefenseMode:options('MEVA')                    -- Cycle with @z
     state.CombatWeapon = M{['description']='Combat Weapon'}     -- Set with !^q/w/e/r, !@w, ^@w
     state.CombatWeapon:options('TwashSari','TwashCent','TwashGand','TaurSari','TaurShijo','AenSari','AenTwash',
-                               'GandSari','GandCent','GandTwash','GandEva','NaegSari','NaegCent')
+                               'GandSari','GandCent','GandTwash','GandEva','NaegBlur','NaegCent')
     state.WSBinds = M{['description']='WS Binds',['string']=''}
 
     state.WSMsg     = M(false, 'WS Message')                    -- Toggle with ^\
+    state.THAeolian = M(false, 'TH Aeolian')                    -- Toggle with ^z
     init_state_text()
 
     info.magic_ws = S{'Aeolian Edge','Cyclone','Gust Slash','Energy Steal','Energy Drain',
@@ -124,6 +125,7 @@ function user_setup()
     -- Additional local binds
     send_command('unbind ^F10')
     send_command('unbind ^F11')
+    send_command('bind %` gs c update user')
     send_command('bind F9   gs c cycle OffenseMode')
     send_command('bind !F9  gs c reset OffenseMode')
     send_command('bind F10  gs c cycle CastingMode')
@@ -142,18 +144,18 @@ function user_setup()
     send_command('bind !w  gs c reset OffenseMode')
     send_command('bind @c  gs c set OffenseMode MDef')
     send_command('bind !c  gs c set OffenseMode Acc')
-    send_command('bind !@c gs c set OffenseMode Acc+')
     send_command('bind !^q gs c set CombatWeapon TaurShijo')
     send_command('bind !^w gs c set CombatWeapon GandCent')
-    send_command('bind !^e gs c set CombatWeapon TwashCent')
-    send_command('bind ^@e gs c set CombatWeapon TwashGand')
-    send_command('bind !^r gs c set CombatWeapon NaegCent')
-    send_command('bind !@w gs c set CombatWeapon AenSari')
+    send_command('bind !@w gs c set CombatWeapon NaegBlur')
     send_command('bind ^@w gs c set CombatWeapon AenTwash')
+    send_command('bind !^e gs c set CombatWeapon TwashCent')
+    send_command('bind ^@e gs c set CombatWeapon TwashSari')
+    send_command('bind !^r gs c set CombatWeapon NaegCent')
+    send_command('bind ^z gs c toggle THAeolian')
     send_command('bind !z gs c cycle PhysicalDefenseMode')
     send_command('bind @z gs c cycle MagicalDefenseMode')
     send_command('bind ^\\\\ gs c toggle WSMsg')
-    send_command('bind ^@\\\\ gs c ListWS')
+    send_command('bind %\\\\ gs c ListWS')
 
     send_command('bind !^` input /ja "Perfect Dodge" <me>')
     send_command('bind ^@` input /ja Larceny')
@@ -167,27 +169,20 @@ function user_setup()
     send_command('bind @q input /ja Despoil')
     send_command('bind !b input //cancel haste')
     send_command('bind @g gs equip phlx')
-    send_command('bind !n input /item "Thief\'s Tools" <t>')
     send_command('bind @n input /item "Living Key" <t>')
 
-    send_command('bind @F1 input /ja Collaborator <stpc>')
-    send_command('bind @F2 input /ja Collaborator <p1>')
-    send_command('bind @F3 input /ja Collaborator <p2>')
-    send_command('bind @F4 input /ja Collaborator <p3>')
-    send_command('bind @F5 input /ja Collaborator <p4>')
-    send_command('bind @F6 input /ja Collaborator <p5>')
-    send_command('bind !@F1 input /ja Accomplice <stpc>')
-    send_command('bind !@F2 input /ja Accomplice <p1>')
-    send_command('bind !@F3 input /ja Accomplice <p2>')
-    send_command('bind !@F4 input /ja Accomplice <p3>')
-    send_command('bind !@F5 input /ja Accomplice <p4>')
-    send_command('bind !@F6 input /ja Accomplice <p5>')
     send_command('bind ^@1 input /ja Collaborator <stpc>')
     send_command('bind ^@2 input /ja Collaborator <p1>')
     send_command('bind ^@3 input /ja Collaborator <p2>')
     send_command('bind ^@4 input /ja Collaborator <p3>')
     send_command('bind ^@5 input /ja Collaborator <p4>')
     send_command('bind ^@6 input /ja Collaborator <p5>')
+    send_command('bind ~^1 input /ja Accomplice <stpc>')
+    send_command('bind ~^2 input /ja Accomplice <p1>')
+    send_command('bind ~^3 input /ja Accomplice <p2>')
+    send_command('bind ~^4 input /ja Accomplice <p3>')
+    send_command('bind ~^5 input /ja Accomplice <p4>')
+    send_command('bind ~^6 input /ja Accomplice <p5>')
 
     send_command('bind !1 input /ja Feint')
     send_command('bind !2 input /ja Bully')
@@ -202,64 +197,65 @@ function user_setup()
                         ['TaurSari']='Dagger',['TaurShijo']='Dagger',
                         ['AenSari']='Dagger',['AenTwash']='Dagger',
                         ['GandSari']='Dagger',['GandCent']='Dagger',['GandTwash']='Dagger',['GandEva']='Dagger',
-                        ['NaegSari']='Sword',['NaegCent']='Sword'}
-    info.ws_binds = {
-        ['Dagger']={
-        [1]={bind='^1',ws='"Evisceration"'},
-        [2]={bind='^2',ws='"Rudra\'s Storm"'},
-        [3]={bind='^3',ws='"Mandalic Stab"'},
-        [4]={bind='^4',ws='"Shark Bite"'},
-        [5]={bind='^5',ws='"Exenterator"'},
-        [6]={bind='^6',ws='"Aeolian Edge"'},
-        [7]={bind='!^1',ws='"Evisceration" <stnpc>'},
-        [8]={bind='!^2',ws='"Rudra\'s Storm" <stnpc>'},
-        [9]={bind='!^3',ws='"Mandalic Stab" <stnpc>'},
-        [10]={bind='!^4',ws='"Shark Bite" <stnpc>'},
-        [11]={bind='!^5',ws='"Exenterator" <stnpc>'},
-        [12]={bind='!^6',ws='"Cyclone" <stnpc>'},
-        [13]={bind='!^d',ws='"Shadowstitch"'}},
-        ['Sword']={
-        [1]={bind='^1',ws='"Sanguine Blade"'},
-        [2]={bind='^2',ws='"Vorpal Blade"'},
-        [3]={bind='^3',ws='"Savage Blade"'},
-        [4]={bind='^4',ws='"Red Lotus Blade"'},
-        [5]={bind='^5',ws='"Seraph Blade"'},
-        [6]={bind='^6',ws='"Circle Blade"'},
-        [7]={bind='!^d',ws='"Flat Blade"'}}}
+                        ['NaegBlur']='Sword',['NaegCent']='Sword'}
+    info.ws_binds = T{
+        ['Dagger']=L{
+            {bind='^1|%1',ws='"Evisceration"'},
+            {bind='^2|%2',ws='"Rudra\'s Storm"'},
+            {bind='^3|%3',ws='"Mandalic Stab"'},
+            {bind='^4|%4',ws='"Shark Bite"'},
+            {bind='^5|%5',ws='"Exenterator"'},
+            {bind='^6|%6',ws='"Aeolian Edge"'},
+            {bind='!^1',ws='"Evisceration" <stnpc>'},
+            {bind='!^2',ws='"Rudra\'s Storm" <stnpc>'},
+            {bind='!^3',ws='"Mandalic Stab" <stnpc>'},
+            {bind='!^4',ws='"Shark Bite" <stnpc>'},
+            {bind='!^5',ws='"Exenterator" <stnpc>'},
+            {bind='!^6',ws='"Cyclone" <stnpc>'},
+            {bind='!^d',ws='"Shadowstitch"'}},
+        ['Sword']=L{
+            {bind='^1|%1',ws='"Sanguine Blade"'},
+            {bind='^2|%2',ws='"Vorpal Blade"'},
+            {bind='^3|%3',ws='"Savage Blade"'},
+            {bind='^4|%4',ws='"Red Lotus Blade"'},
+            {bind='^5|%5',ws='"Seraph Blade"'},
+            {bind='^6|%6',ws='"Circle Blade"'},
+            {bind='!^d',ws='"Flat Blade"'}}}
     set_weaponskill_keybinds()
 
     if     player.sub_job == 'WAR' then
-        send_command('bind !4 input /ja Berserk <me>')
-        send_command('bind !5 input /ja Aggressor <me>')
-        send_command('bind !6 input /ja Warcry <me>')
-        send_command('bind !d input /ja Provoke')
-        send_command('bind @d input /ja Provoke <stnpc>')
+        send_command('bind !4  input /ja Berserk <me>')
+        send_command('bind !5  input /ja Aggressor <me>')
+        send_command('bind !6  input /ja Warcry <me>')
+        send_command('bind !d  input /ja Provoke')
+        send_command('bind @d  input /ja Provoke <stnpc>')
         send_command('bind !@d input /ja Defender <me>')
     elseif player.sub_job == 'DRK' then
-        send_command('bind !4 input /ja "Last Resort" <me>')
-        send_command('bind !5 input /ja Souleater <me>')
-        send_command('bind !6 input /ja "Arcane Circle" <me>')
-        send_command('bind !d input /ma Stun')
-        send_command('bind @d input /ma Stun <stnpc>')
+        send_command('bind !4  input /ja "Last Resort" <me>')
+        send_command('bind !5  input /ja Souleater <me>')
+        send_command('bind !6  input /ja "Arcane Circle" <me>')
+        send_command('bind !d  input /ma Stun')
+        send_command('bind @d  input /ma Stun <stnpc>')
+        send_command('bind !@d input /ma Poisonga <stnpc>')
     elseif player.sub_job == 'DRG' then
-        send_command('bind !4 input /ja "High Jump"')
-        send_command('bind !6 input /ja "Ancient Circle" <me>')
+        send_command('bind !4  input /ja "High Jump"')
+        send_command('bind !6  input /ja "Ancient Circle" <me>')
         send_command('bind !e  input /ja "High Jump"')
         send_command('bind !@e input /ja Jump')
     elseif player.sub_job == 'NIN' then
-        send_command('bind !e input /ma "Utsusemi: Ni" <me>')
+        send_command('bind !e  input /ma "Utsusemi: Ni" <me>')
         send_command('bind !@e input /ma "Utsusemi: Ichi" <me>')
     elseif player.sub_job == 'DNC' then
-        send_command('bind !4 input /recast "Curing Waltz III"; input /ja "Curing Waltz III" <stpc>')
-        send_command('bind !5 input /recast "Healing Waltz"; input /ja "Healing Waltz" <stpc>')
-        send_command('bind !6 input /ja "Divine Waltz" <me>')
-        send_command('bind !v input /ja "Spectral Jig" <me>')
-        send_command('bind !d input /ja "Animated Flourish"')
-        send_command('bind @d input /ja "Animated Flourish" <stnpc>')
+        send_command('bind !4  input /recast "Curing Waltz III"; input /ja "Curing Waltz III" <stpc>')
+        send_command('bind !5  input /recast "Healing Waltz"; input /ja "Healing Waltz" <stpc>')
+        send_command('bind !6  input /ja "Divine Waltz" <me>')
+        send_command('bind !v  input /ja "Spectral Jig" <me>')
+        send_command('bind !d  input /ja "Animated Flourish"')
+        send_command('bind @d  input /ja "Animated Flourish" <stnpc>')
         send_command('bind !@d input /ja "Violent Flourish"')
-        send_command('bind !f input /ja "Haste Samba" <me>')
+        send_command('bind !f  input /ja "Haste Samba" <me>')
         send_command('bind !@f input /ja "Reverse Flourish" <me>')
-        send_command('bind !e input /ja "Box Step"')
+        send_command('bind !e  input /ja "Box Step"')
         send_command('bind !@e input /ja Quickstep')
     elseif player.sub_job == 'RUN' then
         send_command('bind @1 input /ja Ignis <me>')    -- fire up,    ice down
@@ -282,16 +278,19 @@ function user_setup()
         send_command('bind !6 input /ja "Warding Circle" <me>')
         send_command('bind !d input /ja "Third Eye" <me>')
     elseif player.sub_job == 'BLM' then
-        send_command('bind !e input /ma Sleepga')
-        send_command('bind @e input /ma Sleepga <stnpc>')
+        send_command('bind !e  input /ma Sleepga')
+        send_command('bind @e  input /ma Sleepga <stnpc>')
         send_command('bind !@e input /ja "Elemental Seal" <me>')
-        send_command('bind !d input /ma Stun')
-        send_command('bind @d input /ma Stun <stnpc>')
+        send_command('bind !d  input /ma Stun')
+        send_command('bind @d  input /ma Stun <stnpc>')
     elseif player.sub_job == 'RDM' then
-        send_command('bind !5 input /ma Haste <me>')
-        send_command('bind !6 input /ma Refresh <me>')
-        send_command('bind !f input /ma Haste <me>')
-        send_command('bind !g input /ma Phalanx <me>')
+        send_command('bind !d  input /ma Dispel')
+        send_command('bind @d  input /ma Diaga <stnpc>')
+        send_command('bind !f  input /ma Haste <me>')
+        send_command('bind @f  input /ma Refresh <me>')
+        send_command('bind @v  input /ma Aquaveil <me>')
+        send_command('bind !g  input /ma Phalanx <me>')
+        send_command('bind !@g input /ma Stoneskin <me>')
     end
 
     select_default_macro_book()
@@ -299,6 +298,7 @@ end
 
 -- Called when this job file is unloaded (eg: job change)
 function user_unload()
+    send_command('unbind %`')
     send_command('unbind ^F12')
     send_command('unbind !F12')
     send_command('unbind @F12')
@@ -318,6 +318,7 @@ function user_unload()
     send_command('unbind @c')
     send_command('unbind !c')
     send_command('unbind !@c')
+    send_command('unbind ^z')
     send_command('unbind !z')
     send_command('unbind @z')
     send_command('unbind !^`')
@@ -330,30 +331,30 @@ function user_unload()
     send_command('unbind ^`')
     send_command('unbind ^q')
     send_command('unbind ^@`')
-    send_command('unbind @F1')
-    send_command('unbind @F2')
-    send_command('unbind @F3')
-    send_command('unbind @F4')
-    send_command('unbind @F5')
-    send_command('unbind @F6')
-    send_command('unbind !@F1')
-    send_command('unbind !@F2')
-    send_command('unbind !@F3')
-    send_command('unbind !@F4')
-    send_command('unbind !@F5')
-    send_command('unbind !@F6')
     send_command('unbind ^@1')
     send_command('unbind ^@2')
     send_command('unbind ^@3')
     send_command('unbind ^@4')
     send_command('unbind ^@5')
     send_command('unbind ^@6')
+    send_command('unbind ~^1')
+    send_command('unbind ~^2')
+    send_command('unbind ~^3')
+    send_command('unbind ~^4')
+    send_command('unbind ~^5')
+    send_command('unbind ~^6')
     send_command('unbind ^1')
     send_command('unbind ^2')
     send_command('unbind ^3')
     send_command('unbind ^4')
     send_command('unbind ^5')
     send_command('unbind ^6')
+    send_command('unbind %1')
+    send_command('unbind %2')
+    send_command('unbind %3')
+    send_command('unbind %4')
+    send_command('unbind %5')
+    send_command('unbind %6')
     send_command('unbind ^@1')
     send_command('unbind ^@2')
     send_command('unbind ^@3')
@@ -371,19 +372,23 @@ function user_unload()
     send_command('unbind @1')
     send_command('unbind !v')
     send_command('unbind !d')
+    send_command('unbind @d')
     send_command('unbind !@d')
     send_command('unbind !f')
+    send_command('unbind @f')
     send_command('unbind !@f')
     send_command('unbind !g')
     send_command('unbind @g')
+    send_command('unbind !@g')
     send_command('unbind !e')
     send_command('unbind @e')
     send_command('unbind !@e')
+    send_command('unbind @v')
     send_command('unbind !b')
     send_command('unbind !n')
     send_command('unbind @n')
     send_command('unbind ^\\\\')
-    send_command('unbind ^@\\\\')
+    send_command('unbind %\\\\')
 
     destroy_state_text()
 end
@@ -395,7 +400,6 @@ function init_gear_sets()
     sets.weapons.TwashSari = {main="Twashtar",sub="Taming Sari"}
     sets.weapons.TwashCent = {main="Twashtar",sub="Centovente"}
     sets.weapons.TwashGand = {main="Twashtar",sub="Gandring"}
-    --sets.weapons.TwashJugo = {main="Twashtar",sub="Jugo Kukri +1"}
     sets.weapons.GandSari  = {main="Gandring",sub="Taming Sari"}
     sets.weapons.GandCent  = {main="Gandring",sub="Centovente"}
     sets.weapons.GandTwash = {main="Gandring",sub="Twashtar"}
@@ -404,14 +408,14 @@ function init_gear_sets()
     sets.weapons.TaurShijo = {main="Tauret",sub="Shijo"}
     sets.weapons.AenSari   = {main="Aeneas",sub="Taming Sari"}
     sets.weapons.AenTwash  = {main="Aeneas",sub="Twashtar"}
-    sets.weapons.NaegSari  = {main="Naegling",sub="Taming Sari"}
+    sets.weapons.NaegBlur  = {main="Naegling",sub="Blurred Knife +1"}
     sets.weapons.NaegCent  = {main="Naegling",sub="Centovente"}
 
     sets.TreasureHunter1 = {waist="Chaac Belt"}                               -- for gandring/sari
     sets.TreasureHunter2 = {hands="Plunderer's Armlets +3"}                   -- for gandring/X
     sets.TreasureHunter4 = {hands="Plunderer's Armlets +3"}                   -- for X/sari
     sets.TreasureHunter5 = {hands="Plunderer's Armlets +3",waist="Chaac Belt"}
-    sets.TreasureHunter = sets.TreasureHunter4
+    sets.TreasureHunter  = set_combine(sets.TreasureHunter4, {})
     sets.buff['Sneak Attack'] = {hands="Skulker's Armlets +1"}
     sets.buff['Trick Attack'] = {body="Plunderer's Vest +3"}
     --sets.buff['Trick Attack'] = {body="Plunderer's Vest +3",hands="Pillager's Armlets +3"}
@@ -458,7 +462,7 @@ function init_gear_sets()
         body="Ashera Harness",hands="Meghanada Gloves +2",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.TPCape,waist="Chaac Belt",legs="Mummu Kecks +2",feet="Mummu Gamashes +2"}
     sets.precast.Step = {ammo="Yamarang",
-        head="Mummu Bonnet +2",neck="Assassin's Gorget +2",ear1="Telos Earring",ear2="Odr Earring",
+        head="Malignance Chapeau",neck="Assassin's Gorget +2",ear1="Telos Earring",ear2="Odr Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1="Cacoethic Ring +1",ring2="Ilabrat Ring",
         back=gear.TPCape,waist="Reiki Yotai",legs="Malignance Tights",feet="Malignance Boots"}
     sets.precast.JA['Violent Flourish'] = set_combine(sets.precast.Step, {ring1="Etana Ring",waist="Eschan Stone"})
@@ -505,18 +509,16 @@ function init_gear_sets()
     sets.precast.WS['Vorpal Blade']   = set_combine(sets.precast.WS.Evisceration, {})
 
     sets.precast.WS.Shadowstitch = {ammo="Yamarang",
-        head="Mummu Bonnet +2",neck="Assassin's Gorget +2",ear1="Telos Earring",ear2="Dignitary's Earring",
+        head="Malignance Chapeau",neck="Assassin's Gorget +2",ear1="Telos Earring",ear2="Dignitary's Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1="Etana Ring",ring2="Cacoethic Ring +1",
-        back=gear.TPCape,waist="Eschan Stone",legs="Malignance Tights",feet="Mummu Gamashes +2"}
+        back=gear.TPCape,waist="Eschan Stone",legs="Malignance Tights",feet="Malignance Boots"}
     sets.precast.WS['Flat Blade'] = set_combine(sets.precast.WS.Shadowstitch, {})
 
     sets.precast.WS['Aeolian Edge'] = {ammo="Pemphredo Tathlum",
         head=gear.herc_head_ma,neck="Sanctity Necklace",ear1="Moonshade Earring",ear2="Friomisi Earring",
         body="Samnuha Coat",hands=gear.herc_hands_ma,ring1="Dingir Ring",ring2="Ilabrat Ring",
         back=gear.WSDCape,waist="Fotia Belt",legs=gear.herc_legs_ma2,feet=gear.herc_feet_ma}
-    sets.precast.WS['Aeolian Edge'].TH = set_combine(sets.precast.WS['Aeolian Edge'], {waist="Chaac Belt",feet="Skulker's Poulaines +1"})
     sets.precast.WS.Cyclone            = set_combine(sets.precast.WS['Aeolian Edge'], {})
-    sets.precast.WS.Cyclone.TH         = set_combine(sets.precast.WS['Aeolian Edge'].TH, {})
     sets.precast.WS['Sanguine Blade']  = set_combine(sets.precast.WS['Aeolian Edge'], {head="Pixie Hairpin +1",ring1="Archon Ring"})
 
     sets.precast.WS.NoDmg = set_combine(sets.precast.Step, {})
@@ -524,24 +526,27 @@ function init_gear_sets()
     -- Midcast Sets
     sets.midcast.RA = {ammo="Dart"}
     sets.midcast.Utsusemi = {ammo="Staunch Tathlum +1",
-        head="Turms Cap +1",neck="Loricate Torque +1",ear1="Eabani Earring",ear2="Genmei Earring",
+        head="Malignance Chapeau",neck="Assassin's Gorget +2",ear1="Eabani Earring",ear2="Genmei Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.IdleCape,waist="Goading Belt",legs="Malignance Tights",feet="Turms Leggings +1"}
+        back=gear.IdleCape,waist="Sveltesse Gouriz +1",legs="Malignance Tights",feet="Turms Leggings +1"}
     sets.phlx = set_combine(sets.midcast.Utsusemi, {head=gear.taeon_head_phlx,body=gear.taeon_body_phlx,
         hands=gear.taeon_hands_phlx,legs=gear.taeon_legs_phlx,feet=gear.taeon_feet_phlx})
     sets.midcast.BarElement = {neck="Incanter's Torque",ear1="Andoaa Earring",ear2="Mimir Earring",
         ring1=gear.Lstikini,ring2=gear.Rstikini,waist="Olympus Sash"}
     sets.midcast.Phalanx = set_combine(sets.phlx, sets.midcast.BarElement)  -- tiers every 10 skill up to 300
     sets.midcast['Enfeebling Magic'] = {ammo="Yamarang",
-        head="Mummu Bonnet +2",neck="Assassin's Gorget +2",ear1="Gwati Earring",ear2="Dignitary's Earring",
+        head="Malignance Chapeau",neck="Assassin's Gorget +2",ear1="Gwati Earring",ear2="Dignitary's Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1=gear.Lstikini,ring2=gear.Rstikini,
         back=gear.IdleCape,waist="Eschan Stone",legs="Malignance Tights",feet="Malignance Boots"}
     sets.midcast.Repose = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast.Refresh = {waist="Gishdubar Sash"}
     sets.midcast.Flash = set_combine(sets.Enmity, {})
-    sets.midcast.Stun  = set_combine(sets.Enmity, sets.TreasureHunter)
+    sets.midcast.Stun  = set_combine(sets.Enmity, {})
     sets.midcast.Sleepga = set_combine(sets.midcast.Utsusemi, sets.TreasureHunter)
     sets.midcast.Sleepga.MAcc = set_combine(sets.midcast['Enfeebling Magic'], {})
+    sets.midcast.Diaga    = set_combine(sets.midcast.Utsusemi, sets.TreasureHunter)
+    sets.midcast.Poisonga = set_combine(sets.midcast.Utsusemi, sets.TreasureHunter)
+    info.th_gearsets = T{'Sleepga','Diaga','Poisonga'}
 
     -- Sets to return to when not performing an action.
     sets.idle = {ammo="Yamarang",
@@ -566,25 +571,21 @@ function init_gear_sets()
     sets.defense.EvaPDT = set_combine(sets.idle.Eva, {ammo="Staunch Tathlum +1",waist="Flume Belt +1"})
     -- pdt-50, mdt-37, rg+19, eva~1290, meva+674
     sets.defense.EvaEng = {ammo="Yamarang",
-        head="Turms Cap +1",neck="Assassin's Gorget +2",ear1="Telos Earring",ear2="Sherida Earring",
+        head="Malignance Chapeau",neck="Assassin's Gorget +2",ear1="Telos Earring",ear2="Sherida Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1="Moonlight Ring",ring2="Defending Ring",
         back=gear.TPCape,waist="Reiki Yotai",legs="Malignance Tights",feet="Malignance Boots"}
-    -- pdt-50, mdt-40, rg+7, eva~1246, meva+675
-    -- TwashCent: acc~1326/1100, haste+26, dw+7, stp+74, da+6, ta+4
+    -- pdt-50, mdt-46, eva~1238, meva+689
+    -- TwashCent: acc~1325/1099, haste+26, dw+7, stp+82, da+6, ta+4
     sets.defense.Eva = set_combine(sets.idle.Eva, {})
     sets.defense.Kite = set_combine(sets.idle, {})
     sets.defense.MEVA = {ammo="Yamarang",
-        head="Turms Cap +1",neck="Assassin's Gorget +2",ear1="Eabani Earring",ear2="Sherida Earring",
+        head="Malignance Chapeau",neck="Assassin's Gorget +2",ear1="Eabani Earring",ear2="Sherida Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.IdleCape,waist="Engraved Belt",legs="Malignance Tights",feet="Malignance Boots"}
-    sets.defense.MEVATH = {ammo="Yamarang",
-        head="Adhemar Bonnet +1",neck="Assassin's Gorget +2",ear1="Eabani Earring",ear2="Sherida Earring",
-        body="Malignance Tabard",hands="Plunderer's Armlets +3",ring1="Vocane Ring +1",ring2="Gere Ring",
-        back=gear.TPCape,waist="Reiki Yotai",legs="Malignance Tights",feet="Malignance Boots"}
 
     sets.Kiting = {feet="Pillager's Poulaines +3"}
     sets.buff.sleep = {head="Frenzy Sallet"}
-    sets.buff.doom = {neck="Nicander's Necklace",ring1="Saida Ring",ring2="Defending Ring",waist="Gishdubar Sash"}
+    sets.buff.doom = {neck="Nicander's Necklace",ring1="Eshmun's Ring",ring2="Defending Ring",waist="Gishdubar Sash"}
     sets.midcast.FastRecast = set_combine(sets.defense.EvaPDT, {})
 
     -- Engaged sets
@@ -598,16 +599,15 @@ function init_gear_sets()
     -- TaurShijo: acc~1224/1216, haste+26, dw+5, stp+33, da+12, ta+37, qa+2, pdt-12, eva~1043, meva+361
 
     sets.engaged.PDef = set_combine(sets.engaged, {ammo="Staunch Tathlum +1",
-        body="Malignance Tabard",neck="Assassin's Gorget +2",ring1="Moonlight Ring",ring2="Defending Ring",
-        waist="Reiki Yotai",legs="Malignance Tights",feet="Malignance Boots"})
-    -- TwashCent: acc~1276/1050, haste+26, dw+7, stp+66, da+6, ta+17, pdt-38, mdt-28, eva~1133, meva+541
+        head="Malignance Chapeau",body="Malignance Tabard",ring1="Moonlight Ring",waist="Reiki Yotai",legs="Malignance Tights"})
+    -- TwashCent: acc~1274/1048, haste+26, dw+7, stp+65, da+6, ta+19, pdt-42, mdt-30, eva~1134, meva+530
     sets.engaged.DW30.PDef = set_combine(sets.engaged.PDef, {ear1="Eabani Earring",body="Adhemar Jacket +1"})
     sets.engaged.TaurShijo.PDef = set_combine(sets.engaged.PDef, {waist="Windbuffet Belt +1"})
 
     sets.engaged.MDef = set_combine(sets.engaged, {
-        body="Malignance Tabard",hands="Malignance Gloves",ring1="Moonlight Ring",
+        head="Malignance Chapeau",body="Malignance Tabard",hands="Malignance Gloves",
         waist="Reiki Yotai",legs="Malignance Tights",feet="Malignance Boots"})
-    -- TwashCent: acc~1289/1063, haste+26, dw+7, stp+74, da+6, ta+19, pdt-40, mdt-30, eva~1195, meva+625
+    -- TwashCent: acc~1317/1091, haste+26, dw+7, stp+77, da+6, ta+10, pdt-41, mdt-31, eva~1238, meva+689
     sets.engaged.DW30.MDef = set_combine(sets.engaged.MDef, {ear1="Eabani Earring"})
     sets.engaged.TaurShijo.MDef = set_combine(sets.engaged.MDef, {waist="Windbuffet Belt +1"})
 
@@ -617,21 +617,9 @@ function init_gear_sets()
     sets.engaged.DW30.Acc = set_combine(sets.engaged.Acc, {ear1="Eabani Earring",body="Adhemar Jacket +1",waist="Reiki Yotai"})
     sets.engaged.TaurShijo.Acc = set_combine(sets.engaged.Acc, {waist="Windbuffet Belt +1"})
 
-    sets.engaged.Acc.PDef = set_combine(sets.engaged.Acc, {
-        body="Malignance Tabard",hands="Malignance Gloves",ring1="Moonlight Ring",
-        waist="Reiki Yotai",legs="Malignance Tights",feet="Malignance Boots"})
+    sets.engaged.Acc.PDef = set_combine(sets.engaged.PDef, {ammo="Yamarang"})
     sets.engaged.DW30.Acc.PDef = set_combine(sets.engaged.Acc.PDef, {ear1="Eabani Earring"})
     sets.engaged.TaurShijo.Acc.PDef = set_combine(sets.engaged.Acc.PDef, {waist="Windbuffet Belt +1"})
-
-    sets.engaged['Acc+'] = set_combine(sets.engaged.Acc, {ring1="Regal Ring"})
-    sets.engaged.DW30['Acc+'] = set_combine(sets.engaged['Acc+'], {body="Adhemar Jacket +1",waist="Reiki Yotai"})
-    sets.engaged.TaurShijo['Acc+'] = set_combine(sets.engaged['Acc+'], {waist="Windbuffet Belt +1"})
-
-    sets.engaged['Acc+'].PDef = set_combine(sets.engaged['Acc+'], {
-        body="Malignance Tabard",hands="Malignance Gloves",ring1="Moonlight Ring",
-        waist="Reiki Yotai",legs="Malignance Tights",feet="Malignance Boots"})
-    sets.engaged.DW30['Acc+'].PDef = set_combine(sets.engaged['Acc+'].PDef, {})
-    sets.engaged.TaurShijo['Acc+'].PDef = set_combine(sets.engaged['Acc+'].PDef, {waist="Windbuffet Belt +1"})
 
 end
 
@@ -675,7 +663,8 @@ function job_post_precast(spell, action, spellMap, eventArgs)
         elseif buffactive['elvorseal'] then
             if player.inventory["Heidrek Boots"] then equip({feet="Heidrek Boots"}) end
         end
-        if S{'Aeolian Edge','Cyclone'}:contains(spell.english) and state.TreasureMode.value ~= 'None' then
+        if state.THAeolian.value and S{'Aeolian Edge','Cyclone'}:contains(spell.english)
+        or state.TreasureMode.value == 'Fulltime' then
             equip(sets.TreasureHunter)
         end
     elseif spell.targets.Enemy and state.TreasureMode.value == 'Fulltime' then
@@ -698,12 +687,15 @@ function job_aftercast(spell, action, spellMap, eventArgs)
             add_to_chat(123, 'Amnesia prevents using '..spell.english)
         elseif buffactive.Silence and S{'Ninjutsu'}:contains(spell.type) then
             add_to_chat(123, 'Silence prevents using '..spell.english)
-        elseif has_any_buff_of(S{'Petrification','Sleep','Stun','Terror'}) then
+        elseif has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
             add_to_chat(123, 'Status prevents using '..spell.english)
         end
     elseif spell.type == 'WeaponSkill' then
         if state.WSMsg.value then
             ws_msg(spell)
+        end
+        if S{'Aeolian Edge','Cyclone'}:contains(spell.english) then
+            state.THAeolian:unset()
         end
         -- Weaponskills wipe SATA/Feint.  Turn those state vars off before default gearing is attempted.
         state.Buff['Sneak Attack'] = false
@@ -787,15 +779,16 @@ function job_state_change(stateField, newValue, oldValue)
         end
         if     sets.weapons[state.CombatWeapon.value].main == "Gandring" then
             if sets.weapons[state.CombatWeapon.value].sub == "Taming Sari" then
-                sets.TreasureHunter = sets.TreasureHunter1
+                sets.TreasureHunter = set_combine(sets.TreasureHunter1, {})
             else
-                sets.TreasureHunter = sets.TreasureHunter2
+                sets.TreasureHunter = set_combine(sets.TreasureHunter2, {})
             end
         elseif sets.weapons[state.CombatWeapon.value].sub == "Taming Sari" then
-            sets.TreasureHunter = sets.TreasureHunter4
+            sets.TreasureHunter = set_combine(sets.TreasureHunter4, {})
         else
-            sets.TreasureHunter = sets.TreasureHunter5
+            sets.TreasureHunter = set_combine(sets.TreasureHunter5, {})
         end
+        update_th_sets(sets.TreasureHunter)
     end
 end
 
@@ -806,7 +799,7 @@ end
 function get_custom_wsmode(spell, spellMap, defaut_wsmode)
     local wsmode = nil
 
-    if state.Buff['Sneak Attack'] then
+    if state.Buff['Sneak Attack'] or buffactive['Mighty Strikes'] then
         wsmode = 'SA'
     end
     if state.Buff['Trick Attack'] then
@@ -829,6 +822,9 @@ end
 
 -- Modify the default idle set after it was constructed.
 function customize_idle_set(idleSet)
+    if has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
+        idleSet = set_combine(sets.defense.EvaPDT, {})
+    end
     if state.Buff.doom then
         idleSet = set_combine(idleSet, sets.buff.doom)
     end
@@ -837,20 +833,23 @@ end
 
 -- Modify the default melee set after it was constructed.
 function customize_melee_set(meleeSet)
-    if state.TreasureMode.value == 'Fulltime' then
-        meleeSet = set_combine(meleeSet, sets.TreasureHunter)
-    end
-    if buffactive['elvorseal'] then
-        if player.inventory["Heidrek Gloves"] then meleeSet = set_combine(meleeSet, {hands="Heidrek Gloves"}) end
-        if state.DefenseMode.value ~= 'None' then
+    if state.DefenseMode.value == 'None' then
+        if state.TreasureMode.value == 'Fulltime' then
+            meleeSet = set_combine(meleeSet, sets.TreasureHunter)
+        end
+        if buffactive['elvorseal'] then
+            if player.inventory["Heidrek Gloves"] then meleeSet = set_combine(meleeSet, {hands="Heidrek Gloves"}) end
             if player.inventory["Heidrek Harness"] then meleeSet = set_combine(meleeSet, {body="Heidrek Harness"}) end
         end
     end
-    if state.Buff.sleep then
-        meleeSet = set_combine(meleeSet, sets.buff.sleep)
+    if has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
+        meleeSet = set_combine(sets.defense.EvaPDT, {})
     end
     if state.Buff.doom then
         meleeSet = set_combine(meleeSet, sets.buff.doom)
+    end
+    if state.Buff.sleep then
+        meleeSet = set_combine(meleeSet, sets.buff.sleep)
     end
     return meleeSet
 end
@@ -858,6 +857,9 @@ end
 -- Called by the 'update' self-command.
 -- Set eventArgs.handled to true if we don't want automatic equipping of gear.
 function job_update(cmdParams, eventArgs)
+    if state.th_gear_is_locked and cmdParams[1] == 'user' and player.status ~= 'Engaged' then
+        unlock_TH()
+    end
     th_update(cmdParams, eventArgs)
     state.Buff['Sneak Attack'] = buffactive['sneak attack'] or false
     state.Buff['Trick Attack'] = buffactive['trick attack'] or false
@@ -914,7 +916,7 @@ end
 function job_self_command(cmdParams, eventArgs)
     if cmdParams[1] == 'ListWS' then
         add_to_chat(122, 'ListWS:')
-        for _,ws in ipairs(info.ws_binds[info.weapon_type[state.CombatWeapon.value]]) do
+        for ws in info.ws_binds[info.weapon_type[state.CombatWeapon.value]]:it() do
             add_to_chat(122, "%3s : %s":format(ws.bind,ws.ws))
         end
     end
@@ -929,12 +931,19 @@ function check_buff(buff_name, eventArgs)
     if state.Buff[buff_name] then
         equip_gear_by_status(player.status)
         equip(sets.buff[buff_name] or {})
-        if state.TreasureMode.value == 'SATA' or state.TreasureMode.value == 'Fulltime' then
+        if S{'SATA','Fulltime'}:contains(state.TreasureMode.value) then
             if buff_name ~= 'Feint' then
                 equip(sets.TreasureHunter)
             end
         end
         eventArgs.handled = true
+    end
+end
+
+-- update sets that use sets.TreasureHunter as it changes with weapon swaps
+function update_th_sets(treasure_set)
+    for spell in info.th_gearsets:it() do
+        sets.midcast[spell] = set_combine(sets.midcast.Utsusemi, treasure_set)
     end
 end
 
@@ -991,10 +1000,7 @@ function set_weaponskill_keybinds()
     if state.CombatWeapon.value == 'None' then return end
     local cur_weapon_type = info.weapon_type[state.CombatWeapon.value]
     if state.WSBinds.value ~= cur_weapon_type then
-        for _,ws in ipairs(info.ws_binds[cur_weapon_type]) do
-            --if state.WSBinds.has_value then
-            --    add_to_chat(104, "bind %s input /ws %s":format(ws.bind,ws.ws))
-            --end
+        for ws in info.ws_binds[cur_weapon_type]:it() do
             send_command("bind %s input /ws %s":format(ws.bind,ws.ws))
         end
         state.WSBinds:set(cur_weapon_type)
@@ -1003,11 +1009,13 @@ end
 
 function init_state_text()
     destroy_state_text()
-    local nodmg_text_settings= {flags={draggable=false},bg={alpha=150}}
+    local th_ae_text_settings= {flags={draggable=false},bg={alpha=150}}
+    local nodmg_text_settings= {pos={x=53},flags={draggable=false},bg={alpha=150}}
     local hyb_text_settings  = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local def_text_settings  = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local off_text_settings  = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local dw_text_settings   = {pos={x=130,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    state.th_ae_text= texts.new('THAE', th_ae_text_settings)
     state.nodmg_text= texts.new('NoDmg', nodmg_text_settings)
     state.hyb_text  = texts.new('/${hybrid}', hyb_text_settings)
     state.def_text  = texts.new('(${defense})', def_text_settings)
@@ -1015,6 +1023,7 @@ function init_state_text()
     state.dw_text   = texts.new('${dw}', dw_text_settings)
 
     state.texts_event_id = windower.register_event('prerender', function()
+        state.th_ae_text:visible(state.THAeolian.value)
         state.nodmg_text:visible((state.WeaponskillMode.value == 'NoDmg'))
 
         if state.HybridMode.value ~= 'Normal' then
@@ -1051,11 +1060,13 @@ end
 function destroy_state_text()
     if state.texts_event_id then
         windower.unregister_event(state.texts_event_id)
+        state.th_ae_text:visible(false)
         state.nodmg_text:visible(false)
         state.hyb_text:visible(false)
         state.def_text:visible(false)
         state.off_text:visible(false)
         state.dw_text:visible(false)
+        texts.destroy(state.th_ae_text)
         texts.destroy(state.nodmg_text)
         texts.destroy(state.hyb_text)
         texts.destroy(state.def_text)

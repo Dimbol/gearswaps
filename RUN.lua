@@ -22,6 +22,7 @@
 -- liement works on breath attacks. bad breath is earth, sweet breath is dark, interference is dark
 -- consider using the MDT50 tanking set for strong breath attacks, eg, arrogance incarnate
 -- add items to the hpgear table in user_setup() to prioritize swap order by hp so less max hp is lost
+-- in Tank casting mode, only non-shockwave weaponskills should leave you open to damage
 
 -- KYOU
 -- odyllic at start to build hate without hassle
@@ -128,7 +129,7 @@ function user_setup()
     state.WeaponskillMode:options('Normal','Tank','Acc')            -- Cycle with @F9
     state.CastingMode:options('Tank','Paranoid','MAcc')             -- Cycle with F10, reset with !F10, set with ^c, !@c
     state.IdleMode:options('Normal','Refresh','Kite')               -- Cycle with F11, reset with !F11
-    state.PhysicalDefenseMode:options('Parry','ParryAcc','ParryRf','Kite') -- Cycle with !z
+    state.PhysicalDefenseMode:options('Parry','ParryRf','Kite')     -- Cycle with !z
     state.MagicalDefenseMode:options('MEVA','MDT50')                -- Cycle with @z, set to MDT50 with !@z
     state.StatusDefenseMode = M{['description']='Status Defense'}
     state.StatusDefenseMode:options('None','Knockback','Charm','Death')  -- Set with !7..!0
@@ -144,8 +145,6 @@ function user_setup()
 
     info.sird_spells = S{'Aquaveil','Crusade','Foil','Stoneskin',
         'Cocoon','Healing Breeze','Wild Carrot','Sheep Song','Stinking Gas','Geist Wall'}
-    info.recast_ids = L{{name="Battuta",id=120},{name="Vallation",id=23},{name="Liement",id=117},{name="Valiance",id=113},
-                        {name="One for All",id=118},{name="Gambit",id=116},{name="Rayke",id=119}}
 
     -- Mote-libs handle obis, gorgets, and other elemental things.
     -- These are default fallbacks if situationally appropriate gear is not available.
@@ -225,6 +224,7 @@ function user_setup()
     hpgear["Runeist's Coat +3"]       = {name="Runeist's Coat +3",priority=218}
     hpgear["Runeist's Mitons +3"]     = {name="Runeist's Mitons +3",priority=85}
     hpgear["Runeist Trousers +1"]     = {name="Runeist Trousers +1",priority=47}
+    hpgear["Sacro Gorget"]            = {name="Sacro Gorget",priority=50}
     hpgear["Sanctity Necklace"]       = {name="Sanctity Necklace",priority=35}
     hpgear["Skaoi Boots"]             = {name="Skaoi Boots",priority=65}
     hpgear["Supershear Ring"]         = {name="Supershear Ring",priority=30}
@@ -247,6 +247,7 @@ function user_setup()
     send_command('unbind ^F10')
     send_command('unbind ^F11')
     send_command('unbind ^F12')
+    send_command('bind %` gs c update user')
     send_command('bind F9   gs c cycle OffenseMode')
     send_command('bind @F9  gs c cycle WeaponskillMode')
     send_command('bind !F9  gs c reset OffenseMode')
@@ -284,34 +285,34 @@ function user_setup()
 
     info.weapon_type = {['Epeo']='Great Sword',['EpeoRef']='Great Sword',['Lionheart']='Great Sword',
                         ['Sword']='Sword',['Axe']='Axe',['GreatAxe']='Great Axe',['Hepatizon']='Great Axe'}
-    info.ws_binds = {
-        ['Great Sword']={
-        [1]={bind='!^1',ws='"Herculean Slash"'},
-        [2]={bind='!^2',ws='"Resolution"'},
-        [3]={bind='!^3',ws='"Dimidiation"'},
-        [4]={bind='!^4',ws='"Ground Strike"'},
-        [5]={bind='!^5',ws='"Power Slash"'},
-        [6]={bind='!^6',ws='"Shockwave"'}},
-        ['Sword']={
-        [1]={bind='!^1',ws='"Sanguine Blade"'},
-        [2]={bind='!^2',ws='"Requiescat"'},
-        [3]={bind='!^3',ws='"Savage Blade"'},
-        [4]={bind='!^4',ws='"Flat Blade"'},
-        [5]={bind='!^5',ws='"Swift Blade"'},
-        [6]={bind='!^6',ws='"Circle Blade"'}},
-        ['Great Axe']={
-        [1]={bind='!^1',ws='"Armor Break"'},
-        [2]={bind='!^2',ws='"Upheaval"'},
-        [3]={bind='!^3',ws='"Steel Cyclone"'},
-        [4]={bind='!^4',ws='"Weapon Break"'},
-        [5]={bind='!^5',ws='"Shield Break"'},
-        [6]={bind='!^6',ws='"Fell Cleave"'}},
-        ['Axe']={
-        [1]={bind='!^1',ws='"Bora Axe"'},
-        [2]={bind='!^2',ws='"Decimation"'},
-        [3]={bind='!^3',ws='"Ruinator"'},
-        [4]={bind='!^4',ws='"Smash Axe"'},
-        [5]={bind='!^5',ws='"Rampage"'}}}
+    info.ws_binds = T{
+        ['Great Sword']=L{
+            {bind='!^1|%1',ws='"Herculean Slash"'},
+            {bind='!^2|%2',ws='"Resolution"'},
+            {bind='!^3|%3',ws='"Dimidiation"'},
+            {bind='!^4|%4',ws='"Ground Strike"'},
+            {bind='!^5|%5',ws='"Power Slash"'},
+            {bind='!^6|%6',ws='"Shockwave"'}},
+        ['Sword']=L{
+            {bind='!^1|%1',ws='"Sanguine Blade"'},
+            {bind='!^2|%2',ws='"Requiescat"'},
+            {bind='!^3|%3',ws='"Savage Blade"'},
+            {bind='!^4|%4',ws='"Flat Blade"'},
+            {bind='!^5|%5',ws='"Swift Blade"'},
+            {bind='!^6|%6',ws='"Circle Blade"'}},
+        ['Great Axe']=L{
+            {bind='!^1|%1',ws='"Armor Break"'},
+            {bind='!^2|%2',ws='"Upheaval"'},
+            {bind='!^3|%3',ws='"Steel Cyclone"'},
+            {bind='!^4|%4',ws='"Weapon Break"'},
+            {bind='!^5|%5',ws='"Shield Break"'},
+            {bind='!^6|%6',ws='"Fell Cleave"'}},
+        ['Axe']=L{
+            {bind='!^1|%1',ws='"Bora Axe"'},
+            {bind='!^2|%2',ws='"Decimation"'},
+            {bind='!^3|%3',ws='"Ruinator"'},
+            {bind='!^4|%4',ws='"Smash Axe"'},
+            {bind='!^5|%5',ws='"Rampage"'}}}
     set_weaponskill_keybinds()
 
     send_command('bind !7 gs c set StatusDefenseMode Knockback')
@@ -380,7 +381,7 @@ function user_setup()
     send_command('bind !w  gs c reset OffenseMode')
     send_command('bind !@w gs c set   OffenseMode None')
     send_command('bind ^\\\\ gs c toggle WSMsg')
-    send_command('bind ^@\\\\ gs c ListWS')
+    send_command('bind %\\\\ gs c ListWS')
 
     if     player.sub_job == 'DRK' then
         send_command('bind ^1 input /ma Stun')                          -- (180/1280)
@@ -437,6 +438,7 @@ end
 
 -- Called when this job file is unloaded (eg: job change)
 function user_unload()
+    send_command('unbind %`')
     send_command('unbind ^space')
     send_command('unbind ^@space')
     send_command('unbind !space')
@@ -539,11 +541,17 @@ function user_unload()
     send_command('unbind !^5')
     send_command('unbind !^6')
     send_command('unbind !^d')
+    send_command('unbind %1')
+    send_command('unbind %2')
+    send_command('unbind %3')
+    send_command('unbind %4')
+    send_command('unbind %5')
+    send_command('unbind %6')
 
     send_command('unbind !w')
     send_command('unbind !@w')
     send_command('unbind ^\\\\')
-    send_command('unbind ^@\\\\')
+    send_command('unbind %\\\\')
 
     send_command('unbind !e')
     send_command('unbind !@e')
@@ -709,11 +717,12 @@ function init_gear_sets()
         back=gear.MEVACape,waist="Olympus Sash",legs=hpgear["Carmine Cuisses +1"],feet="Erilaz Greaves +1"}
     sets.midcast.Temper = set_combine(sets.midcast['Enhancing Magic'], {})
     -- skill=523, dur+35, pdt-16, mdt-5, bdt-5, 2592 hp /drk (risky spell)
-    sets.midcast.Temper.Paranoid = {main=hpgear["Epeolatry"],sub="Refined Grip +1",ammo="Staunch Tathlum +1",
+    sets.midcast.Temper.Tank = {main=hpgear["Epeolatry"],sub="Refined Grip +1",ammo="Staunch Tathlum +1",
         head=hpgear["Erilaz Galea +1"],neck=hpgear["Futhark Torque +2"],ear1="Andoaa Earring",ear2="Mimir Earring",
         body=hpgear["Futhark Coat +3"],hands=hpgear["Runeist's Mitons +3"],ring1=gear.Lstikini,ring2="Defending Ring",
         back=gear.MEVACape,waist="Flume Belt +1",legs=hpgear["Carmine Cuisses +1"],feet="Erilaz Greaves +1"}
     -- skill=500, dur+35, pdt-50, mdt-29, bdt-29, 2652 hp /drk
+    sets.midcast.Temper.Paranoid = set_combine(sets.midcast.Temper.Tank, {})
     sets.midcast.Phalanx = {main="Deacon Sword",sub=empty,ammo="Staunch Tathlum +1",
         head=hpgear["Futhark Bandeau +3"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2="Mimir Earring",
         body=gear.taeon_body_phlx,hands=gear.taeon_hands_phlx,ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
@@ -734,8 +743,9 @@ function init_gear_sets()
         body=hpgear["Ashera Harness"],hands=gear.herc_hands_dt,ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.MEVACape,waist="Engraved Belt",legs=hpgear["Futhark Trousers +3"],feet=hpgear["Turms Leggings +1"]}
     sets.midcast.Refresh = set_combine(sets.midcast.FixedPotencyEnhancing, {waist="Gishdubar Sash"})
-    sets.midcast['Regen IV'] = set_combine(sets.midcast.FixedPotencyEnhancing, {head=hpgear["Runeist's Bandeau +3"]})
-    sets.midcast.Blink = {} -- or duration gear?
+    sets.midcast['Regen IV'] = set_combine(sets.midcast.FixedPotencyEnhancing, {
+        head=hpgear["Runeist's Bandeau +3"],neck=hpgear["Sacro Gorget"],body=hpgear["Futhark Coat +3"],waist="Flume Belt +1"})
+    sets.midcast.Blink = {}
     sets.midcast.Stoneskin = {}
 
     sets.midcast['Enfeebling Magic'] = {main=hpgear["Epeolatry"],sub="Kaja Grip",ammo="Yamarang",
@@ -788,10 +798,10 @@ function init_gear_sets()
     sets.midcast.Soporific.MAcc     = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast.Jettatura.MAcc     = set_combine(sets.midcast['Enfeebling Magic'], {})
 
-    sets.buff.doom = {neck="Nicander's Necklace",ring1="Saida Ring",ring2="Defending Ring",waist="Gishdubar Sash"}
+    sets.buff.doom = {neck="Nicander's Necklace",ring1="Eshmun's Ring",ring2="Defending Ring",waist="Gishdubar Sash"}
     sets.buff.doom.PDef = {main=hpgear["Epeolatry"],sub="Refined Grip +1",ammo="Staunch Tathlum +1",
         head=hpgear["Futhark Bandeau +3"],neck="Nicander's Necklace",ear1="Genmei Earring",ear2=hpgear["Etiolation Earring"],
-        body=hpgear["Futhark Coat +3"],hands=gear.herc_hands_dt,ring1="Saida Ring",ring2="Defending Ring",
+        body=hpgear["Futhark Coat +3"],hands=gear.herc_hands_dt,ring1="Eshmun's Ring",ring2="Defending Ring",
         back=gear.MEVACape,waist="Gishdubar Sash",legs=hpgear["Erilaz Leg Guards +1"],feet=hpgear["Erilaz Greaves +1"]}
     -- pdt-48, inqu+5, mdt-29, mdb+24, bdt-26, meva+469, r.st+11, enm+27, 2487 hp /drk
     sets.buff.Sleep = {head="Frenzy Sallet"}
@@ -1116,50 +1126,46 @@ end
 
 -- Modify the default idle set after it was constructed.
 function customize_idle_set(idleSet)
-    if state.StatusDefenseMode.value ~= 'None' then
-        idleSet = set_combine(idleSet, sets.defense[state.StatusDefenseMode.value])
-    end
     if player.mpp < 51 and state.DefenseMode.value == 'None' then
         idleSet = set_combine(idleSet, sets.latent_refresh)
     end
-    if state.Buff.Embolden then
-        idleSet = set_combine(idleSet, sets.buff.Embolden)
+    if state.StatusDefenseMode.value ~= 'None' then
+        idleSet = set_combine(idleSet, sets.defense[state.StatusDefenseMode.value])
+    end
+    if has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
+        idleSet = set_combine(sets.idle.Kite, {})
     end
     if state.Buff.doom then
-        if state.DefenseMode.value == 'Physical' then
-            idleSet = set_combine(idleSet, sets.buff.doom.PDef)
-        else
-            idleSet = set_combine(idleSet, sets.buff.doom)
-        end
+        idleSet = set_combine(sets.buff.doom.PDef, {})
+    end
+    if state.Buff.Embolden then
+        idleSet = set_combine(idleSet, sets.buff.Embolden)
     end
     return idleSet
 end
 
 -- Modify the default melee set after it was constructed.
 function customize_melee_set(meleeSet)
-    if buffactive['elvorseal'] then
-        if state.DefenseMode.value == 'None' then
-            if player.inventory["Heidrek Gloves"] then meleeSet = set_combine(meleeSet, {hands="Heidrek Gloves"}) end
-            if state.HybridMode.value == 'Normal' then
-                if player.inventory["Heidrek Harness"] then meleeSet = set_combine(meleeSet, {body="Heidrek Harness"}) end
-            end
+    if buffactive['elvorseal'] and state.DefenseMode.value == 'None' then
+        if player.inventory["Heidrek Gloves"] then meleeSet = set_combine(meleeSet, {hands="Heidrek Gloves"}) end
+        if state.HybridMode.value == 'Normal' then
+            if player.inventory["Heidrek Harness"] then meleeSet = set_combine(meleeSet, {body="Heidrek Harness"}) end
         end
     end
     if state.StatusDefenseMode.value ~= 'None' then
         meleeSet = set_combine(meleeSet, sets.defense[state.StatusDefenseMode.value])
+    end
+    if has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
+        meleeSet = set_combine(sets.defense.Parry, {})
+    end
+    if state.Buff.doom then
+        meleeSet = set_combine(sets.buff.doom.PDef, {})
     end
     if state.Buff.Embolden then
         meleeSet = set_combine(meleeSet, sets.buff.Embolden)
     end
     if state.Buff.sleep then
         meleeSet = set_combine(meleeSet, sets.buff.Sleep)
-    end
-    if state.Buff.doom then
-        if state.DefenseMode.value == 'Physical' then
-            meleeSet = set_combine(meleeSet, sets.buff.doom.PDef)
-        else
-            meleeSet = set_combine(meleeSet, sets.buff.doom)
-        end
     end
     return meleeSet
 end
@@ -1231,7 +1237,7 @@ end
 function job_self_command(cmdParams, eventArgs)
     if cmdParams[1] == 'ListWS' then
         add_to_chat(122, 'ListWS:')
-        for _,ws in ipairs(info.ws_binds[info.weapon_type[state.CombatWeapon.value]]) do
+        for ws in info.ws_binds[info.weapon_type[state.CombatWeapon.value]]:it() do
             local ws_props = info.ws_props[ws.ws:gsub('"','')].props
             if ws_props then
                 add_to_chat(122, "%3s : %s (%s)":format(ws.bind, ws.ws, table.concat(ws_props, ', ')))
@@ -1305,10 +1311,12 @@ end
 -- prints recast messages using add_to_chat()
 function report_ja_recasts()
     local all_ja_recasts = windower.ffxi.get_ability_recasts()
+    local recast_ids = L{{name="Battuta",id=120},{name="Vallation",id=23},{name="Liement",id=117},{name="Valiance",id=113},
+                         {name="One for All",id=118},{name="Gambit",id=116},{name="Rayke",id=119}}
     local available_list = L{}
     local unavailable_list = L{}
 
-    for ability in info.recast_ids:it() do
+    for ability in recast_ids:it() do
         local r = all_ja_recasts[ability.id]
         if r > 0 then
             unavailable_list:append({text="[%s](%d)":format(ability.name,r),r=r})
@@ -1338,10 +1346,7 @@ function set_weaponskill_keybinds()
     if state.CombatWeapon.value == 'None' then return end
     local cur_weapon_type = info.weapon_type[state.CombatWeapon.value]
     if state.WSBinds.value ~= cur_weapon_type then
-        for _,ws in ipairs(info.ws_binds[cur_weapon_type]) do
-            --if state.WSBinds.has_value then
-            --    add_to_chat(104, "bind %s input /ws %s":format(ws.bind,ws.ws))
-            --end
+        for ws in info.ws_binds[cur_weapon_type]:it() do
             send_command("bind %s input /ws %s":format(ws.bind,ws.ws))
         end
         state.WSBinds:set(cur_weapon_type)
