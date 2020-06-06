@@ -31,12 +31,6 @@ function get_sets()
 
     -- Load and initialize the include file.
     include('Mote-Include.lua')
-
-    -- auto translates (defines at_stuff())
-    include('at-stuff.lua')
-
-    -- ws properties (sets info.ws_props)
-    include('ws-props.lua')
 end
 
 -- Setup vars that are user-independent.  state.Buff vars initialized here will automatically be tracked.
@@ -49,9 +43,6 @@ function job_setup()
     state.Buff.sleep = buffactive.sleep or false
     state.Buff.doom = buffactive.doom or false
 
-    state.texts_event_id = nil
-    state.aeonic_aftermath_precast = false
-    
     include('Mote-TreasureHunter')
 end
 
@@ -155,7 +146,6 @@ function user_setup()
     send_command('bind !z gs c cycle PhysicalDefenseMode')
     send_command('bind @z gs c cycle MagicalDefenseMode')
     send_command('bind ^\\\\ gs c toggle WSMsg')
-    send_command('bind %\\\\ gs c ListWS')
 
     send_command('bind !^` input /ja "Perfect Dodge" <me>')
     send_command('bind ^@` input /ja Larceny')
@@ -193,35 +183,35 @@ function user_setup()
 
     send_command('bind @1 input /ra <stnpc>')
 
-    info.weapon_type = {['TwashSari']='Dagger',['TwashCent']='Dagger',['TwashGand']='Dagger',
-                        ['TaurSari']='Dagger',['TaurShijo']='Dagger',
-                        ['AenSari']='Dagger',['AenTwash']='Dagger',
-                        ['GandSari']='Dagger',['GandCent']='Dagger',['GandTwash']='Dagger',['GandEva']='Dagger',
-                        ['NaegBlur']='Sword',['NaegCent']='Sword'}
-    info.ws_binds = T{
+    info.ws_binds = make_keybind_list(T{
         ['Dagger']=L{
-            {bind='^1|%1',ws='"Evisceration"'},
-            {bind='^2|%2',ws='"Rudra\'s Storm"'},
-            {bind='^3|%3',ws='"Mandalic Stab"'},
-            {bind='^4|%4',ws='"Shark Bite"'},
-            {bind='^5|%5',ws='"Exenterator"'},
-            {bind='^6|%6',ws='"Aeolian Edge"'},
-            {bind='!^1',ws='"Evisceration" <stnpc>'},
-            {bind='!^2',ws='"Rudra\'s Storm" <stnpc>'},
-            {bind='!^3',ws='"Mandalic Stab" <stnpc>'},
-            {bind='!^4',ws='"Shark Bite" <stnpc>'},
-            {bind='!^5',ws='"Exenterator" <stnpc>'},
-            {bind='!^6',ws='"Cyclone" <stnpc>'},
-            {bind='!^d',ws='"Shadowstitch"'}},
+            'bind ^1|%1 input /ws "Evisceration"',
+            'bind ^2|%2 input /ws "Rudra\'s Storm"',
+            'bind ^3|%3 input /ws "Mandalic Stab"',
+            'bind ^4|%4 input /ws "Shark Bite"',
+            'bind ^5|%5 input /ws "Exenterator"',
+            'bind ^6|%6 input /ws "Aeolian Edge"',
+            'bind !^1   input /ws "Evisceration" <stnpc>',
+            'bind !^2   input /ws "Rudra\'s Storm" <stnpc>',
+            'bind !^3   input /ws "Mandalic Stab" <stnpc>',
+            'bind !^4   input /ws "Shark Bite" <stnpc>',
+            'bind !^5   input /ws "Exenterator" <stnpc>',
+            'bind !^6   input /ws "Cyclone" <stnpc>',
+            'bind !^d   input /ws "Shadowstitch"'},
         ['Sword']=L{
-            {bind='^1|%1',ws='"Sanguine Blade"'},
-            {bind='^2|%2',ws='"Vorpal Blade"'},
-            {bind='^3|%3',ws='"Savage Blade"'},
-            {bind='^4|%4',ws='"Red Lotus Blade"'},
-            {bind='^5|%5',ws='"Seraph Blade"'},
-            {bind='^6|%6',ws='"Circle Blade"'},
-            {bind='!^d',ws='"Flat Blade"'}}}
-    set_weaponskill_keybinds()
+            'bind ^1|%1 input /ws "Sanguine Blade"',
+            'bind ^2|%2 input /ws "Vorpal Blade"',
+            'bind ^3|%3 input /ws "Savage Blade"',
+            'bind ^4|%4 input /ws "Red Lotus Blade"',
+            'bind ^5|%5 input /ws "Seraph Blade"',
+            'bind ^6|%6 input /ws "Circle Blade"',
+            'bind !^d   input /ws "Flat Blade"'}},
+        {['TwashSari']='Dagger',['TwashCent']='Dagger',['TwashGand']='Dagger',
+         ['TaurSari']='Dagger',['TaurShijo']='Dagger',['AenSari']='Dagger',['AenTwash']='Dagger',
+         ['GandSari']='Dagger',['GandCent']='Dagger',['GandTwash']='Dagger',['GandEva']='Dagger',
+         ['NaegBlur']='Sword',['NaegCent']='Sword'})
+    info.ws_binds:bind(state.CombatWeapon)
+    send_command('bind %\\\\ gs c ListWS')
 
     if     player.sub_job == 'WAR' then
         send_command('bind !4  input /ja Berserk <me>')
@@ -234,6 +224,7 @@ function user_setup()
         send_command('bind !4  input /ja "Last Resort" <me>')
         send_command('bind !5  input /ja Souleater <me>')
         send_command('bind !6  input /ja "Arcane Circle" <me>')
+        send_command('bind !e  input /ma Absorb-TP')
         send_command('bind !d  input /ma Stun')
         send_command('bind @d  input /ma Stun <stnpc>')
         send_command('bind !@d input /ma Poisonga <stnpc>')
@@ -390,6 +381,8 @@ function user_unload()
     send_command('unbind ^\\\\')
     send_command('unbind %\\\\')
 
+    info.ws_binds:unbind()
+
     destroy_state_text()
 end
 
@@ -520,6 +513,8 @@ function init_gear_sets()
         back=gear.WSDCape,waist="Fotia Belt",legs=gear.herc_legs_ma2,feet=gear.herc_feet_ma}
     sets.precast.WS.Cyclone            = set_combine(sets.precast.WS['Aeolian Edge'], {})
     sets.precast.WS['Sanguine Blade']  = set_combine(sets.precast.WS['Aeolian Edge'], {head="Pixie Hairpin +1",ring1="Archon Ring"})
+    sets.orpheus = {waist="Orpheus's Sash"}
+    sets.ele_obi = {waist="Hachirin-no-Obi"}
 
     sets.precast.WS.NoDmg = set_combine(sets.precast.Step, {})
 
@@ -539,6 +534,7 @@ function init_gear_sets()
         body="Malignance Tabard",hands="Malignance Gloves",ring1=gear.Lstikini,ring2=gear.Rstikini,
         back=gear.IdleCape,waist="Eschan Stone",legs="Malignance Tights",feet="Malignance Boots"}
     sets.midcast.Repose = set_combine(sets.midcast['Enfeebling Magic'], {})
+    sets.midcast.Absorb = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast.Refresh = {waist="Gishdubar Sash"}
     sets.midcast.Flash = set_combine(sets.Enmity, {})
     sets.midcast.Stun  = set_combine(sets.Enmity, {})
@@ -644,8 +640,6 @@ function job_precast(spell, action, spellMap, eventArgs)
     if S{'Defender','Souleater','Last Resort'}:contains(spell.english) and buffactive[spell.english] then
         send_command('cancel '..spell.english)
         eventArgs.cancel = true
-    elseif spell.type == 'WeaponSkill' then
-        state.aeonic_aftermath_precast = (buffactive["Aftermath: Lv.1"] or buffactive["Aftermath: Lv.2"] or buffactive["Aftermath: Lv.3"])
     end
 end
 
@@ -658,8 +652,8 @@ function job_post_precast(spell, action, spellMap, eventArgs)
             else
                 equip(sets.precast.WS.NoDmg)
             end
-        elseif info.magic_ws:contains(spell.english) and S{world.day_element,world.weather_element}:contains(spell.element) then
-            equip({waist="Hachirin-no-Obi"})
+        elseif info.magic_ws:contains(spell.english) then
+            equip(resolve_orpheus(spell, sets.ele_obi))
         elseif buffactive['elvorseal'] then
             if player.inventory["Heidrek Boots"] then equip({feet="Heidrek Boots"}) end
         end
@@ -683,16 +677,10 @@ end
 function job_aftercast(spell, action, spellMap, eventArgs)
     if spell.interrupted then
         send_command('wait 0.5;gs c update')
-        if buffactive.Amnesia and S{'JobAbility','WeaponSkill'}:contains(spell.type) then
-            add_to_chat(123, 'Amnesia prevents using '..spell.english)
-        elseif buffactive.Silence and S{'Ninjutsu'}:contains(spell.type) then
-            add_to_chat(123, 'Silence prevents using '..spell.english)
-        elseif has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
-            add_to_chat(123, 'Status prevents using '..spell.english)
-        end
+        interrupted_message(spell)
     elseif spell.type == 'WeaponSkill' then
         if state.WSMsg.value then
-            ws_msg(spell)
+            send_command('@input /p '..spell.english)
         end
         if S{'Aeolian Edge','Cyclone'}:contains(spell.english) then
             state.THAeolian:unset()
@@ -763,19 +751,17 @@ end
 function job_state_change(stateField, newValue, oldValue)
     if stateField == 'Offense Mode' then
         enable('main','sub','range','ammo')
-        handle_equipping_gear(player.status)
         if newValue ~= 'None' then
             equip(sets.weapons[state.CombatWeapon.value])
             disable('main','sub')
         end
+        handle_equipping_gear(player.status)
     elseif stateField == 'Combat Weapon' then
-        enable('main','sub','range','ammo')
+        info.ws_binds:bind(state.CombatWeapon)
         if state.OffenseMode.value ~= 'None' then
+            enable('main','sub','range','ammo')
             equip(sets.weapons[state.CombatWeapon.value])
-            if state.CombatWeapon.value ~= 'None' then
-                disable('main','sub')
-            end
-            set_weaponskill_keybinds()
+            disable('main','sub')
         end
         if     sets.weapons[state.CombatWeapon.value].main == "Gandring" then
             if sets.weapons[state.CombatWeapon.value].sub == "Taming Sari" then
@@ -915,10 +901,9 @@ end
 -- Called for custom player commands.
 function job_self_command(cmdParams, eventArgs)
     if cmdParams[1] == 'ListWS' then
-        add_to_chat(122, 'ListWS:')
-        for ws in info.ws_binds[info.weapon_type[state.CombatWeapon.value]]:it() do
-            add_to_chat(122, "%3s : %s":format(ws.bind,ws.ws))
-        end
+        info.ws_binds:print('ListWS:')
+    elseif cmdParams[1] == 'save' then
+        save_self_command(cmdParams)
     end
 end
 
@@ -953,60 +938,6 @@ function select_default_macro_book()
     send_command('bind !^l input /lockstyleset 8')
 end
 
-function ws_msg(spell)
-    -- optional party chat messages for weaponskills
-    local at_ws
-    local good_ats = true
-    local props = info.ws_props[spell.english].props
-    local at_props = {}
-    local aeonic = state.aeonic_aftermath_precast and info.ws_props[spell.english].aeonic
-        and player.equipment.main == info.ws_props[spell.english].aeonic.weapon
-    local sata_prefix = ''
-
-    at_ws = at_stuff(spell.english) -- shift-jis
-    good_ats = (at_ws ~= nil)
-    if props then
-        if aeonic then
-            local prop = info.ws_props[spell.english].aeonic.sc
-            local at_prop = at_stuff(prop)
-            table.insert(at_props, at_prop)
-            good_ats = (good_ats and at_prop)
-        end
-        for i, prop in ipairs(props) do
-            local at_prop = at_stuff(prop)
-            table.insert(at_props, at_prop)
-            good_ats = (good_ats and at_prop)
-        end
-    end
-
-    if state.Buff['Sneak Attack'] then sata_prefix = sata_prefix..'SA' end
-    if state.Buff['Trick Attack'] then sata_prefix = sata_prefix..'TA' end
-
-    if good_ats then
-        if props then
-            windower.chat.input('/p used '..sata_prefix..at_ws..' ('..table.concat(at_props,'')..')')
-        else
-            windower.chat.input('/p used '..sata_prefix..at_ws)
-        end
-    else
-        windower.chat.input('/p used '..sata_prefix..spell.english)
-    end
-end
-
--- issues send_command()s to set weaponskill keybinds for current value of state.CombatWeapon
--- checks and sets state.WSBinds to determine if send_command()s are needed
--- info.weapon_type and info.ws_binds map state.CombatWeapon to a table of keybinds
-function set_weaponskill_keybinds()
-    if state.CombatWeapon.value == 'None' then return end
-    local cur_weapon_type = info.weapon_type[state.CombatWeapon.value]
-    if state.WSBinds.value ~= cur_weapon_type then
-        for ws in info.ws_binds[cur_weapon_type]:it() do
-            send_command("bind %s input /ws %s":format(ws.bind,ws.ws))
-        end
-        state.WSBinds:set(cur_weapon_type)
-    end
-end
-
 function init_state_text()
     destroy_state_text()
     local th_ae_text_settings= {flags={draggable=false},bg={alpha=150}}
@@ -1022,55 +953,40 @@ function init_state_text()
     state.off_text  = texts.new('${offense}', off_text_settings)
     state.dw_text   = texts.new('${dw}', dw_text_settings)
 
+    windower.register_event('logout', destroy_state_text)
     state.texts_event_id = windower.register_event('prerender', function()
         state.th_ae_text:visible(state.THAeolian.value)
         state.nodmg_text:visible((state.WeaponskillMode.value == 'NoDmg'))
 
         if state.HybridMode.value ~= 'Normal' then
-            state.hyb_text:visible(true)
-            state.hyb_text:update({['hybrid']=state.HybridMode.value})
-        else
-            state.hyb_text:visible(false)
-        end
+            state.hyb_text:show()
+            state.hyb_text:update({hybrid=state.HybridMode.value})
+        else state.hyb_text:hide() end
 
         if state.DefenseMode.value ~= 'None' then
-            state.def_text:visible(true)
-            local defMode = state[state.DefenseMode.value ..'DefenseMode'].current
-            state.def_text:update({['defense']=defMode})
-        else
-            state.def_text:visible(false)
-        end
+            state.def_text:show()
+            state.def_text:update({defense=state[state.DefenseMode.value..'DefenseMode'].current})
+        else state.def_text:hide() end
 
         if state.OffenseMode.value ~= 'Normal' then
-            state.off_text:visible(true)
-            state.off_text:update({['offense']=state.OffenseMode.value})
-        else
-            state.off_text:visible(false)
-        end
+            state.off_text:show()
+            state.off_text:update({offense=state.OffenseMode.value})
+        else state.off_text:hide() end
 
         if state.CombatForm.has_value then
-            state.dw_text:visible(true)
-            state.dw_text:update({['dw']=state.CombatForm.value})
-        else
-            state.dw_text:visible(false)
-        end
+            state.dw_text:show()
+            state.dw_text:update({dw=state.CombatForm.value})
+        else state.dw_text:hide() end
     end)
 end
 
 function destroy_state_text()
     if state.texts_event_id then
         windower.unregister_event(state.texts_event_id)
-        state.th_ae_text:visible(false)
-        state.nodmg_text:visible(false)
-        state.hyb_text:visible(false)
-        state.def_text:visible(false)
-        state.off_text:visible(false)
-        state.dw_text:visible(false)
-        texts.destroy(state.th_ae_text)
-        texts.destroy(state.nodmg_text)
-        texts.destroy(state.hyb_text)
-        texts.destroy(state.def_text)
-        texts.destroy(state.off_text)
-        texts.destroy(state.dw_text)
+        for text in S{state.th_ae_text, state.nodmg_text, state.hyb_text, state.def_text, state.off_text, state.dw_text}:it() do
+            text:hide()
+            text:destroy()
+        end
     end
+    state.texts_event_id = nil
 end

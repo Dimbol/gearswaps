@@ -21,12 +21,6 @@ function get_sets()
 
     -- Load and initialize the include file.
     include('Mote-Include.lua')
-
-    -- auto translates (defines at_stuff())
-    include('at-stuff.lua')
-
-    -- ws properties (sets info.ws_props)
-    include('ws-props.lua')
 end
 
 -- Setup vars that are user-independent.  state.Buff vars initialized here will automatically be tracked.
@@ -42,8 +36,6 @@ function job_setup()
     state.Buff.doom = buffactive.doom or false
 
     include('Mote-TreasureHunter')
-    state.texts_event_id = nil
-    state.aeonic_aftermath_precast = false
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -59,7 +51,8 @@ function user_setup()
     state.IdleMode:options('Normal','PDT')                              -- Cycle with F11
     state.CombatWeapon = M{['description']='Combat Weapon'}             -- Cycle with @F9
     if S{'DNC','NIN'}:contains(player.sub_job) then
-        state.CombatWeapon:options('CrocTaur','NaegTern','NaegTP','MaxTP','TaurMalev','TaurTern','TaurTP','SeqTernBow','1dmg') --,'trials')
+        state.CombatWeapon:options('CrocTaur','NaegTern','NaegTP','CrocDay','MaxTP',
+                                   'TaurMalev','TaurTern','TaurTP','SeqTernBow','1dmg')
 		state.CombatForm:set('EnDW')
     else
         state.CombatWeapon:options('Crocea','Naegling','Maxentius','Tauret','SeqBow')
@@ -69,10 +62,15 @@ function user_setup()
 
     state.Seidr      = M(false, 'Seidr Nukes')                          -- Toggle with !@z
     state.MagicBurst = M(false, 'Magic Burst')                          -- Toggle with !z
+    state.AllyBinds  = M(false, 'Ally Cure Keybinds')                   -- Toggle with !^numpad0
     state.WSMsg      = M(false, 'WS Message')                           -- Toggle with ^\
     state.DiaMsg     = M(false, 'Dia Message')                          -- Toggle with ^@\
     state.THnuke     = M(false, 'TH Nukes')
     init_state_text()
+
+    info.magic_ws = S{'Aeolian Edge','Cyclone','Gust Slash','Energy Steal','Energy Drain',
+                      'Burning Blade','Red Lotus Blade','Shining Blade','Seraph Blade','Sanguine Blade',
+                      'Shining Strike','Seraph Strike','Flash Nova'}
 
     -- Augmented items get variables for convenience and specificity
     gear.arrow = {name="Chapuli Arrow"}
@@ -112,8 +110,6 @@ function user_setup()
 
     -- Mote-libs handle obis, gorgets, and other elemental things.
     -- These are default fallbacks if situationally appropriate gear is not available.
-    gear.default.weaponskill_neck = "Combatant's Torque"    -- used in sets.precast.WS and friends
-    gear.default.weaponskill_waist = "Windbuffet Belt +1"   -- used in sets.precast.WS and friends
     gear.default.obi_waist = "Sacro Cord"                   -- used in nuke sets (cures overriden in job_post_midcast)
     gear.default.obi_ring  = "Metamorph Ring +1"            -- used in nuke sets
 
@@ -146,7 +142,6 @@ function user_setup()
     send_command('bind !z  gs c toggle MagicBurst')
     send_command('bind ^\\\\  gs c toggle WSMsg')
     send_command('bind ^@\\\\ gs c toggle DiaMsg')
-    send_command('bind %\\\\ gs c ListWS')
 
     -- JA binds
     send_command('bind ^`  input /ja Stymie <me>')
@@ -159,17 +154,16 @@ function user_setup()
     send_command('bind ^tab input /ma Dispel')
     send_command('bind ^q   input /ma Dispelga')
     send_command('bind ^1  input /ma "Dia III"')
-    send_command('bind ~^1 input /ma "Bio III"')
     send_command('bind ^@1 input /ma Inundation')
+    send_command('bind ~^1 input /ma "Bio III"')
     send_command('bind ^2  input /ma "Slow II"')
     send_command('bind ^@2 input /ma "Blind II"')
     send_command('bind ~^2 input /ma Blind')
     send_command('bind ^3  input /ma "Paralyze II"')
-    send_command('bind ^@3 input /ma Bind <stnpc>')
-    send_command('bind ~^3 input /ma "Gravity II" <stnpc>')
+    send_command('bind ~^3 input /ma Bind <stnpc>')
     send_command('bind ^4  input /ma Addle II')
     send_command('bind ^@4 input /ma Silence')
-    send_command('bind ~^4 input /ma Gravity <stnpc>')
+    send_command('bind ~^4 input /ma "Gravity II" <stnpc>')
     send_command('bind ^5  input /ma "Sleep II" <stnpc>')
     send_command('bind ^@5 input /ma Sleep <stnpc>')    -- replaced by sleepga /blm
     send_command('bind ~^5 input /ma Break <stnpc>')
@@ -205,42 +199,36 @@ function user_setup()
     send_command('bind ~!@9|~%9 input /ma "Water V"')
     send_command('bind ~!@0|~%0 input /ma "Aero V"')
 
-
-    info.weapon_type = {['Sequence']='Sword',['SeqTern']='Sword',['SeqBow']='Sword',['SeqTernBow']='Sword',
-                        ['Naegling']='Sword',['NaegTern']='Sword',['NaegTP']='Sword',
-                        ['Crocea']='Sword',['CrocTaur']='Sword',['CrocDay']='Sword',['CrocTP']='Sword',
-                        ['Tauret']='Dagger',['TaurTern']='Dagger',['TaurMalev']='Dagger',['TaurTP']='Dagger',['1dmg']='Dagger',
-                        ['Maxentius']='Club',['MaxTP']='Club'} --,['trials']='trials'}
-    info.ws_binds = T{
+    info.ws_binds = make_keybind_list(T{
         ['Sword']=L{
-            {bind='!^1|%1',ws='"Sanguine Blade"'},
-            {bind='!^2|%2',ws='"Chant du Cygne"'},
-            {bind='!^3|%3',ws='"Savage Blade"'},
-            {bind='!^4|%4',ws='"Death Blossom"'},
-            {bind='!^5|%5',ws='"Requiescat"'},
-            {bind='!^6|%6',ws='"Circle Blade"'},
-            {bind='!^7|%7',ws='"Empyreal Arrow"'},
-            {bind='!^d',ws='"Flat Blade"'}},
+            'bind !^1|%1 input /ws "Sanguine Blade"',
+            'bind !^2|%2 input /ws "Chant du Cygne"',
+            'bind !^3|%3 input /ws "Savage Blade"',
+            'bind !^4|%4 input /ws "Death Blossom"',
+            'bind !^5|%5 input /ws "Requiescat"',
+            'bind !^6|%6 input /ws "Circle Blade"',
+            'bind !^7|%7 input /ws "Empyreal Arrow"',
+            'bind !^d input /ws "Flat Blade"'},
         ['Dagger']=L{
-            {bind='!^1|%1',ws='"Engergy Drain"'},
-            {bind='!^2|%2',ws='"Evisceration"'},
-            {bind='!^3|%3',ws='"Wasp Sting"'},
-            {bind='!^4|%4',ws='"Gust Slash"'},
-            {bind='!^5|%5',ws='"Exenterator"'},
-            {bind='!^6|%6',ws='"Aeolian Edge"'},
-            {bind='!^7|%7',ws='"Cyclone"'},
-            {bind='!^d',ws='"Shadowstitch"'}},
+            'bind !^1|%1 input /ws "Engergy Drain"',
+            'bind !^2|%2 input /ws "Evisceration"',
+            'bind !^3|%3 input /ws "Wasp Sting"',
+            'bind !^4|%4 input /ws "Gust Slash"',
+            'bind !^5|%5 input /ws "Exenterator"',
+            'bind !^6|%6 input /ws "Aeolian Edge"',
+            'bind !^7|%7 input /ws "Cyclone"',
+            'bind !^d input /ws "Shadowstitch"'},
         ['Club']=L{
-            {bind='!^1|%1',ws='"Starlight"'},
-            {bind='!^2|%2',ws='"Black Halo"'},
-            {bind='!^d',ws='"Brainshaker"'}}}
-        --['trials']=L{
-        --[1]={bind='!^1',ws='"Burning Blade"'},
-        --[2]={bind='!^2',ws='"Shining Blade"'},
-        --[3]={bind='!^3',ws='"Savage Blade"'},
-        --[4]={bind='!^4',ws='"Circle Blade"'},
-        --[5]={bind='!^d',ws='"Flat Blade"'}}}
-    set_weaponskill_keybinds()
+            'bind !^1|%1 input /ws "Starlight"',
+            'bind !^2|%2 input /ws "Black Halo"',
+            'bind !^d input /ws "Brainshaker"'}},
+        {['Sequence']='Sword',['SeqTern']='Sword',['SeqBow']='Sword',['SeqTernBow']='Sword',
+         ['Naegling']='Sword',['NaegTern']='Sword',['NaegTP']='Sword',
+         ['Crocea']='Sword',['CrocTaur']='Sword',['CrocDay']='Sword',['CrocTP']='Sword',
+         ['Tauret']='Dagger',['TaurTern']='Dagger',['TaurMalev']='Dagger',['TaurTP']='Dagger',['1dmg']='Dagger',
+         ['Maxentius']='Club',['MaxTP']='Club'})
+    info.ws_binds:bind(state.CombatWeapon)
+    send_command('bind %\\\\ gs c ListWS')
 
     send_command('bind @c  input /ma Blink <me>')
     send_command('bind @v  input /ma Aquaveil <me>')
@@ -251,6 +239,27 @@ function user_setup()
     send_command('bind @b  input /ma "Gain-MND" <me>')
     send_command('bind !@b input /ma "Gain-INT" <me>')
     send_command('bind !^b input /ma "Gain-STR" <me>')
+
+    info.ally_keybinds = make_keybind_list(L{
+        'bind %~numpad1 input /ma "Cure IV" <p0>',
+        'bind %~numpad2 input /ma "Cure IV" <p1>',
+        'bind %~numpad3 input /ma "Cure IV" <p2>',
+        'bind %~numpad4 input /ma "Cure IV" <p3>',
+        'bind %~numpad5 input /ma "Cure IV" <p4>',
+        'bind %~numpad6 input /ma "Cure IV" <p5>',
+        'bind ^numpad1 input /ma "Cure IV" <a10>',
+        'bind ^numpad2 input /ma "Cure IV" <a11>',
+        'bind ^numpad3 input /ma "Cure IV" <a12>',
+        'bind ^numpad4 input /ma "Cure IV" <a13>',
+        'bind ^numpad5 input /ma "Cure IV" <a14>',
+        'bind ^numpad6 input /ma "Cure IV" <a15>',
+        'bind !numpad1 input /ma "Cure IV" <a20>',
+        'bind !numpad2 input /ma "Cure IV" <a21>',
+        'bind !numpad3 input /ma "Cure IV" <a22>',
+        'bind !numpad4 input /ma "Cure IV" <a23>',
+        'bind !numpad5 input /ma "Cure IV" <a24>',
+        'bind !numpad6 input /ma "Cure IV" <a25>'})
+    send_command('bind !^numpad0 gs c toggle AllyBinds')
 
     -- Subjob binds
     if     player.sub_job == 'WHM' then
@@ -293,6 +302,9 @@ function user_setup()
         send_command('bind @F1 input /ma Erase')
     elseif player.sub_job == 'BLM' then
         send_command('bind !d  input /ma Stun')
+        send_command('bind @e  input /ma "Stonega II"')
+        send_command('bind !e  input /ma "Waterga II"')
+        send_command('bind !@e input /ma "Aeroga II"')
         send_command('bind ^@` input /ja "Elemental Seal" <me>')
         send_command('bind ^@5 input /ma Sleepga')
         send_command('bind @d  input /ma Aspir')
@@ -445,12 +457,16 @@ function user_unload()
     send_command('unbind !f')
     send_command('unbind !@f')
     send_command('unbind !e')
+    send_command('unbind @e')
     send_command('unbind !@e')
     send_command('unbind !@z')
     send_command('unbind !z')
     send_command('unbind ^\\\\')
     send_command('unbind ^@\\\\')
     send_command('unbind %\\\\')
+
+    if state.AllyBinds.value then info.ally_keybinds:unbind() end
+    info.ws_binds:unbind()
 
     destroy_state_text()
 end
@@ -476,8 +492,9 @@ function init_gear_sets()
     sets.weapons.TaurTP     = {main="Tauret",sub="Machaera +3"}
     sets.weapons.Maxentius  = {main="Maxentius",sub="Ammurapi Shield"}
     sets.weapons.MaxTP      = {main="Maxentius",sub="Machaera +3"}
-    sets.weapons['1dmg']    = {main="Aern Dagger",sub="Ceremonial Dagger"}
-    --sets.weapons.trials     = {main="Machaera +3",sub="Joyeuse"}
+    sets.weapons['1dmg']    = {main="Aern Dagger",sub="Ceremonial Dagger",range="Ullr"}
+    sets.enf_ammo       = {range=empty,ammo="Regal Gem"}
+    sets.nuke_ammo      = {range=empty,ammo="Pemphredo Tathlum"}
     sets.TreasureHunter = {head="Volte Cap",waist="Chaac Belt",feet=gear.chir_feet_th}
 
     -- Precast Sets
@@ -495,9 +512,9 @@ function init_gear_sets()
     sets.precast.FC.Dispelga = set_combine(sets.precast.FC, sets.dispelga)
 
     sets.precast.WS = {ammo="Voluspa Tathlum",
-        head="Jhakri Coronal +2",neck=gear.ElementalGorget,ear1="Moonshade Earring",ear2="Sherida Earring",
+        head="Jhakri Coronal +2",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Sherida Earring",
         body="Ayanmo Corazza +2",hands="Jhakri Cuffs +2",ring1="Ilabrat Ring",ring2="Rufescent Ring",
-        back=gear.WSCape,waist=gear.ElementalBelt,legs="Jhakri Slops +2",feet="Jhakri Pigaches +2"}
+        back=gear.WSCape,waist="Fotia Belt",legs="Jhakri Slops +2",feet="Jhakri Pigaches +2"}
     sets.precast.WS['Savage Blade'] = set_combine(sets.precast.WS, {neck="Caro Necklace",body="Jhakri Robe +2",waist="Grunfeld Rope"})
     sets.precast.WS['Chant du Cygne'] = set_combine(sets.precast.WS, {ammo="Yetshila +1",
         ring1="Ilabrat Ring",ring2="Begrudging Ring",back=gear.CDCCape,feet="Ayanmo Gambieras +2"})
@@ -508,14 +525,14 @@ function init_gear_sets()
     sets.precast.WS['Aeolian Edge'] = {ammo="Pemphredo Tathlum",
         head="Jhakri Coronal +2",neck="Sanctity Necklace",ear1="Moonshade Earring",ear2="Malignance Earring",
         body=gear.mer_body_ma,hands="Chironic Gloves",ring1="Metamorph Ring +1",ring2="Freke Ring",
-        back=gear.WSCape,waist=gear.ElementalBelt,legs="Jhakri Slops +2",feet=gear.chir_feet_ma}
+        back=gear.WSCape,waist="Fotia Belt",legs="Jhakri Slops +2",feet=gear.chir_feet_ma}
     sets.precast.WS['Sanguine Blade'] = set_combine(sets.precast.WS['Aeolian Edge'], {
         head="Pixie Hairpin +1",ear2="Friomisi Earring",ring1="Archon Ring",waist="Sacro Cord"})
     sets.precast.WS['Energy Drain'] = set_combine(sets.precast.WS['Sanguine Blade'], {})
     sets.precast.WS['Empyreal Arrow'] = {ammo=gear.arrow,
         head="Atrophy Chapeau +3",neck="Combatant's Torque",ear1="Telos Earring",ear2="Regal Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1="Ilabrat Ring",ring2="Cacoethic Ring +1",
-        back=gear.WSCape,waist=gear.ElementalBelt,legs="Malignance Tights",feet="Malignance Boots"}
+        back=gear.WSCape,waist="Fotia Belt",legs="Malignance Tights",feet="Malignance Boots"}
     sets.precast.WS['Black Halo'] = set_combine(sets.precast.WS['Savage Blade'], {})
 
     sets.precast.Step = {ammo="Voluspa Tathlum",
@@ -541,9 +558,10 @@ function init_gear_sets()
         back=gear.IdleCape,waist="Goading Belt",legs="Atrophy Tights +2",feet="Medium's Sabots"}
     -- cure+50, cmp+8, enm+42 pdt-50
     sets.midcast.StatusRemoval = {}
-    sets.midcast.Cursna = {neck="Malison Medallion",
+    sets.midcast.Cursna = {neck="Debilis Medallion",
         body="Vitiation Tabard +3",ring1="Haoma's Ring",ring2="Haoma's Ring",feet="Vanya Clogs"}
-    -- healing skill 459, cursna +45 (est. 37% success)
+    sets.cmp_belt  = {waist="Shinjutsu-no-Obi +1"}
+    sets.gishdubar = {waist="Gishdubar Sash"}
 
     sets.midcast.EnhancingDuration = {main=gear.colada_enh,sub="Ammurapi Shield",ammo="Staunch Tathlum +1",
         head="Telchine Cap",neck="Duelist's Torque +2",ear1="Mendicant's Earring",ear2="Etiolation Earring",
@@ -573,7 +591,6 @@ function init_gear_sets()
     sets.midcast.Klimaform = set_combine(sets.midcast.EnhancingDuration, {})
     sets.midcast.FixedPotencyEnhancing = set_combine(sets.midcast.EnhancingDuration, {})
     sets.buff.ComposureOther = {head="Lethargy Chappel +1",body="Lethargy Sayon +1",legs="Lethargy Fuseau +1",feet="Lethargy Houseaux +1"}
-    -- haste2: ~9:37 w/o, ~10:30 w/ composure
 
     sets.midcast['Enfeebling Magic'] = {main="Crocea Mors",sub="Ammurapi Shield",range="Ullr",ammo=empty,
         head="Atrophy Chapeau +3",neck="Duelist's Torque +2",ear1="Regal Earring",ear2="Snotra Earring",
@@ -622,9 +639,12 @@ function init_gear_sets()
         body="Ea Houppelande +1",hands="Amalric Gages +1",ring1="Mujin Band",ring2="Freke Ring",
         back=gear.IntCape,waist=gear.ElementalObi,legs="Ea Slops +1",feet="Jhakri Pigaches +2"}
     sets.magicburst.Resistant = set_combine(sets.magicburst, {range="Ullr",ammo=empty})
-    sets.seidr   = {body="Seidr Cotehardie"}
-    sets.seidrmb = {body="Seidr Cotehardie"}
-    sets.submalev = {sub="Malevolence"}
+    sets.seidr     = {body="Seidr Cotehardie"}
+    sets.seidrmb   = {body="Seidr Cotehardie"}
+    sets.orpheus   = {waist="Orpheus's Sash"}
+    sets.ele_obi   = {waist="Hachirin-no-Obi"}
+    sets.nuke_belt = {waist="Sacro Cord"}
+    sets.submalev  = {sub="Malevolence"}
 
     sets.midcast['Dark Magic'] = {main="Rubicundity",sub="Ammurapi Shield",range="Ullr",ammo=empty,
         head="Atrophy Chapeau +3",neck="Erra Pendant",ear1="Regal Earring",ear2="Malignance Earring",
@@ -634,6 +654,7 @@ function init_gear_sets()
         head="Pixie Hairpin +1",ring1="Evanescence Ring",ring2="Archon Ring",waist=gear.ElementalObi,feet=gear.mer_feet_fc})
     sets.midcast.Aspir = set_combine(sets.midcast.Drain, {})
     sets.midcast.Aspir.Resistant = set_combine(sets.midcast.Aspir, {head="Atrophy Chapeau +3",feet="Jhakri Pigaches +2"})
+    sets.drain_belt = {waist="Fucho-no-Obi"}
     sets.midcast.Stun = set_combine(sets.midcast['Dark Magic'], {waist="Goading Belt"})
 
     sets.midcast.Repose = set_combine(sets.midcast['Enfeebling Magic'], {hands="Jhakri Cuffs +2"})
@@ -680,14 +701,15 @@ function init_gear_sets()
 
     sets.engaged.PDef     = set_combine(sets.engaged,     {ring1="Vocane Ring +1",ring2="Defending Ring"})
     sets.engaged.Acc.PDef = set_combine(sets.engaged.Acc, {ring1="Vocane Ring +1",ring2="Defending Ring"})
-    sets.enspell   = {hands="Ayanmo Manopolas +2"} -- applied inside customize_melee_set
-    sets.dualwield = {ear1="Eabani Earring",waist="Reiki Yotai"} -- applied inside customize_melee_set
-    sets.odin = set_combine(sets.engaged, sets.dualwield, {ammo="Voluspa Tathlum",
-        head="Umuthi Hat",neck="Sanctity Necklace",
+    sets.dualwield = {ear1="Eabani Earring",waist="Reiki Yotai"}
+    sets.enspell   = {hands="Ayanmo Manopolas +2",waist="Orpheus's Sash"}
+    sets.endw = set_combine(sets.dualwield, sets.enspell, {ear2="Suppanomimi"})
+    sets.odin = set_combine(sets.engaged, sets.dualwield, {range="Ullr",ammo=empty,
+        head="Umuthi Hat",neck="Sanctity Necklace",ear2="Suppanomimi",
         body="Ayanmo Corazza +2",hands="Ayanmo Manopolas +2",ring1=gear.Lstikini,
-        back="Ghostfyre Cape"})
+        back="Ghostfyre Cape",waist="Orpheus's Sash"})
 
-    sets.resting = set_combine(sets.idle, {main="Boonwell Staff",sub="Niobid Strap",waist="Shinjutsu-no-obi +1"})
+    --sets.resting = set_combine(sets.idle, {main="Boonwell Staff",sub="Niobid Strap",waist="Shinjutsu-no-obi +1"})
 
     -- Sets that depend upon idle sets
     sets.midcast.FastRecast = set_combine(sets.idle.PDT, {main="Crocea Mors",sub="Sacro Bulwark"})
@@ -714,10 +736,21 @@ function job_precast(spell, action, spellMap, eventArgs)
         -- some spells cast too quickly for precast/midcast swaps to work reliably
         eventArgs.handled = true
     elseif spell.type == 'WeaponSkill' then
-        state.aeonic_aftermath_precast = (buffactive["Aftermath: Lv.1"] or buffactive["Aftermath: Lv.2"] or buffactive["Aftermath: Lv.3"])
         if state.WeaponskillMode.value == 'NoDmg' then
             equip(sets.naked)
             eventArgs.handled = true
+        end
+    end
+end
+
+-- Run after the general precast() is done.
+function job_post_precast(spell, action, spellMap, eventArgs)
+    if spell.type == 'WeaponSkill' then
+        if info.magic_ws:contains(spell.english) then
+            equip(resolve_orpheus(spell, sets.ele_obi, sets.nuke_belt, 3))
+        end
+        if buffactive['elvorseal'] then
+            if player.inventory["Angantyr Boots"] then equip({feet="Angantyr Boots"}) end
         end
     end
 end
@@ -762,18 +795,16 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
         and state.CombatForm.has_value and state.CombatForm.value:endswith('DW') then
             equip(sets.midcast['Enhancing Magic'].DW)
         end
-    elseif S{'Cure','Curaga'}:contains(spellMap) then
+    elseif S{'Cure','Curaga'}:contains(spellMap) and state.CastingMode.value ~= 'Enmity' then
         if gear.ElementalObi.name == gear.default.obi_waist then
-            equip({waist="Slipor Sash"})
+            equip(sets.cmp_belt)
         end
-    elseif S{'Drain','Aspir'}:contains(spellMap) then
-        if gear.ElementalObi.name == gear.default.obi_waist then
-            equip({waist="Fucho-no-obi"})
-        end
+    elseif S{'Drain','Aspir'}:contains(spell.english) then
+        equip(resolve_orpheus(spell, sets.ele_obi, sets.drain_belt, 5))
     end
     if spell.target.type == 'SELF' then
-        if S{'Cure','Curaga','Refresh'}:contains(spellMap) then
-            equip({waist="Gishdubar Sash"})
+        if S{'Cure','Refresh'}:contains(spellMap) then
+            equip(sets.gishdubar)
         elseif spell.english == 'Cursna' then
             equip(sets.buff.doom)
         end
@@ -799,6 +830,7 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
         if state.CombatForm.has_value and state.CombatForm.value:endswith('DW') then
             equip(sets.submalev)
         end
+        equip(resolve_orpheus(spell, sets.ele_obi, sets.nuke_belt, 3))
     elseif spell.skill == 'Enfeebling Magic' and (state.Buff.Stymie or state.Buff['Elemental Seal']) then
         if state.CastingMode.value == 'Resistant'
         and S{'Frazzle III','Distract III','Slow II','Addle II','Paralyze II'}:contains(spell.english) then
@@ -806,15 +838,15 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
         end
     end
     if state.OffenseMode.value ~= 'None' then
-        if     spell.skill == 'Enfeebling Magic' then
-            equip({range=empty,ammo="Regal Gem"})
-        elseif spell.skill == 'Elemental Magic' then
-            equip({range=empty,ammo="Pemphredo Tathlum"})
-        elseif spell.skill == 'Dark Magic' then
-            equip({range=empty,ammo="Pemphredo Tathlum"})
+        -- prevent equipping a bow and losing tp
+        if     spell.skill == 'Enfeebling Magic' then equip(sets.enf_ammo)
+        elseif spell.skill == 'Elemental Magic'  then equip(sets.nuke_ammo)
+        elseif spell.skill == 'Dark Magic'       then equip(sets.nuke_ammo)
         end
-    --elseif state.CombatWeapon.value == '1dmg' and state.CombatForm.value == 'odinDW' then
-    --    equip(sets.weapons['1dmg']) -- reduces dropped aftercast mishaps
+    elseif state.CombatWeapon.value == '1dmg' and state.CombatForm.value == 'odinDW' then
+        if S{'Cure','FixedPotencyEnhancing'}:contains(spellMap) then
+            equip(sets.weapons['1dmg']) -- reduces dropped aftercast mishaps
+        end
     end
 end
 
@@ -822,13 +854,7 @@ end
 function job_aftercast(spell, action, spellMap, eventArgs)
     if spell.interrupted then
         send_command('wait 0.5;gs c update')
-        if buffactive.Amnesia and S{'JobAbility','WeaponSkill'}:contains(spell.type) then
-            add_to_chat(123, 'Amnesia prevents using '..spell.english)
-        elseif buffactive.Silence and S{'WhiteMagic','BlackMagic','Ninjutsu'}:contains(spell.type) then
-            add_to_chat(123, 'Silence prevents using '..spell.english)
-        elseif has_any_buff_of(S{'Petrification','Sleep','Stun','Terror'}) then
-            add_to_chat(123, 'Status prevents using '..spell.english)
-        end
+        interrupted_message(spell)
     elseif spell.type == 'JobAbility' then
         eventArgs.handled = true
     elseif spell.english == 'Dia III' and state.DiaMsg.value then
@@ -836,7 +862,7 @@ function job_aftercast(spell, action, spellMap, eventArgs)
             send_command('@input /p '..spell.english..' /')
         end
     elseif spell.type == 'WeaponSkill' and state.WSMsg.value then
-        ws_msg(spell)
+        send_command('@input /p '..spell.english)
     elseif S{'Break','Sleep','Sleep II','Sleepga'}:contains(spell.english) then
         local dur
         if spell.english == 'Break' then
@@ -888,32 +914,32 @@ end
 function job_state_change(stateField, newValue, oldValue)
     if stateField == 'Offense Mode' then
         enable('main','sub','range','ammo')
-        handle_equipping_gear(player.status)
-        set_weaponskill_keybinds()
         if newValue ~= 'None' then
             equip(sets.weapons[state.CombatWeapon.value])
-            if newValue:endswith('Bow') then
+            if state.CombatWeapon.value:endswith('Bow') then
                 disable('main','sub','range','ammo')
             else
                 disable('main','sub')
             end
         end
     elseif stateField == 'Combat Weapon' then
-        enable('main','sub','range','ammo')
-        set_weaponskill_keybinds()
+        local form = ''
+        if newValue:startswith('Croc') then form = 'En' end
+        if player.sub_job == 'NIN' then form = form .. 'DW' end
+        state.CombatForm:set(form)
+        info.ws_binds:bind(state.CombatWeapon)
         if state.OffenseMode.value ~= 'None' then
+            enable('main','sub','range','ammo')
             equip(sets.weapons[state.CombatWeapon.value])
-            if state.CombatWeapon.value ~= 'None' then
-                local form = ''
-                if newValue:startswith('Croc') then form = 'En' end
-                if player.sub_job == 'NIN' then form = form .. 'DW' end
-                state.CombatForm:set(form)
-                if state.CombatWeapon.value:endswith('Bow') then
-                    disable('main','sub','range','ammo')
-                else
-                    disable('main','sub')
-                end
+            if state.CombatWeapon.value:endswith('Bow') then
+                disable('main','sub','range','ammo')
+            else
+                disable('main','sub')
             end
+        end
+    elseif stateField == 'Ally Cure Keybinds' then
+        if newValue then info.ally_keybinds:bind()
+        else             info.ally_keybinds:unbind()
         end
     end
 end
@@ -961,13 +987,13 @@ function customize_melee_set(meleeSet)
     if state.DefenseMode.value == 'None' then
         meleeSet = set_combine(meleeSet, sets.weapons[state.CombatWeapon.value])
         if state.CombatForm.has_value then
-            if state.CombatForm.value:startswith('En') then
+            if     state.CombatForm.value == 'En' then
                 meleeSet = set_combine(meleeSet, sets.enspell)
-            end
-            if state.CombatForm.value:endswith('DW') then
+            elseif state.CombatForm.value == 'DW' then
                 meleeSet = set_combine(meleeSet, sets.dualwield)
-            end
-            if state.CombatForm.value == 'odinDW' then
+            elseif state.CombatForm.value == 'EnDW' then
+                meleeSet = set_combine(meleeSet, sets.endw)
+            elseif state.CombatForm.value == 'odinDW' then
                 meleeSet = set_combine(meleeSet, sets.odin)
             end
         end
@@ -1086,98 +1112,19 @@ function job_self_command(cmdParams, eventArgs)
         end
     end
     if cmdParams[1] == 'ListWS' then
-        add_to_chat(122, 'ListWS:')
-        for ws in info.ws_binds[info.weapon_type[state.CombatWeapon.value]]:it() do
-            add_to_chat(122, "%3s : %s":format(ws.bind,ws.ws))
-        end
-    elseif cmdParams[1] == 'weap' then
-        -- sets CombatWeapon to the first matching value by prefix and optional suffix
-        if #cmdParams < 2 then return end
-        local prefix = cmdParams[2] or nil
-        local suffix = cmdParams[3] or nil
-        local weapons = L{}
-        for i,v in ipairs(state.CombatWeapon) do
-            if type(v) == 'string' then weapons:append(v) end
-        end
-
-        weapons = weapons:filter(function(w) return w:startswith(prefix) end)
-        if suffix then
-            local weapons_with_suffix = weapons:filter(function(w) return w:endswith(suffix) end)
-            if not weapons_with_suffix:empty() then weapons = weapons_with_suffix end
-        end
-
-        if weapons:empty() then
-            add_to_chat(123, 'no matching weapon for '..prefix..''..(suffix and '..'..suffix or ''))
-        else
-            handle_set({'CombatWeapon',weapons[1]})
-        end
-    elseif cmdParams[1] == 'save' then
-        -- create new sets or tweak existing ones on the fly
-        if cmdParams[2] then
-            local set_name = cmdParams:slice(2):concat(' ')
-            local key_list = gearswap.parse_set_to_keys(set_name)
-            local set_parent = gearswap.get_set_from_keys(key_list:slice(1,-2)) or (key_list:length() == 1 and sets or nil)
-
-            if set_parent then
-                if not set_parent[key_list:last()] then set_parent[key_list:last()] = {} end
-                for slot,item in pairs(player.equipment) do
-                    if item == 'empty' then
-                        set_parent[key_list:last()][slot] = empty
-                    else
-                        set_parent[key_list:last()][slot] = item
-                    end
-                end
-                add_to_chat(122, 'current gear saved to {%s}':format(set_name))
-            else
-                add_to_chat(104, 'bad set name: {%s}':format(set_name))
-            end
-        end
+        info.ws_binds:print('ListWS:')
     elseif cmdParams[1] == 'odin' then
         state.CombatWeapon:set('1dmg')
         state.CombatForm:set('odinDW')
-    --elseif cmdParams[1] == 'trials' then
-    --    send_command('bind !c gs c set CombatWeapon trials')
-    --    state.CombatWeapon:set('trials')
-    --    state.WeaponskillMode:set('NoDmg')
+    elseif cmdParams[1] == 'weap' then
+        weap_self_command(cmdParams, 'CombatWeapon')
+    elseif cmdParams[1] == 'save' then
+        save_self_command(cmdParams)
     end
 end
 
--- Handle auto-targetting based on local setup.
 function job_auto_change_target(spell, action, spellMap, eventArgs)
-    if spell.target.raw == '<stpc>' then
-        if S{'SELF','PLAYER'}:contains(player.target.type)
-        or 'NPC' == player.target.type and npcs.Trust:contains(player.target.name) then
-            if S{'Cure','Curaga','Regen'}:contains(spellMap)
-            or spell.targets.Party and spell.skill == 'Enhancing Magic' then
-                -- Change some spells to use <t> instead of <stpc> when already targetting a player.
-                -- <stpc> macros are convenient while engaged, but add delay in backline situations.
-                change_target('<t>')
-                eventArgs.handled = true
-            end
-        elseif 'NPC' == player.target.type and player.target.name ~= 'Luopan' then
-            add_to_chat(122,'Is this a trust? ['..player.target.name..']')
-        end
-    elseif spell.target.raw == '<stnpc>' and spell.targets.Enemy and player.status ~= 'Engaged' then
-        if 'MONSTER' == player.target.type
-        or 'PLAYER'  == player.target.type and windower.ffxi.get_mob_by_index(player.target.index).charmed then
-            -- Likewise for crowd-control while unengaged.
-            change_target('<t>')
-            eventArgs.handled = true
-        end
-    elseif spell.target.raw == '<t>' and spell.targets.Enemy and player.target.type ~= 'MONSTER' then
-        if not player.target.name
-        or 'SELF'   == player.target.type
-        or 'PLAYER' == player.target.type and not windower.ffxi.get_mob_by_index(player.target.index).charmed
-        or 'NPC'    == player.target.type and (npcs.Trust:contains(player.target.name) or player.target.name == 'Luopan') then
-            if spellMap ~= 'Cure' then
-                -- Change enfeebles and such to fall back to <bt> when watching a player.
-                change_target('<bt>')
-                eventArgs.handled = true
-            end
-        elseif 'NPC' == player.target.type then
-            add_to_chat(122,'Is this a trust? ['..player.target.name..']')
-        end
-    end
+    custom_auto_change_target(spell, action, spellMap, eventArgs)
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -1188,56 +1135,6 @@ end
 function select_default_macro_book()
     set_macro_page(1,2)
     send_command('bind !^l input /lockstyleset 2')
-end
-
-function ws_msg(spell)
-    -- optional party chat messages for weaponskills
-    local at_ws
-    local good_ats = true
-    local props = info.ws_props[spell.english].props
-    local at_props = {}
-    local aeonic = state.aeonic_aftermath_precast and info.ws_props[spell.english].aeonic
-        and player.equipment.main == info.ws_props[spell.english].aeonic.weapon
-
-    at_ws = at_stuff(spell.english) -- shift-jis
-    good_ats = (at_ws ~= nil)
-    if props then
-        if aeonic then
-            local prop = info.ws_props[spell.english].aeonic.sc
-            local at_prop = at_stuff(prop)
-            table.insert(at_props, at_prop)
-            good_ats = (good_ats and at_prop)
-        end
-        for i, prop in ipairs(props) do
-            local at_prop = at_stuff(prop)
-            table.insert(at_props, at_prop)
-            good_ats = (good_ats and at_prop)
-        end
-    end
-
-    if good_ats then
-        if props then
-            windower.chat.input('/p used '..at_ws..' ('..table.concat(at_props,'')..')')
-        else
-            windower.chat.input('/p used '..at_ws)
-        end
-    else
-        windower.chat.input('/p used '..spell.english)
-    end
-end
-
--- issues send_command()s to set weaponskill keybinds for current value of state.CombatWeapon
--- checks and sets state.WSBinds to determine if send_command()s are needed
--- info.weapon_type and info.ws_binds map state.CombatWeapon to a table of keybinds
-function set_weaponskill_keybinds()
-    if state.CombatWeapon.value == 'None' then return end
-    local cur_weapon_type = info.weapon_type[state.CombatWeapon.value]
-    if state.WSBinds.value ~= cur_weapon_type then
-        for ws in info.ws_binds[cur_weapon_type]:it() do
-            send_command("bind %s input /ws %s":format(ws.bind,ws.ws))
-        end
-        state.WSBinds:set(cur_weapon_type)
-    end
 end
 
 function init_state_text()
@@ -1251,32 +1148,30 @@ function init_state_text()
     state.hyb_text = texts.new('/${hybrid}', hyb_text_settings)
     state.def_text = texts.new('(${defense})', def_text_settings)
 
+    windower.register_event('logout', destroy_state_text)
     state.texts_event_id = windower.register_event('prerender', function()
         state.mb_text:visible(state.MagicBurst.value)
         state.seidr_text:visible(state.Seidr.value)
-        state.hyb_text:visible((state.HybridMode.value ~= 'Normal'))
-        state.def_text:visible((state.DefenseMode.value ~= 'None'))
 
-        state.hyb_text:update({['hybrid']=state.HybridMode.value})
+        if state.HybridMode.value ~= 'Normal' then
+            state.hyb_text:show()
+            state.hyb_text:update({hybrid=state.HybridMode.value})
+        else state.hyb_text:hide() end
 
-        local defMode = '---'
         if state.DefenseMode.value ~= 'None' then
-            defMode = state[state.DefenseMode.value ..'DefenseMode'].current
-        end
-        state.def_text:update({['defense']=defMode})
+            state.def_text:show()
+            state.def_text:update({defense=state[state.DefenseMode.value..'DefenseMode'].current})
+        else state.def_text:hide() end
     end)
 end
 
 function destroy_state_text()
     if state.texts_event_id then
         windower.unregister_event(state.texts_event_id)
-        state.mb_text:visible(false)
-        state.seidr_text:visible(false)
-        state.hyb_text:visible(false)
-        state.def_text:visible(false)
-        texts.destroy(state.mb_text)
-        texts.destroy(state.seidr_text)
-        texts.destroy(state.hyb_text)
-        texts.destroy(state.def_text)
+        for text in S{state.mb_text, state.seidr_text, state.hyb_text, state.def_text}:it() do
+            text:hide()
+            text:destroy()
+        end
     end
+    state.texts_event_id = nil
 end

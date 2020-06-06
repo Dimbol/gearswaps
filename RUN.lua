@@ -23,6 +23,7 @@
 -- consider using the MDT50 tanking set for strong breath attacks, eg, arrogance incarnate
 -- add items to the hpgear table in user_setup() to prioritize swap order by hp so less max hp is lost
 -- in Tank casting mode, only non-shockwave weaponskills should leave you open to damage
+-- weaponskills and effusions are changed from <stnpc> to <t> in job_auto_change_target
 
 -- KYOU
 -- odyllic at start to build hate without hassle
@@ -97,12 +98,6 @@ function get_sets()
 
     -- Load and initialize the include file.
     include('Mote-Include.lua')
-
-    -- auto translates (defines at_stuff())
-    include('at-stuff.lua')
-
-    -- ws properties (sets info.ws_props)
-    include('ws-props.lua')
 end
 
 -- Setup vars that are user-independent.  state.Buff vars initialized here will automatically be tracked.
@@ -114,8 +109,6 @@ function job_setup()
     state.Buff.Embolden = buffactive.Embolden or false
     state.Buff.sleep = buffactive.sleep or false
     state.Buff.doom  = buffactive.doom or false
-    state.texts_event_id = nil
-    state.aeonic_aftermath_precast = false
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -140,7 +133,6 @@ function user_setup()
     state.WSMsg = M(false, 'WS Message')                        -- Toggle with ^\ (also chat for JAs)
     state.SIRD  = M(false, 'SIRD Casting')                      -- Toggle with !c
     state.OFAhp = M(false, 'OFA++')                             -- Toggle with !`
-    state.THtag = M(false, 'TH+4 Poisonga')                     -- Toggle with !F12
     init_state_text()
 
     info.sird_spells = S{'Aquaveil','Crusade','Foil','Stoneskin',
@@ -148,8 +140,6 @@ function user_setup()
 
     -- Mote-libs handle obis, gorgets, and other elemental things.
     -- These are default fallbacks if situationally appropriate gear is not available.
-    gear.default.weaponskill_neck = "Sanctity Necklace"     -- used in sets.precast.WS and friends
-    gear.default.weaponskill_waist = "Windbuffet Belt +1"   -- used in sets.precast.WS and friends
     gear.default.obi_waist = "Eschan Stone"                 -- used in sets.precast.WS.Magical
 
     -- Augmented items get variables for convenience and specificity
@@ -188,7 +178,7 @@ function user_setup()
     hpgear = {}
     hpgear["Epeolatry"]               = {name="Epeolatry",priority=900}
     hpgear["Lionheart"]               = {name="Lionheart",priority=900}
-    hpgear["Hepatizon Axe"]           = {name="Hepatizon Axe",priority=900}
+    hpgear["Hepatizon Axe +1"]        = {name="Hepatizon Axe +1",priority=900}
     hpgear["Kaja Chopper"]            = {name="Kaja Chopper",priority=900}
     hpgear["Adhemar Jacket"]          = {name="Adhemar Jacket",priority=143}
     hpgear["Aqreaqa Bomblet"]         = {name="Aqreaqa Bomblet",priority=20}
@@ -231,15 +221,12 @@ function user_setup()
     hpgear["Turms Cap +1"]            = {name="Turms Cap +1",priority=94}
     hpgear["Turms Leggings +1"]       = {name="Turms Leggings +1",priority=76}
     hpgear["Turms Mittens +1"]        = {name="Turms Mittens +1",priority=74}
+    hpgear["Unmoving Collar +1"]      = {name="Unmoving Collar +1",priority=200}
     hpgear["Utu Grip"]                = {name="Utu Grip",priority=70}
     hpgear["Volte Cap"]               = {name="Volte Cap",priority=57}
 
-    -- have typos to hpgear[] keys return an invalid item so //gs validate catches the issue
-    setmetatable(hpgear, {__index = function(t, k)
-        if rawget(t, k) == nil then return k
-        else return rawget(t, k)
-        end
-    end})
+    -- have typos to hpgear[] keys return that key instead of nil, so `//gs validate' catches the issue
+    setmetatable(hpgear, {__index = function(t, k) return k end})
 
     -- Binds
     send_command('unbind ^=')
@@ -256,7 +243,6 @@ function user_setup()
     send_command('bind F11  gs c cycle IdleMode')
     send_command('bind !F11 gs c reset IdleMode')
     send_command('bind @F11 gs c toggle Kiting')
-    send_command('bind !F12 gs c toggle THtag')
     send_command('bind ^space  gs c cycle HybridMode')
     send_command('bind ^@space gs c reset HybridMode')
     send_command('bind !space gs c set DefenseMode Physical')
@@ -283,37 +269,38 @@ function user_setup()
     send_command('bind ^@- gs equip defense.HPdown')
     send_command('bind ^@= gs equip defense.HPup')
 
-    info.weapon_type = {['Epeo']='Great Sword',['EpeoRef']='Great Sword',['Lionheart']='Great Sword',
-                        ['Sword']='Sword',['Axe']='Axe',['GreatAxe']='Great Axe',['Hepatizon']='Great Axe'}
-    info.ws_binds = T{
+    info.ws_binds = make_keybind_list(T{
         ['Great Sword']=L{
-            {bind='!^1|%1',ws='"Herculean Slash"'},
-            {bind='!^2|%2',ws='"Resolution"'},
-            {bind='!^3|%3',ws='"Dimidiation"'},
-            {bind='!^4|%4',ws='"Ground Strike"'},
-            {bind='!^5|%5',ws='"Power Slash"'},
-            {bind='!^6|%6',ws='"Shockwave"'}},
+            'bind !^1|%1 input /ws "Herculean Slash" <stnpc>',
+            'bind !^2|%2 input /ws "Resolution"      <stnpc>',
+            'bind !^3|%3 input /ws "Dimidiation"     <stnpc>',
+            'bind !^4|%4 input /ws "Ground Strike"   <stnpc>',
+            'bind !^5|%5 input /ws "Power Slash"     <stnpc>',
+            'bind !^6|%6 input /ws "Shockwave"       <stnpc>'},
         ['Sword']=L{
-            {bind='!^1|%1',ws='"Sanguine Blade"'},
-            {bind='!^2|%2',ws='"Requiescat"'},
-            {bind='!^3|%3',ws='"Savage Blade"'},
-            {bind='!^4|%4',ws='"Flat Blade"'},
-            {bind='!^5|%5',ws='"Swift Blade"'},
-            {bind='!^6|%6',ws='"Circle Blade"'}},
+            'bind !^1|%1 input /ws "Sanguine Blade" <stnpc>',
+            'bind !^2|%2 input /ws "Requiescat"     <stnpc>',
+            'bind !^3|%3 input /ws "Savage Blade"   <stnpc>',
+            'bind !^4|%4 input /ws "Flat Blade"     <stnpc>',
+            'bind !^5|%5 input /ws "Swift Blade"    <stnpc>',
+            'bind !^6|%6 input /ws "Circle Blade"   <stnpc>'},
         ['Great Axe']=L{
-            {bind='!^1|%1',ws='"Armor Break"'},
-            {bind='!^2|%2',ws='"Upheaval"'},
-            {bind='!^3|%3',ws='"Steel Cyclone"'},
-            {bind='!^4|%4',ws='"Weapon Break"'},
-            {bind='!^5|%5',ws='"Shield Break"'},
-            {bind='!^6|%6',ws='"Fell Cleave"'}},
+            'bind !^1|%1 input /ws "Armor Break"   <stnpc>',
+            'bind !^2|%2 input /ws "Upheaval"      <stnpc>',
+            'bind !^3|%3 input /ws "Steel Cyclone" <stnpc>',
+            'bind !^4|%4 input /ws "Weapon Break"  <stnpc>',
+            'bind !^5|%5 input /ws "Shield Break"  <stnpc>',
+            'bind !^6|%6 input /ws "Fell Cleave"   <stnpc>'},
         ['Axe']=L{
-            {bind='!^1|%1',ws='"Bora Axe"'},
-            {bind='!^2|%2',ws='"Decimation"'},
-            {bind='!^3|%3',ws='"Ruinator"'},
-            {bind='!^4|%4',ws='"Smash Axe"'},
-            {bind='!^5|%5',ws='"Rampage"'}}}
-    set_weaponskill_keybinds()
+            'bind !^1|%1 input /ws "Bora Axe"   <stnpc>',
+            'bind !^2|%2 input /ws "Decimation" <stnpc>',
+            'bind !^3|%3 input /ws "Ruinator"   <stnpc>',
+            'bind !^4|%4 input /ws "Smash Axe"  <stnpc>',
+            'bind !^5|%5 input /ws "Rampage"    <stnpc>'}},
+        {['Epeo']='Great Sword',['EpeoRef']='Great Sword',['Lionheart']='Great Sword',
+         ['Sword']='Sword',['Axe']='Axe',['GreatAxe']='Great Axe',['Hepatizon']='Great Axe'})
+    info.ws_binds:bind(state.CombatWeapon)
+    send_command('bind %\\\\ gs c ListWS')
 
     send_command('bind !7 gs c set StatusDefenseMode Knockback')
     send_command('bind !8 gs c set StatusDefenseMode Charm')
@@ -334,8 +321,8 @@ function user_setup()
 
     send_command('bind ^4 input /ja Gambit')                    -- (640/1280)
     send_command('bind ^5 input /ja Rayke')                     -- (640/1260)
-    send_command('bind ^6 input /ja Swipe')
-    send_command('bind ^7 input /ja Lunge')
+    send_command('bind ^6 input /ja Swipe  <stnpc>')
+    send_command('bind ^7 input /ja Lunge  <stnpc>')
 
     send_command('bind @1 input /ja Ignis <me>')    -- fire up,    ice down
     send_command('bind @2 input /ja Gelus <me>')    -- ice up,     wind down
@@ -381,17 +368,21 @@ function user_setup()
     send_command('bind !w  gs c reset OffenseMode')
     send_command('bind !@w gs c set   OffenseMode None')
     send_command('bind ^\\\\ gs c toggle WSMsg')
-    send_command('bind %\\\\ gs c ListWS')
+    send_command('bind ^q  gs c toggle SelectNPCTargets')
 
+    info.recast_ids = L{{name="Battuta",id=120},{name="Vallation",id=23},{name="Liement",id=117},{name="Valiance",id=113},
+                        {name="One for All",id=118},{name="Gambit",id=116},{name="Rayke",id=119}}
     if     player.sub_job == 'DRK' then
         send_command('bind ^1 input /ma Stun')                          -- (180/1280)
         send_command('bind ^2 input /ma Stun <stnpc>')                  -- (180/1280)
         send_command('bind ^3 input /ma Poisonga')                      -- (1/320)
         send_command('bind ^@3 input /ma Poisonga <stnpc>')
+        send_command('bind !e  input /ma Absorb-TP')
         send_command('bind !^d input /ja "Weapon Bash"')                -- (1/900)
         send_command('bind !4 input /ja "Last Resort" <me>')            -- (1/1300)
         send_command('bind !5 input /ja Souleater <me>')                -- (1/1300)
         send_command('bind !6 input /ja "Arcane Circle" <me>')
+        info.recast_ids:extend(L{{name='Last Resort',id=87},{name='Souleater',id=85}})
     elseif player.sub_job == 'WAR' then
         send_command('bind ^1 input /ja Provoke')                       -- (1/1800)
         send_command('bind ^2 input /ja Provoke <stnpc>')               -- (1/1800)
@@ -399,6 +390,7 @@ function user_setup()
         send_command('bind !4 input /ja Berserk <me>')
         send_command('bind !5 input /ja Aggressor <me>')
         send_command('bind !6 input /ja Warcry <me>')                   -- (1/300 per)
+        info.recast_ids:extend(L{{name='Provoke',id=5},{name='Warcry',id=2}})
     elseif player.sub_job == 'SAM' then
         send_command('bind ^1 input /ja Hasso <me>')
         send_command('bind ^2 input /ja Seigan <me>')
@@ -409,6 +401,8 @@ function user_setup()
     elseif player.sub_job == 'NIN' then
         send_command('bind !e input /ma "Utsusemi: Ni" <me>')
         send_command('bind !@e input /ma "Utsusemi: Ichi" <me>')
+    elseif player.sub_job == 'RDM' then
+        send_command('bind !e input /ma Dispel')
     elseif player.sub_job == 'DNC' then
         send_command('bind ^1 input /ja "Animated Flourish"')           -- (1/1000-1500)
         send_command('bind ^2 input /ja "Animated Flourish" <stnpc>')   -- (1/1000-1500)
@@ -432,7 +426,6 @@ function user_setup()
         send_command('bind !@e input /ma Jettatura')                    -- (180/1020), 9'
     end
 
-    update_combat_form()
     select_default_macro_book()
 end
 
@@ -552,10 +545,13 @@ function user_unload()
     send_command('unbind !@w')
     send_command('unbind ^\\\\')
     send_command('unbind %\\\\')
+    send_command('unbind ^q')
 
     send_command('unbind !e')
     send_command('unbind !@e')
     send_command('unbind !v')
+
+    info.ws_binds:unbind()
 
     destroy_state_text()
 end
@@ -567,7 +563,7 @@ function init_gear_sets()
     sets.weapons.Epeo        = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"]}
     sets.weapons.EpeoRef     = {main=hpgear["Epeolatry"],sub="Refined Grip +1"}
     sets.weapons.Lionheart   = {main=hpgear["Lionheart"],sub=hpgear["Utu Grip"]}
-    --sets.weapons.Hepatizon   = {main=hpgear["Hepatizon Axe"],sub=hpgear["Utu Grip"]}    -- for full break
+    sets.weapons.Hepatizon   = {main=hpgear["Hepatizon Axe +1"],sub=hpgear["Utu Grip"]}
     sets.weapons.GreatAxe    = {main=hpgear["Kaja Chopper"],sub=hpgear["Utu Grip"]}
     sets.weapons.DualSword   = {main="Naegling",sub="Reikiko"}
     sets.weapons.DualAxe     = {main="Kaja Axe",sub="Reikiko"}
@@ -622,9 +618,12 @@ function init_gear_sets()
     sets.precast.JA.Lunge = {main=hpgear["Epeolatry"],sub="Niobid Strap",ammo="Seething Bomblet +1",
         head=gear.herc_head_ma,neck=hpgear["Sanctity Necklace"],ear1="Friomisi Earring",ear2="Hecate's Earring",
         body="Samnuha Coat",hands="Carmine Finger Gauntlets +1",ring1="Mujin Band",ring2="Locus Ring",
-        back="Izdubar Mantle",waist="Eschan Stone",legs=gear.herc_legs_ma,feet=gear.herc_feet_ma}
+        back="Izdubar Mantle",waist="Orpheus's Sash",legs=gear.herc_legs_ma,feet=gear.herc_feet_ma}
     sets.precast.JA.Swipe = sets.precast.JA.Lunge
-    sets.DarkDmg = {head="Pixie Hairpin +1",ring2="Archon Ring"}
+    sets.dark_dmg  = {head="Pixie Hairpin +1",ring2="Archon Ring"}
+    sets.orpheus   = {waist="Orpheus's Sash"}
+    sets.ele_obi   = {waist="Hachirin-no-Obi"}
+    sets.nuke_belt = {waist="Eschan Stone"}
 
     sets.precast.Step = {ammo="Yamarang",
         head=hpgear["Runeist's Bandeau +3"],neck="Combatant's Torque",ear1="Odr Earring",ear2="Telos Earring",
@@ -637,9 +636,9 @@ function init_gear_sets()
     sets.precast.JA['Weapon Bash'] = set_combine(sets.precast.JA['Violent Flourish'], {back=hpgear["Moonbeam Cape"]})
 
     sets.precast.WS = {ammo="Knobkierrie",
-        head="Adhemar Bonnet +1",neck=gear.ElementalGorget,ear1="Sherida Earring",ear2="Moonshade Earring",
+        head="Adhemar Bonnet +1",neck="Fotia Gorget",ear1="Sherida Earring",ear2="Moonshade Earring",
         body="Ayanmo Corazza +2",hands="Adhemar Wristbands +1",ring1=hpgear["Regal Ring"],ring2="Niqmaddu Ring",
-        back=gear.ResoCape,waist=gear.ElementalBelt,legs="Meghanada Chausses +2",feet=gear.herc_feet_ta}
+        back=gear.ResoCape,waist="Fotia Belt",legs="Meghanada Chausses +2",feet=gear.herc_feet_ta}
     sets.precast.WS.Acc = set_combine(sets.precast.WS, {ammo="Yamarang",back=gear.TPCape})
     sets.precast.WS.Tank = set_combine(sets.precast.WS, {ammo="Yamarang",
         head=hpgear["Runeist's Bandeau +3"],neck=hpgear["Futhark Torque +2"],
@@ -656,7 +655,7 @@ function init_gear_sets()
         back=gear.DimiCape,feet="Meghanada Jambeaux +2"})
     sets.precast.WS.Dimidiation = set_combine(sets.precast.WS.OneHit, {legs="Lustratio Subligar +1",feet="Lustratio Leggings +1"})
     sets.precast.WS.Dimidiation.Tank = set_combine(sets.precast.WS.Dimidiation, {
-        body=hpgear["Ashera Harness"],ring1=hpgear["Moonlight Ring"],ring2="Defending Ring"})
+        body=hpgear["Ashera Harness"],ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",waist="Flume Belt +1"})
     sets.precast.WS.Dimidiation.Acc = set_combine(sets.precast.WS.Dimidiation, {head="Meghanada Visor +2",feet="Meghanada Jambeaux +2"})
     sets.precast.WS['Steel Cyclone'] = set_combine(sets.precast.WS.OneHit, {})
     sets.precast.WS['Fell Cleave']   = set_combine(sets.precast.WS.OneHit, {ring1="Vocane Ring +1",ring2="Defending Ring"})
@@ -669,8 +668,8 @@ function init_gear_sets()
     sets.precast.WS.Rampage = set_combine(sets.precast.WS.Crit, {})
 
     sets.precast.WS.Magical = set_combine(sets.precast.JA.Lunge, {ear2="Hermetic Earring",
-        ring1=hpgear["Regal Ring"],ring2="Acumen Ring",waist=gear.ElementalObi})
-    sets.precast.WS['Sanguine Blade'] = set_combine(sets.precast.WS.Magical, sets.DarkDmg)
+        ring1=hpgear["Regal Ring"],ring2="Metamorph Ring +1",waist=gear.ElementalObi})
+    sets.precast.WS['Sanguine Blade'] = set_combine(sets.precast.WS.Magical, sets.dark_dmg)
 
     sets.precast.WS.AddEffect = {ammo="Yamarang",
         head="Ayanmo Zucchetto +2",neck=hpgear["Sanctity Necklace"],ear1="Dignitary's Earring",ear2="Moonshade Earring",
@@ -749,15 +748,15 @@ function init_gear_sets()
     sets.midcast.Stoneskin = {}
 
     sets.midcast['Enfeebling Magic'] = {main=hpgear["Epeolatry"],sub="Kaja Grip",ammo="Yamarang",
-        head="Ayanmo Zucchetto +2",neck="Erra Pendant",ear1="Dignitary's Earring",ear2="Gwati Earring",
-        body="Ayanmo Corazza +2",hands="Ayanmo Manopolas +2",ring1=gear.Lstikini,ring2=gear.Rstikini,
-        back="Izdubar Mantle",waist="Luminary Sash",legs="Ayanmo Cosciales +2",feet="Ayanmo Gambieras +2"}
-    sets.midcast.Poisonga = {}
-    sets.midcast.Poisonga.TH = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Staunch Tathlum +1",
+        head=hpgear["Volte Cap"],neck="Erra Pendant",ear1="Dignitary's Earring",ear2="Gwati Earring",
+        body=hpgear["Futhark Coat +3"],hands="Ayanmo Manopolas +2",ring1=gear.Lstikini,ring2=gear.Rstikini,
+        back=gear.MEVACape,waist="Luminary Sash",legs="Ayanmo Cosciales +2",feet="Ayanmo Gambieras +2"}
+    sets.midcast.Poisonga = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Staunch Tathlum +1",
         head=hpgear["Volte Cap"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
         body=hpgear["Futhark Coat +3"],hands=hpgear["Turms Mittens +1"],ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.MEVACape,waist="Chaac Belt",legs=gear.herc_legs_th,feet=hpgear["Turms Leggings +1"]}
     sets.midcast.Repose = set_combine(sets.midcast['Enfeebling Magic'], {})
+    sets.midcast.Absorb = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast.Utsusemi = {}
     sets.midcast['Blue Magic'] = {}
 
@@ -863,9 +862,8 @@ function init_gear_sets()
         back=hpgear["Moonbeam Cape"],waist="Engraved Belt",legs=hpgear["Erilaz Leg Guards +1"],feet="Erilaz Greaves +1"}
     -- pdt-50, inqu+7, mdt-50, mdb+24, bdt-49, meva+426, r.st+11, enm+11, 2841 hp /drk
 
-    --sets.defense.Knockback = {ring1="Vocane Ring +1",back="Repulse Mantle",waist="Flume Belt +1"}
-    sets.defense.Knockback = {ring1="Vocane Ring +1",back="Repulse Mantle",waist="Flume Belt +1",legs="Dashing Subligar"}
-    sets.defense.Charm     = {ammo="Staunch Tathlum +1",neck="Unmoving Collar +1",ear1="Hearty Earring"}
+    sets.defense.Knockback = {ring1="Vocane Ring +1",back="Repulse Mantle",waist="Flume Belt +1"}--,legs="Dashing Subligar"}
+    sets.defense.Charm     = {ammo="Staunch Tathlum +1",neck=hpgear["Unmoving Collar +1"],ear1="Hearty Earring"}
     sets.defense.Death     = {ammo="Staunch Tathlum +1",ear1="Hearty Earring",
         body="Samnuha Coat",ring1=hpgear["Eihwaz Ring"],ring2="Shadow Ring"}
     sets.Kiting = {legs=hpgear["Carmine Cuisses +1"]}
@@ -906,9 +904,7 @@ function job_precast(spell, action, spellMap, eventArgs)
         send_command('cancel '..spell.english)
         eventArgs.cancel = true
     end
-    if spell.type == 'WeaponSkill' then
-        state.aeonic_aftermath_precast = (buffactive["Aftermath: Lv.1"] or buffactive["Aftermath: Lv.2"] or buffactive["Aftermath: Lv.3"])
-    elseif S{'Ward','Effusion','JobAbility'}:contains(spell.type) then
+    if S{'Ward','Effusion','JobAbility'}:contains(spell.type) then
         if sets.precast.JA[spell.english] then
             eventArgs.handled = true
             if     state.CastingMode.value == 'Tank' then
@@ -919,10 +915,6 @@ function job_precast(spell, action, spellMap, eventArgs)
                 equip(sets.Enmity,          sets.precast.JA[spell.english])
             end
         end
-    elseif spell.type == 'Rune'
-    and state.IdleMode.value == 'Kite' and state.DefenseMode.value == 'Kite' and state.CastingMode.value == 'Paranoid' then
-        -- try to blink JAs
-        equip({head=hpgear["Halitus Helm"]})
     end
 end
 
@@ -931,19 +923,18 @@ function job_post_precast(spell, action, spellMap, eventArgs)
     if spell.type == 'Effusion' then
         if S{'Swipe','Lunge'}:contains(spell.english) then
             spell.element = triple_rune_string() or ''
-            if S{world.day_element,world.weather_element}:contains(spell.element) then
-                equip({waist="Hachirin-no-Obi"})
-            end
+            equip(resolve_orpheus(spell, sets.ele_obi, sets.nuke_belt, 3))
             if buffactive.Tenebrae then
-                equip(sets.DarkDmg)
+                equip(sets.dark_dmg)
             end
         end
     elseif spell.english == 'One for All' then
         if state.OFAhp.value then
             equip(sets.precast.JA['One for All'].hp)
         end
-    elseif spell.type == 'WeaponSkill' and buffactive['elvorseal'] then
-        if player.inventory["Heidrek Boots"] then equip({feet="Heidrek Boots"}) end
+    elseif spell.type == 'WeaponSkill' then
+        if spell.english == 'Sanguine Blade' then equip(resolve_orpheus(spell, sets.ele_obi, sets.nuke_belt, 3)) end
+        if buffactive['elvorseal'] and player.inventory["Heidrek Boots"] then equip({feet="Heidrek Boots"}) end
     end
 end
 
@@ -971,9 +962,6 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
             end
         end
     end
-    if state.THtag.value and S{'Poisonga','Swipe','Lunge'}:contains(spell.english) then
-        equip(sets.midcast.Poisonga.TH)
-    end
     if spell.target.type == 'SELF' then
         if spell.english == 'Cursna' then
             equip(sets.buff.doom)
@@ -987,22 +975,13 @@ end
 -- Set eventArgs.handled to true if we don't want any automatic gear equipping to be done.
 function job_aftercast(spell, action, spellMap, eventArgs)
     if spell.interrupted then
-        if buffactive.Amnesia and S{'JobAbility','WeaponSkill'}:contains(spell.type) then
-            add_to_chat(123, 'Amnesia prevents using '..spell.english)
-            send_command('wait 0.5;gs c update')
-        elseif buffactive.Silence and S{'Ninjutsu'}:contains(spell.type) then
-            add_to_chat(123, 'Silence prevents using '..spell.english)
-            send_command('wait 0.5;gs c update')
-        elseif has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
-            add_to_chat(123, 'Status prevents using '..spell.english)
-            equip(sets.defense.Parry)
-        else
-            send_command('wait 0.5;gs c update')
-        end
+        equip(sets.defense.Parry)
+        send_command('wait 0.5;gs c update')
+        interrupted_message(spell)
     else
         if state.WSMsg.value then
             if spell.type == 'WeaponSkill' then
-                ws_msg(spell)
+                send_command('@input /p '..spell.english)
             elseif spell.english == 'Embolden' then
                 send_command('@input /p Used '..spell.english)
             elseif S{'Gambit','Rayke'}:contains(spell.english) then
@@ -1044,6 +1023,7 @@ function job_buff_change(buff, gain)
     if buff:lower() == 'sleep' then
         if gain then
             if player.hp > 100 and player.status == 'Engaged' then
+                send_command('cancel stoneskin')
                 equip(sets.buff.Sleep)
             end
         elseif not midaction() then
@@ -1074,16 +1054,14 @@ function job_state_change(stateField, newValue, oldValue)
         if state.OffenseMode.value ~= 'None' then
             disable('main','sub')
         end
-        update_combat_form()
     elseif stateField == 'Combat Weapon' then
+        info.ws_binds:bind(state.CombatWeapon)
         enable('main','sub')
         handle_equipping_gear(player.status)
         equip(sets.weapons[newValue])
         if state.OffenseMode.value ~= 'None' then
             disable('main','sub')
         end
-        set_weaponskill_keybinds()
-        update_combat_form()
     elseif stateField:endswith('Defense Mode') then
         if newValue == 'MDT50' then
             state.DefenseMode:set('Magical')
@@ -1131,6 +1109,9 @@ function customize_idle_set(idleSet)
     end
     if state.StatusDefenseMode.value ~= 'None' then
         idleSet = set_combine(idleSet, sets.defense[state.StatusDefenseMode.value])
+        if state.StatusDefenseMode.value == 'Knockback' then
+            if player.inventory["Dashing Subligar"] then idleSet = set_combine(idleSet, {legs="Dashing Subligar"}) end
+        end
     end
     if has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
         idleSet = set_combine(sets.idle.Kite, {})
@@ -1154,6 +1135,9 @@ function customize_melee_set(meleeSet)
     end
     if state.StatusDefenseMode.value ~= 'None' then
         meleeSet = set_combine(meleeSet, sets.defense[state.StatusDefenseMode.value])
+        if state.StatusDefenseMode.value == 'Knockback' then
+            if player.inventory["Dashing Subligar"] then meleeSet = set_combine(meleeSet, {legs="Dashing Subligar"}) end
+        end
     end
     if has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
         meleeSet = set_combine(sets.defense.Parry, {})
@@ -1165,6 +1149,7 @@ function customize_melee_set(meleeSet)
         meleeSet = set_combine(meleeSet, sets.buff.Embolden)
     end
     if state.Buff.sleep then
+        send_command('cancel stoneskin')
         meleeSet = set_combine(meleeSet, sets.buff.Sleep)
     end
     return meleeSet
@@ -1180,6 +1165,9 @@ function display_current_job_state(eventArgs)
     end
     msg = msg .. ':' .. state.CombatWeapon.value .. ']'
     msg = msg .. ' WS[' .. state.WeaponskillMode.current .. ']'
+    if state.SelectNPCTargets.value then
+        msg = msg .. '<stnpc>'
+    end
     msg = msg .. ' Idle[' .. state.IdleMode.current .. ']'
     msg = msg .. ' Cast[' .. state.CastingMode.current .. ']'
 
@@ -1199,24 +1187,13 @@ function display_current_job_state(eventArgs)
     if state.WSMsg.value then
         msg = msg .. ' WSMsg'
     end
-    if state.THtag.value then
-        msg = msg .. ' TH+4'
-    end
 
     if state.Kiting.value then
         msg = msg .. ' Kiting'
     end
-    if state.PCTargetMode.value ~= 'default' then
-        msg = msg .. ', Target PC: ' .. state.PCTargetMode.value
-    end
-    if state.SelectNPCTargets.value then
-        msg = msg .. ', Target NPCs'
-    end
 
     add_to_chat(122, msg)
-
-    report_ja_recasts()
-
+    report_ja_recasts(info.recast_ids, 5)
     eventArgs.handled = true
 end
 
@@ -1236,14 +1213,19 @@ end
 -- Called for custom player commands.
 function job_self_command(cmdParams, eventArgs)
     if cmdParams[1] == 'ListWS' then
-        add_to_chat(122, 'ListWS:')
-        for ws in info.ws_binds[info.weapon_type[state.CombatWeapon.value]]:it() do
-            local ws_props = info.ws_props[ws.ws:gsub('"','')].props
-            if ws_props then
-                add_to_chat(122, "%3s : %s (%s)":format(ws.bind, ws.ws, table.concat(ws_props, ', ')))
-            else
-                add_to_chat(122, "%3s : %s":format(ws.bind, ws.ws))
-            end
+        info.ws_binds:print('ListWS:')
+    elseif cmdParams[1] == 'save' then
+        save_self_command(cmdParams)
+    end
+end
+
+-- the Mote SelectNPCTargets does not work for me, but inverting it does
+-- this does so for weaponskills, but requires them to be written as <stnpc>
+function job_auto_change_target(spell, action, spellMap, eventArgs)
+    eventArgs.handled = true
+    if S{'Effusion','WeaponSkill'}:contains(spell.type) and spell.target.raw == '<stnpc>' then
+        if not state.SelectNPCTargets.value then
+            change_target('<t>')
         end
     end
 end
@@ -1252,50 +1234,10 @@ end
 -- Utility functions specific to this job.
 -------------------------------------------------------------------------------------------------------------------
 
-function update_combat_form()
-    state.CombatForm.value = info.weapon_type[state.CombatWeapon.value]
-end
-
 -- Select default macro book on initial load or subjob change.
 function select_default_macro_book()
     set_macro_page(1,12)
     send_command('bind !^l input /lockstyleset 12')
-end
-
-function ws_msg(spell)
-    -- optional party chat messages for weaponskills
-    local at_ws
-    local good_ats = true
-    local props = info.ws_props[spell.english].props
-    local at_props = {}
-    local aeonic = state.aeonic_aftermath_precast and info.ws_props[spell.english].aeonic
-        and player.equipment.main == info.ws_props[spell.english].aeonic.weapon
-
-    at_ws = at_stuff(spell.english) -- shift-jis
-    good_ats = (at_ws ~= nil)
-    if props then
-        if aeonic then
-            local prop = info.ws_props[spell.english].aeonic.sc
-            local at_prop = at_stuff(prop)
-            table.insert(at_props, at_prop)
-            good_ats = (good_ats and at_prop)
-        end
-        for i, prop in ipairs(props) do
-            local at_prop = at_stuff(prop)
-            table.insert(at_props, at_prop)
-            good_ats = (good_ats and at_prop)
-        end
-    end
-
-    if good_ats then
-        if props then
-            windower.chat.input('/p used '..at_ws..' ('..table.concat(at_props,'')..')')
-        else
-            windower.chat.input('/p used '..at_ws)
-        end
-    else
-        windower.chat.input('/p used '..spell.english)
-    end
 end
 
 function triple_rune_string(spell)
@@ -1308,99 +1250,55 @@ function triple_rune_string(spell)
     return nil
 end
 
--- prints recast messages using add_to_chat()
-function report_ja_recasts()
-    local all_ja_recasts = windower.ffxi.get_ability_recasts()
-    local recast_ids = L{{name="Battuta",id=120},{name="Vallation",id=23},{name="Liement",id=117},{name="Valiance",id=113},
-                         {name="One for All",id=118},{name="Gambit",id=116},{name="Rayke",id=119}}
-    local available_list = L{}
-    local unavailable_list = L{}
-
-    for ability in recast_ids:it() do
-        local r = all_ja_recasts[ability.id]
-        if r > 0 then
-            unavailable_list:append({text="[%s](%d)":format(ability.name,r),r=r})
-        else
-            available_list:append("[%s]":format(ability.name))
-        end
-    end
-
-    if not available_list:empty() then
-        add_to_chat(121, "OK: " .. available_list:concat(' '))
-    end
-    if not unavailable_list:empty() then
-        unavailable_list:sort(function(a,b) return a.r < b.r end)
-        if unavailable_list:length() <= 5 then
-            add_to_chat(123, "XX: " .. unavailable_list:map(table.get-{'text'}):concat(' '))
-        else
-            add_to_chat(123, "XX: " .. unavailable_list:slice(1,5):map(table.get-{'text'}):concat(' '))
-            add_to_chat(123, "XX: " .. unavailable_list:slice(  6):map(table.get-{'text'}):concat(' '))
-        end
-    end
-end
-
--- issues send_command()s to set weaponskill keybinds for current value of state.CombatWeapon
--- checks and sets state.WSBinds to determine if send_command()s are needed
--- info.weapon_type and info.ws_binds map state.CombatWeapon to a table of keybinds
-function set_weaponskill_keybinds()
-    if state.CombatWeapon.value == 'None' then return end
-    local cur_weapon_type = info.weapon_type[state.CombatWeapon.value]
-    if state.WSBinds.value ~= cur_weapon_type then
-        for ws in info.ws_binds[cur_weapon_type]:it() do
-            send_command("bind %s input /ws %s":format(ws.bind,ws.ws))
-        end
-        state.WSBinds:set(cur_weapon_type)
-    end
-end
-
 function init_state_text()
     destroy_state_text()
-    local sird_text_settings = {flags={draggable=false},bg={alpha=150}}
-    local para_text_settings = {pos={x=42},flags={draggable=false},bg={alpha=150}}
-    local swap_text_settings = {pos={y=18},flags={draggable=false},bg={alpha=150}}
+    local sird_text_settings   = {flags={draggable=false},bg={alpha=150}}
+    local para_text_settings   = {pos={x=42},flags={draggable=false},bg={alpha=150}}
+    local swap_text_settings   = {pos={y=18},flags={draggable=false},bg={alpha=150}}
+    local stnpc_text_settings  = {pos={y=36},flags={draggable=false},bg={alpha=150}}
     local hyb_text_settings    = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local def_text_settings    = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local status_text_settings = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     state.sird_text   = texts.new('SIRD', sird_text_settings)
     state.para_text   = texts.new('Paranoid', para_text_settings)
     state.swap_text   = texts.new('No TP', swap_text_settings)
+    state.stnpc_text  = texts.new('<stnpc>', stnpc_text_settings)
     state.hyb_text    = texts.new('/${hybrid}', hyb_text_settings)
     state.def_text    = texts.new('(${defense})', def_text_settings)
     state.status_text = texts.new('{${status}}', status_text_settings)
 
+    windower.register_event('logout', destroy_state_text)
     state.texts_event_id = windower.register_event('prerender', function()
         state.sird_text:visible(state.SIRD.value)
         state.para_text:visible((state.CastingMode.value == 'Paranoid'))
         state.swap_text:visible((state.OffenseMode.value == 'None'))
-        state.hyb_text:visible((state.HybridMode.value ~= 'Normal'))
-        state.def_text:visible((state.DefenseMode.value ~= 'None'))
-        state.status_text:visible((state.StatusDefenseMode.value ~= 'None'))
+        state.stnpc_text:visible(state.SelectNPCTargets.value)
 
-        state.hyb_text:update({['hybrid']=state.HybridMode.value})
+        if state.HybridMode.value ~= 'Normal' then
+            state.hyb_text:show()
+            state.hyb_text:update({hybrid=state.HybridMode.value})
+        else state.hyb_text:hide() end
 
-        local defMode = '---'
         if state.DefenseMode.value ~= 'None' then
-            defMode = state[state.DefenseMode.value ..'DefenseMode'].current
-        end
-        state.def_text:update({['defense']=defMode})
-        state.status_text:update({['status']=state.StatusDefenseMode.value})
+            state.def_text:show()
+            state.def_text:update({defense=state[state.DefenseMode.value..'DefenseMode'].current})
+        else state.def_text:hide() end
+
+        if state.StatusDefenseMode.value ~= 'None' then
+            state.status_text:show()
+            state.status_text:update({status=state.StatusDefenseMode.value})
+        else state.status_text:hide() end
     end)
 end
 
 function destroy_state_text()
     if state.texts_event_id then
         windower.unregister_event(state.texts_event_id)
-        state.sird_text:visible(false)
-        state.para_text:visible(false)
-        state.swap_text:visible(false)
-        state.hyb_text:visible(false)
-        state.def_text:visible(false)
-        state.status_text:visible(false)
-        texts.destroy(state.sird_text)
-        texts.destroy(state.para_text)
-        texts.destroy(state.swap_text)
-        texts.destroy(state.hyb_text)
-        texts.destroy(state.def_text)
-        texts.destroy(state.status_text)
+        for text in S{state.sird_text, state.para_text, state.swap_text, state.stnpc_text,
+                      state.hyb_text, state.def_text, state.status_text}:it() do
+            text:hide()
+            text:destroy()
+        end
     end
+    state.texts_event_id = nil
 end

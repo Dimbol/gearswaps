@@ -10,6 +10,7 @@
 -- retsu has a 30% paralysis
 -- subtle blow is easy to cap (trait 27, ochu 8, adh.bonnet 8, herc.boots 6, kenda 8/12/8/10/8, merits 5)
 -- when zerging, use chi with bolster malaise and savage otherwise
+-- weaponskills are changed from <stnpc> to <t> in job_auto_change_target
 
 -- SKILLCHAINS
 -- to teki shun shun
@@ -42,12 +43,6 @@ function get_sets()
 
     -- Load and initialize the include file.
     include('Mote-Include.lua')
-
-    -- auto translates (defines at_stuff())
-    include('at-stuff.lua')
-
-    -- ws properties (sets info.ws_props)
-    include('ws-props.lua')
 end
 
 -- Setup vars that are user-independent.  state.Buff vars initialized here will automatically be tracked.
@@ -63,8 +58,6 @@ function job_setup()
     state.Buff.Migawari = buffactive['migawari'] or false
 
     include('Mote-TreasureHunter')
-    state.aeonic_aftermath_precast = false
-    state.texts_event_id = nil
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -82,7 +75,7 @@ function user_setup()
     state.PhysicalDefenseMode:options('PDT','EvaPDT')           -- Cycle with !z
     state.MagicalDefenseMode:options('MEVA')                    -- Cycle with @z
     state.CombatWeapon = M{['description']='Combat Weapon'}     -- Set with !^q through !^r and others
-    state.CombatWeapon:options('Heishi','HeiShu','HeiBlur','HeiMalev','HeiTP','HeiFudo','Kikoku','KikBlur','KikFudo',
+    state.CombatWeapon:options('Heishi','HeiShu','HeiBlur','HeiMalev','HeiTP','HeiFudo','Fudo','FudoTP','Kikoku','KikBlur','KikFudo',
                                'AEDagger','SCDagger','GKatana','Club','NaegBlur','NaegTP')
     state.WSBinds = M{['description']='WS Binds',['string']=''}
 
@@ -106,7 +99,6 @@ function user_setup()
     -- Mote-libs handle obis, gorgets, and other elemental things.
     -- These are default fallbacks if situationally appropriate gear is not available.
     gear.default.obi_waist = "Eschan Stone"                 -- used in nuke sets
-    gear.default.obi_ring = "Stikini Ring +1"               -- used in nuke sets
 
     -- Augmented items get variables for convenience and specificity
     gear.taeon_head_phlx  = {name="Taeon Chapeau", augments={'Phalanx +3'}}
@@ -182,7 +174,6 @@ function user_setup()
     send_command('bind !^space gs c set AutoHybrid Miga')
     send_command('bind %backspace gs c CountTools')
     send_command('bind ^\\\\ gs c toggle WSMsg')
-    send_command('bind %\\\\ gs c ListWS')
     send_command('bind ^z  gs c toggle MagicBurst')
     send_command('bind !z  gs c cycle PhysicalDefenseMode')
     send_command('bind @z  gs c cycle MagicalDefenseMode')
@@ -191,8 +182,10 @@ function user_setup()
     send_command('bind !^q gs c set CombatWeapon AEDagger')
     send_command('bind ^@q gs c set CombatWeapon SCDagger')
     send_command('bind !^w gs c set CombatWeapon Heishi')
+    send_command('bind ~!^w gs c set CombatWeapon Fudo')
     send_command('bind ^@w gs c set CombatWeapon GKatana')
     send_command('bind !^e gs c set CombatWeapon Kikoku')
+    send_command('bind ~!^e gs c set CombatWeapon FudoTP')
     send_command('bind ^@e gs c set CombatWeapon HeiShu')
     send_command('bind !^r gs c set CombatWeapon NaegTP')
     send_command('bind ^-         gs c set RangedMode Tathlum')
@@ -202,6 +195,7 @@ function user_setup()
     send_command('bind @c  gs c set OffenseMode MEVA')
     send_command('bind !@c gs c toggle SIRDUtsu')
     send_command('bind ^c  gs c nocancel')
+    send_command('bind ^q  gs c toggle SelectNPCTargets')
 
     send_command('bind !^` input /ja "Mijin Gakure" <t>')
     send_command('bind ^@` input /ja Mikage')
@@ -216,72 +210,68 @@ function user_setup()
     send_command('bind !9 gs c set CombatForm DW30')
     send_command('bind !0 gs c reset CombatForm')
 
-    info.weapon_type = {['Heishi']='Katana',['HeiShu']='Katana',['HeiBlur']='Katana',['HeiMalev']='Katana',['HeiTP']='Katana',
-                        ['HeiFudo']='Katana',['Gokotai']='Katana',
-                        ['Kikoku']='RKatana',['KikBlur']='RKatana',['KikFudo']='RKatana',
-                        ['AEDagger']='Dagger',['SCDagger']='Dagger',
-                        ['GKatana']='GKatana',
-                        ['Club']='Club',
-                        ['NaegBlur']='Sword',['NaegTP']='Sword'}
-    info.ws_binds = T{
+    info.ws_binds = make_keybind_list(T{
         ['Katana']=L{
-            {bind='^1|%1',ws='"Blade: Hi"'},
-            {bind='^2|%2',ws='"Blade: Shun"'},
-            {bind='^3|%3',ws='"Blade: Ten"'},
-            {bind='^4|%4',ws='"Blade: Kamu"'},
-            {bind='^5|%5',ws='"Blade: Jin"'},
-            {bind='^6|%6',ws='"Blade: Ku"'},
-            {bind='!^1',ws='"Blade: Retsu"'},
-            {bind='!^2',ws='"Blade: Ei"'},
-            {bind='!^3',ws='"Blade: Chi"'},
-            {bind='!^4',ws='"Blade: To"'},
-            {bind='!^5',ws='"Blade: Teki"'},
-            {bind='!^6',ws='"Blade: Yu"'},
-            {bind='@b',ws='"Blade: Shun" <stnpc>'}},
+            'bind ^1|%1 input /ws "Blade: Hi" <stnpc>',
+            'bind ^2|%2 input /ws "Blade: Shun" <stnpc>',
+            'bind ^3|%3 input /ws "Blade: Ten" <stnpc>',
+            'bind ^4|%4 input /ws "Blade: Kamu" <stnpc>',
+            'bind ^5|%5 input /ws "Blade: Jin" <stnpc>',
+            'bind ^6|%6 input /ws "Blade: Ku" <stnpc>',
+            'bind !^1   input /ws "Blade: Retsu" <stnpc>',
+            'bind !^2   input /ws "Blade: Ei" <stnpc>',
+            'bind !^3   input /ws "Blade: Chi" <stnpc>',
+            'bind !^4   input /ws "Blade: To" <stnpc>',
+            'bind !^5   input /ws "Blade: Teki" <stnpc>',
+            'bind !^6   input /ws "Blade: Yu" <stnpc>'},
         ['RKatana']=L{
-            {bind='^1|%1',ws='"Blade: Hi"'},
-            {bind='^2|%2',ws='"Blade: Shun"'},
-            {bind='^3|%3',ws='"Blade: Ten"'},
-            {bind='^4|%4',ws='"Blade: Metsu"'},
-            {bind='^5|%5',ws='"Blade: Jin"'},
-            {bind='^6|%6',ws='"Blade: Ku"'},
-            {bind='!^1',ws='"Blade: Retsu"'},
-            {bind='!^2',ws='"Blade: Ei"'},
-            {bind='!^3',ws='"Blade: Chi"'},
-            {bind='!^4',ws='"Blade: To"'},
-            {bind='!^5',ws='"Blade: Teki"'},
-            {bind='!^6',ws='"Blade: Yu"'},
-            {bind='@b',ws='"Blade: Metsu" <stnpc>'}},
+            'bind ^1|%1 input /ws "Blade: Hi" <stnpc>',
+            'bind ^2|%2 input /ws "Blade: Shun" <stnpc>',
+            'bind ^3|%3 input /ws "Blade: Ten" <stnpc>',
+            'bind ^4|%4 input /ws "Blade: Metsu" <stnpc>',
+            'bind ^5|%5 input /ws "Blade: Jin" <stnpc>',
+            'bind ^6|%6 input /ws "Blade: Ku" <stnpc>',
+            'bind !^1   input /ws "Blade: Retsu" <stnpc>',
+            'bind !^2   input /ws "Blade: Ei" <stnpc>',
+            'bind !^3   input /ws "Blade: Chi" <stnpc>',
+            'bind !^4   input /ws "Blade: To" <stnpc>',
+            'bind !^5   input /ws "Blade: Teki" <stnpc>',
+            'bind !^6   input /ws "Blade: Yu" <stnpc>'},
         ['Dagger']=L{
-            {bind='^1|%1',ws='"Engergy Drain"'},
-            {bind='^2|%2',ws='"Evisceration"'},
-            {bind='^3|%3',ws='"Wasp Sting"'},
-            {bind='^4|%4',ws='"Gust Slash"'},
-            {bind='^5|%5',ws='"Exenterator"'},
-            {bind='^6|%6',ws='"Aeolian Edge"'},
-            {bind='^7|%7',ws='"Cyclone"'}},
+            'bind ^1|%1 input /ws "Engergy Drain" <stnpc>',
+            'bind ^2|%2 input /ws "Evisceration" <stnpc>',
+            'bind ^3|%3 input /ws "Wasp Sting" <stnpc>',
+            'bind ^4|%4 input /ws "Gust Slash" <stnpc>',
+            'bind ^5|%5 input /ws "Exenterator" <stnpc>',
+            'bind ^6|%6 input /ws "Aeolian Edge" <stnpc>',
+            'bind ^7|%7 input /ws "Cyclone" <stnpc>'},
         ['GKatana']=L{
-            {bind='^1|%1',ws='"Tachi: Ageha"'},
-            {bind='^2|%2',ws='"Tachi: Kasha"'},
-            {bind='^3|%3',ws='"Tachi: Jinpu"'},
-            {bind='^4|%4',ws='"Tachi: Kagero"'},
-            {bind='^5|%5',ws='"Tachi: Koki"'},
-            {bind='!^d',ws='"Tachi: Hobaku"'}},
+            'bind ^1|%1 input /ws "Tachi: Ageha" <stnpc>',
+            'bind ^2|%2 input /ws "Tachi: Kasha" <stnpc>',
+            'bind ^3|%3 input /ws "Tachi: Jinpu" <stnpc>',
+            'bind ^4|%4 input /ws "Tachi: Kagero" <stnpc>',
+            'bind ^5|%5 input /ws "Tachi: Koki" <stnpc>',
+            'bind !^d   input /ws "Tachi: Hobaku" <stnpc>'},
         ['Sword']=L{
-            {bind='^1|%1',ws='"Sanguine Blade"'},
-            {bind='^2|%2',ws='"Vorpal Blade"'},
-            {bind='^3|%3',ws='"Savage Blade"'},
-            {bind='^4|%4',ws='"Red Lotus Blade"'},
-            {bind='^5|%5',ws='"Seraph Blade"'},
-            {bind='^6|%6',ws='"Circle Blade"'},
-            {bind='!^d',ws='"Flat Blade"'},
-            {bind='@b',ws='"Savage Blade" <stnpc>'}},
+            'bind ^1|%1 input /ws "Sanguine Blade" <stnpc>',
+            'bind ^2|%2 input /ws "Vorpal Blade" <stnpc>',
+            'bind ^3|%3 input /ws "Savage Blade" <stnpc>',
+            'bind ^4|%4 input /ws "Red Lotus Blade" <stnpc>',
+            'bind ^5|%5 input /ws "Seraph Blade" <stnpc>',
+            'bind ^6|%6 input /ws "Circle Blade" <stnpc>',
+            'bind !^d   input /ws "Flat Blade" <stnpc>'},
         ['Club']=L{
-            {bind='^1|%1',ws='"Flash Nova"'},
-            {bind='^2|%2',ws='"Judgement"'},
-            {bind='^3|%3',ws='"True Strike"'},
-            {bind='!^d',ws='"Brainshaker"'}}}
-    set_weaponskill_keybinds()
+            'bind ^1|%1 input /ws "Flash Nova" <stnpc>',
+            'bind ^2|%2 input /ws "Judgement" <stnpc>',
+            'bind ^3|%3 input /ws "True Strike" <stnpc>',
+            'bind !^d   input /ws "Brainshaker" <stnpc>'}},
+        {['Heishi']='Katana',['HeiShu']='Katana',['HeiBlur']='Katana',['HeiMalev']='Katana',['HeiTP']='Katana',
+         ['HeiFudo']='Katana',['Gokotai']='Katana',['Fudo']='Katana',['FudoTP']='Katana',
+         ['Kikoku']='RKatana',['KikBlur']='RKatana',['KikFudo']='RKatana',
+         ['AEDagger']='Dagger',['SCDagger']='Dagger',['NaegBlur']='Sword',['NaegTP']='Sword',
+         ['GKatana']='GKatana',['Club']='Club'})
+    info.ws_binds:bind(state.CombatWeapon)
+    send_command('bind %\\\\ gs c ListWS')
 
     send_command('bind ^@1 input /ma "Katon: San"')
     send_command('bind ^@2 input /ma "Hyoton: San"')
@@ -316,6 +306,7 @@ function user_setup()
     send_command('bind !v input /ma "Tonko: Ni"')
     send_command('bind @v input /ma "Monomi: Ichi"')
 
+    info.recast_ids = L{{name='Yonin',id=146},{name='Issekigan',id=57}}
     if     player.sub_job == 'WAR' then
         send_command('bind !4 input /ja Berserk <me>')
         send_command('bind !5 input /ja Aggressor <me>')
@@ -323,6 +314,7 @@ function user_setup()
         send_command('bind !d input /ja Provoke')               -- 0/1800
         send_command('bind @d input /ja Provoke <stnpc>')
         send_command('bind !@d input /ja Defender <me>')
+        info.recast_ids:extend(L{{name='Provoke',id=5},{name='Warcry',id=2}})
     elseif player.sub_job == 'DRK' then
         send_command('bind !4 input /ja "Last Resort" <me>')    -- 1/1300
         send_command('bind !5 input /ja Souleater <me>')        -- 1/1300, +25acc, +?/+? per hit
@@ -330,11 +322,7 @@ function user_setup()
         send_command('bind !d input /ma Stun')                  -- 180/1280
         send_command('bind @d input /ma Stun <stnpc>')
         send_command('bind !@d input /ma Poisonga')
-    elseif player.sub_job == 'PLD' then
-        send_command('bind !5 input /ja Sentinel <me>')
-        send_command('bind !6 input /ja "Holy Circle" <me>')
-        send_command('bind !d input /ma Flash')
-        send_command('bind @d input /ma Flash <stnpc>')
+        info.recast_ids:extend(L{{name='Last Resort',id=87},{name='Souleater',id=85}})
     elseif player.sub_job == 'RUN' then
         send_command('bind @1 input /ja Ignis <me>')            -- fire up,    ice down
         send_command('bind @2 input /ja Gelus <me>')            -- ice up,     wind down
@@ -351,6 +339,12 @@ function user_setup()
         send_command('bind @d input /ma Flash <stnpc>')
         send_command('bind !^v input /ma Aquaveil <me>')
         send_command('bind !6 input /ma Protect <stpc>')
+        info.recast_ids:extend(L{{name='Vallation',id=23},{name='Swordplay',id=24},{name='Pflug',id=59}})
+    elseif player.sub_job == 'PLD' then
+        send_command('bind !5 input /ja Sentinel <me>')
+        send_command('bind !6 input /ja "Holy Circle" <me>')
+        send_command('bind !d input /ma Flash')
+        send_command('bind @d input /ma Flash <stnpc>')
     elseif player.sub_job == 'BLU' then
         send_command('bind @1 input /ma "Sheep Song"')          -- (320/320), 6'
         send_command('bind @2 input /ma "Geist Wall"')          -- (320/320), 6'
@@ -436,14 +430,17 @@ function user_unload()
     send_command('unbind !^q')
     send_command('unbind ^@q')
     send_command('unbind !^w')
+    send_command('unbind ~!^w')
     send_command('unbind ^@w')
     send_command('unbind !^e')
+    send_command('unbind ~!^e')
     send_command('unbind ^@e')
     send_command('unbind !^r')
     send_command('unbind !c')
     send_command('unbind @c')
     send_command('unbind !@c')
     send_command('unbind ^c')
+    send_command('unbind ^q')
 
     send_command('unbind !^`')
     send_command('unbind ^@`')
@@ -516,6 +513,8 @@ function user_unload()
     send_command('unbind !`')
     send_command('unbind @F1')
 
+    info.ws_binds:unbind()
+
     destroy_state_text()
 end
 
@@ -529,6 +528,8 @@ function init_gear_sets()
     sets.weapons.HeiMalev = {main="Heishi Shorinken",sub="Malevolence"}
     sets.weapons.HeiTP    = {main="Heishi Shorinken",sub="Hitaki"}
     sets.weapons.HeiFudo  = {main="Heishi Shorinken",sub="Fudo Masamune"}
+    sets.weapons.Fudo     = {main="Fudo Masamune",sub="Ochu"}
+    sets.weapons.FudoTP   = {main="Fudo Masamune",sub="Hitaki"}
     sets.weapons.Kikoku   = {main="Kikoku",sub="Ochu"}
     sets.weapons.KikBlur  = {main="Kikoku",sub="Blurred Knife +1"}
     sets.weapons.KikFudo  = {main="Kikoku",sub="Fudo Masamune"}
@@ -599,7 +600,7 @@ function init_gear_sets()
 
     sets.precast.WS['Aeolian Edge'] = {ammo="Seething Bomblet +1",
         head="Mochizuki Hatsuburi +3",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Friomisi Earring",
-        body="Samnuha Coat",hands=gear.herc_hands_ma,ring1="Dingir Ring",ring2="Acumen Ring",
+        body="Samnuha Coat",hands=gear.herc_hands_ma,ring1="Dingir Ring",ring2="Metamorph Ring +1",
         back=gear.TenCape,waist="Fotia Belt",legs=gear.herc_legs_ma2,feet=gear.herc_feet_ma}
     sets.precast.WS.Cyclone = set_combine(sets.precast.WS['Aeolian Edge'], {})
     sets.precast.WS['Blade: Yu']       = set_combine(sets.precast.WS['Aeolian Edge'], {ear1="Hecate's Earring"})
@@ -668,17 +669,22 @@ function init_gear_sets()
 
     sets.midcast.ElementalNinjutsu = {main="Tauret",sub="Malevolence",ammo="Pemphredo Tathlum",
         head="Mochizuki Hatsuburi +3",neck="Sanctity Necklace",ear1="Hecate's Earring",ear2="Friomisi Earring",
-        body="Samnuha Coat",hands="Leyline Gloves",ring1=gear.Lstikini,ring2="Dingir Ring",
+        body="Samnuha Coat",hands="Leyline Gloves",ring1="Dingir Ring",ring2="Metamorph Ring +1",
         back=gear.MACape,waist=gear.ElementalObi,legs=gear.herc_legs_ma2,feet=gear.herc_feet_ma}
     sets.midcast.ElementalNinjutsu.MB = set_combine(sets.midcast.ElementalNinjutsu, {sub="Ochu",
         hands=gear.herc_hands_ma,ring1="Locus Ring",ring2="Mujin Band",feet="Hachiya Kyahan +3"})
-    sets.donargun = {range="Donar Gun",ammo=empty}
-    sets.kajabow  = {range="Ullr",ammo=empty}
     sets.buff.Futae = {hands="Hattori Tekko +1"}
+    sets.orpheus    = {waist="Orpheus's Sash"}
+    sets.ele_obi    = {waist="Hachirin-no-Obi"}
+    sets.nuke_belt  = {waist="Eschan Stone"}
+    sets.donargun   = {range="Donar Gun",ammo=empty}
+
     sets.midcast.EnfeeblingNinjutsu = {main="Fudo Masamune",sub="Tauret",ammo="Yamarang",
         head="Hachiya Hatsuburi +3",neck="Moonlight Necklace",ear1="Dignitary's Earring",ear2="Gwati Earring",
-        body="Malignance Tabard",hands="Malignance Gloves",ring1=gear.Lstikini,ring2=gear.Rstikini,
+        body="Malignance Tabard",hands="Malignance Gloves",ring1=gear.Lstikini,ring2="Metamorph Ring +1",
         back=gear.MACape,waist="Eschan Stone",legs="Malignance Tights",feet="Hachiya Kyahan +3"}
+    sets.kajabow    = {range="Ullr",ammo=empty}
+
     sets.midcast.Ninjutsu = {hands="Mochizuki Tekko +3"}
 
     sets.midcast['Enfeebling Magic'] = set_combine(sets.midcast.EnfeeblingNinjutsu, {})
@@ -798,8 +804,6 @@ function job_precast(spell, action, spellMap, eventArgs)
     if S{'Defender','Souleater','Last Resort'}:contains(spell.english) and buffactive[spell.english] then
         send_command('cancel '..spell.english)
         eventArgs.cancel = true
-    elseif spell.type == 'WeaponSkill' then
-        state.aeonic_aftermath_precast = (buffactive["Aftermath: Lv.1"] or buffactive["Aftermath: Lv.2"] or buffactive["Aftermath: Lv.3"])
     elseif state.SIRDUtsu.value and spellMap == 'Utsusemi' then
         enable('main','sub')
         state.OffenseMode:set('None')
@@ -809,17 +813,15 @@ end
 -- Run after the general precast() is done.
 function job_post_precast(spell, action, spellMap, eventArgs)
     if spell.type == 'WeaponSkill' then
-        if buffactive['elvorseal'] then
-            if player.inventory["Heidrek Boots"] then equip({feet="Heidrek Boots"}) end
-        end
+        if buffactive['elvorseal'] and player.inventory["Heidrek Boots"] then equip({feet="Heidrek Boots"}) end
         if state.WeaponskillMode.value == 'NoDmg' then
             if info.magic_ws:contains(spell.english) then
                 equip(sets.naked)
             else
                 equip(sets.precast.WS.NoDmg)
             end
-        elseif info.obi_ws:contains(spell.english) and S{world.day_element,world.weather_element}:contains(spell.element) then
-            equip({waist="Hachirin-no-Obi"})
+        elseif info.obi_ws:contains(spell.english) then
+            equip(resolve_orpheus(spell, sets.ele_obi, sets.nuke_belt, 2.5))
         elseif spell.english == 'Blade: Shun'  and S{'Fire','Light','Lightning'}:contains(world.day_element)
         or     spell.english == 'Blade: Kamu'  and S{'Wind','Lightning','Dark'}:contains(world.day_element)
         or     spell.english == 'Evisceration' and S{'Earth','Dark','Light'}:contains(world.day_element) then
@@ -840,6 +842,7 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
         if state.MagicBurst.value then
             equip(sets.midcast.ElementalNinjutsu.MB)
         end
+        equip(resolve_orpheus(spell, sets.ele_obi, sets.nuke_belt, 2.5))
         if state.OffenseMode.value == 'None' and spell.english:startswith('Raiton') then
             equip(sets.donargun)
         end
@@ -875,20 +878,17 @@ end
 function job_aftercast(spell, action, spellMap, eventArgs)
     if spell.interrupted then
         send_command('wait 0.5;gs c update')
-        if buffactive.Amnesia and S{'JobAbility','WeaponSkill'}:contains(spell.type) then
-            add_to_chat(123, 'Amnesia prevents using '..spell.english)
-        elseif buffactive.Silence and S{'Ninjutsu'}:contains(spell.type) then
-            add_to_chat(123, 'Silence prevents using '..spell.english)
-        elseif has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
-            add_to_chat(123, 'Status prevents using '..spell.english)
-        end
+        interrupted_message(spell)
     elseif spell.type == 'WeaponSkill' then
         if state.WSMsg.value then
-            ws_msg(spell)
+            send_command('@input /p '..spell.english)
         end
     elseif spell.english == 'Migawari: Ichi' then
-        if state.AutoHybrid.value == 'Miga' and player_has_shadows() then
-            state.HybridMode:set('Normal')
+        if state.AutoHybrid.value == 'Miga' then
+            if player_has_shadows() then
+                state.HybridMode:set('Normal')
+            end
+            state.CastingMode:set('Enmity')
         end
     elseif spellMap == 'Utsusemi' then
         if     spell.english:endswith('Ichi') then
@@ -902,6 +902,7 @@ function job_aftercast(spell, action, spellMap, eventArgs)
             state.HybridMode:set('Normal')
         elseif state.AutoHybrid.value == 'Miga' and state.Buff.Migawari then
             state.HybridMode:set('Normal')
+            state.CastingMode:set('Enmity')
         end
         if state.SIRDUtsu.value then
             state.SIRDUtsu:unset()
@@ -946,10 +947,14 @@ function job_buff_change(buff, gain)
             end
         end
     elseif state.AutoHybrid.value == 'Miga' and lbuff == 'migawari' then
-        if gain and player_has_shadows() then
-            state.HybridMode:set('Normal')
+        if gain then
+            if player_has_shadows() then
+                state.HybridMode:set('Normal')
+            end
+            state.CastingMode:set('Enmity')
         else
             state.HybridMode:set('PDef')
+            state.CastingMode:set('Normal')
             if not midaction() then
                 handle_equipping_gear(player.status)
             end
@@ -972,19 +977,17 @@ end
 function job_state_change(stateField, newValue, oldValue)
     if stateField == 'Offense Mode' then
         enable('main','sub','range','ammo')
-        handle_equipping_gear(player.status)
         if newValue ~= 'None' then
             equip(sets.weapons[state.CombatWeapon.value])
             disable('main','sub')
         end
+        handle_equipping_gear(player.status)
     elseif stateField == 'Combat Weapon' then
-        enable('main','sub','range','ammo')
+        info.ws_binds:bind(state.CombatWeapon)
         if state.OffenseMode.value ~= 'None' then
+            enable('main','sub','range','ammo')
             equip(sets.weapons[state.CombatWeapon.value])
-            if state.CombatWeapon.value ~= 'None' then
-                disable('main','sub')
-            end
-            set_weaponskill_keybinds()
+            disable('main','sub')
         end
     elseif stateField == 'Hybrid Mode' then
         if state.AutoHybrid.value ~= 'off' then
@@ -996,6 +999,13 @@ function job_state_change(stateField, newValue, oldValue)
             state.HybridMode:set('Normal')
         else
             state.HybridMode:set('PDef')
+        end
+        if newValue == 'Miga' then
+            if state.Buff.Migawari then
+                state.CastingMode:set('Enmity')
+            else
+                state.CastingMode:set('Normal')
+            end
         end
     elseif stateField == 'Ranged Mode' then
         if not midaction() then
@@ -1139,8 +1149,12 @@ function display_current_job_state(eventArgs)
     if state.CombatForm.has_value then
         msg = msg .. '/' .. state.CombatForm.value
     end
-    if state.WeaponskillMode.value ~= 'Normal' then
-        msg = msg .. '] WS[' .. state.WeaponskillMode.current .. ']'
+    msg = msg .. ']'
+    if state.WeaponskillMode.value ~= 'Normal' or state.SelectNPCTargets.value then
+        msg = msg .. ' WS[' .. state.WeaponskillMode.current .. ']'
+        if state.SelectNPCTargets.value then
+            msg = msg .. '<stnpc>'
+        end
     end
     msg = msg .. ' RA[' .. state.RangedMode.value .. ']'
     msg = msg .. ' Utsu[' .. state.CastingMode.value .. ']'
@@ -1181,17 +1195,9 @@ function display_current_job_state(eventArgs)
         msg = msg .. ' Kiting'
     end
 
-    if state.PCTargetMode.value ~= 'default' then
-        msg = msg .. ', Target PC: ' .. state.PCTargetMode.value
-    end
-    if state.SelectNPCTargets.value then
-        msg = msg .. ', Target NPCs'
-    end
-
     add_to_chat(122, msg)
     report_ninja_tools()
-    report_ja_recasts()
-
+    report_ja_recasts(info.recast_ids, 5)
     eventArgs.handled = true
 end
 
@@ -1204,10 +1210,7 @@ function job_self_command(cmdParams, eventArgs)
     if     cmdParams[1] == 'CountTools' then
         report_ninja_tools(true)
     elseif cmdParams[1] == 'ListWS' then
-        add_to_chat(122, 'ListWS:')
-        for ws in info.ws_binds[info.weapon_type[state.CombatWeapon.value]]:it() do
-            add_to_chat(122, "%3s : %s":format(ws.bind,ws.ws))
-        end
+        info.ws_binds:print('ListWS:')
     elseif cmdParams[1] == 'nocancel' then
         if state.LastUtsu.value > 0 then
             state.LastUtsu:set(0)
@@ -1220,6 +1223,19 @@ function job_self_command(cmdParams, eventArgs)
         enable('range','ammo')
         equip(sets.donargun)
         disable('range','ammo')
+    elseif cmdParams[1] == 'save' then
+        save_self_command(cmdParams)
+    end
+end
+
+-- the Mote SelectNPCTargets does not work for me, but inverting it does
+-- this does so for weaponskills, but requires them to be written as <stnpc>
+function job_auto_change_target(spell, action, spellMap, eventArgs)
+    eventArgs.handled = true
+    if spell.type == 'WeaponSkill' and spell.target.raw == '<stnpc>' then
+        if not state.SelectNPCTargets.value then
+            change_target('<t>')
+        end
     end
 end
 
@@ -1233,46 +1249,11 @@ function select_default_macro_book()
     send_command('bind !^l input /lockstyleset 13')
 end
 
-function ws_msg(spell)
-    -- optional party chat messages for weaponskills
-    local at_ws
-    local good_ats = true
-    local props = info.ws_props[spell.english].props
-    local at_props = {}
-    local aeonic = state.aeonic_aftermath_precast and info.ws_props[spell.english].aeonic
-        and player.equipment.main == info.ws_props[spell.english].aeonic.weapon
-
-    at_ws = at_stuff(spell.english) -- shift-jis
-    good_ats = (at_ws ~= nil)
-    if props then
-        if aeonic then
-            local prop = info.ws_props[spell.english].aeonic.sc
-            local at_prop = at_stuff(prop)
-            table.insert(at_props, at_prop)
-            good_ats = (good_ats and at_prop)
-        end
-        for i, prop in ipairs(props) do
-            local at_prop = at_stuff(prop)
-            table.insert(at_props, at_prop)
-            good_ats = (good_ats and at_prop)
-        end
-    end
-
-    if good_ats then
-        if props then
-            windower.chat.input('/p used '..at_ws..' ('..table.concat(at_props,'')..')')
-        else
-            windower.chat.input('/p used '..at_ws)
-        end
-    else
-        windower.chat.input('/p used '..spell.english)
-    end
-end
-
 -- prints a message with counts of ninja tools
 function report_ninja_tools(always_report)
     local bag_ids = T{['Inventory']=0,['Wardrobe']=8,['Wardrobe 2']=10,['Wardrobe 3']=11,['Wardrobe 4']=12}
-    local item_list = L{{name='shihei',id=1179},{name='shika',id=2972},{name='chono',id=2973},{name='ino',id=2971}}
+    local item_list = L{{name='shihei',id=1179},{name='shika',id=2972},{name='chono',id=2973},{name='ino',id=2971},
+                        {name='shuriken',id=22292}}
     local counts = T{}
     for item in item_list:it() do counts[item.id] = 0 end
 
@@ -1288,60 +1269,16 @@ function report_ninja_tools(always_report)
 
     local low = false
     local msg = item_list:map(function(item)
-        if counts[item.id] <= 10 then low = true end
+        if counts[item.id] <= 10 then
+            low = true
+            if state.Buff.Sange and item.name == 'shuriken' then
+                send_command('cancel sange')
+                add_to_chat(123, 'cancelling sange')
+            end
+        end
         return "%s(%d)":format(item.name,counts[item.id])
     end):concat(' ')
     if always_report or low then add_to_chat((low and 123 or 122), msg) end
-end
-
--- prints recast messages using add_to_chat()
-function report_ja_recasts()
-    local all_ja_recasts = windower.ffxi.get_ability_recasts()
-    local recast_ids = L{{name='Yonin',id=146},{name='Issekigan',id=57}}
-    if player.sub_job == 'RUN' then recast_ids:extend(L{{name='Vallation',id=23},{name='Swordplay',id=24},{name='Pflug',id=59}}) end
-    if player.sub_job == 'DRK' then recast_ids:extend(L{{name='Last Resort',id=87},{name='Souleater',id=85}}) end
-    if player.sub_job == 'WAR' then recast_ids:extend(L{{name='Provoke',id=5},{name='Warcry',id=2}}) end
-    local available_list = L{}
-    local unavailable_list = L{}
-
-    for ability in recast_ids:it() do
-        local r = all_ja_recasts[ability.id]
-        if r > 0 then
-            unavailable_list:append({text="[%s](%d)":format(ability.name,r),r=r})
-        else
-            available_list:append("[%s]":format(ability.name))
-        end
-    end
-
-    if not available_list:empty() then
-        add_to_chat(121, "OK: " .. available_list:concat(' '))
-    end
-    if not unavailable_list:empty() then
-        unavailable_list:sort(function(a,b) return a.r < b.r end)
-        if unavailable_list:length() <= 5 then
-            add_to_chat(123, "XX: " .. unavailable_list:map(table.get-{'text'}):concat(' '))
-        else
-            add_to_chat(123, "XX: " .. unavailable_list:slice(1,5):map(table.get-{'text'}):concat(' '))
-            add_to_chat(123, "XX: " .. unavailable_list:slice(  6):map(table.get-{'text'}):concat(' '))
-        end
-    end
-end
-
--- issues send_command()s to set weaponskill keybinds for current value of state.CombatWeapon
--- checks and sets state.WSBinds to determine if send_command()s are needed
--- info.weapon_type and info.ws_binds map state.CombatWeapon to a table of keybinds
-function set_weaponskill_keybinds()
-    if state.CombatWeapon.value == 'None' then return end
-    local cur_weapon_type = info.weapon_type[state.CombatWeapon.value]
-    if state.WSBinds.value ~= cur_weapon_type then
-        for ws in info.ws_binds[cur_weapon_type]:it() do
-            --if state.WSBinds.has_value then
-            --    add_to_chat(104, "bind %s input /ws %s":format(ws.bind,ws.ws))
-            --end
-            send_command("bind %s input /ws %s":format(ws.bind,ws.ws))
-        end
-        state.WSBinds:set(cur_weapon_type)
-    end
 end
 
 -- returns true if player has a copy image buff
@@ -1351,78 +1288,63 @@ end
 
 function init_state_text()
     destroy_state_text()
-    local mb_text_settings   = {flags={draggable=false},bg={alpha=150}}
-    local nodmg_text_settings= {pos={x=53},flags={draggable=false},bg={alpha=150}}
-    local swap_text_settings = {pos={y=18},flags={draggable=false},bg={alpha=150}}
-    local sird_text_settings = {pos={y=36},flags={draggable=false},bg={alpha=150}}
-    local hyb_text_settings  = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    local def_text_settings  = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    local off_text_settings  = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    local dw_text_settings   = {pos={x=130,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    state.mb_text   = texts.new('NonMB', mb_text_settings)
-    state.nodmg_text= texts.new('NoDmg', nodmg_text_settings)
-    state.swap_text = texts.new('NoTP', swap_text_settings)
-    state.sird_text = texts.new('SIRD', sird_text_settings)
-    state.hyb_text  = texts.new('/${hybrid}', hyb_text_settings)
-    state.def_text  = texts.new('(${defense})', def_text_settings)
-    state.off_text  = texts.new('${offense}', off_text_settings)
-    state.dw_text   = texts.new('${dw}', dw_text_settings)
+    local mb_text_settings    = {flags={draggable=false},bg={alpha=150}}
+    local nodmg_text_settings = {pos={x=53},flags={draggable=false},bg={alpha=150}}
+    local swap_text_settings  = {pos={y=18},flags={draggable=false},bg={alpha=150}}
+    local sird_text_settings  = {pos={y=36},flags={draggable=false},bg={alpha=150}}
+    local stnpc_text_settings = {pos={y=54},flags={draggable=false},bg={alpha=150}}
+    local hyb_text_settings   = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    local def_text_settings   = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    local off_text_settings   = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    local dw_text_settings    = {pos={x=130,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    state.mb_text    = texts.new('NonMB', mb_text_settings)
+    state.nodmg_text = texts.new('NoDmg', nodmg_text_settings)
+    state.swap_text  = texts.new('NoTP', swap_text_settings)
+    state.sird_text  = texts.new('SIRD', sird_text_settings)
+    state.stnpc_text = texts.new('<stnpc>', stnpc_text_settings)
+    state.hyb_text   = texts.new('/${hybrid}', hyb_text_settings)
+    state.def_text   = texts.new('(${defense})', def_text_settings)
+    state.off_text   = texts.new('${offense}', off_text_settings)
+    state.dw_text    = texts.new('${dw}', dw_text_settings)
 
+    windower.register_event('logout', destroy_state_text)
     state.texts_event_id = windower.register_event('prerender', function()
         state.mb_text:visible(not state.MagicBurst.value)
         state.nodmg_text:visible((state.WeaponskillMode.value == 'NoDmg'))
         state.swap_text:visible((state.CombatWeapon.value == 'None'))
         state.sird_text:visible(state.SIRDUtsu.value)
+        state.stnpc_text:visible(state.SelectNPCTargets.value)
 
         if state.HybridMode.value ~= 'Normal' then
-            state.hyb_text:visible(true)
-            state.hyb_text:update({['hybrid']=state.HybridMode.value})
-        else
-            state.hyb_text:visible(false)
-        end
+            state.hyb_text:show()
+            state.hyb_text:update({hybrid=state.HybridMode.value})
+        else state.hyb_text:hide() end
 
         if state.DefenseMode.value ~= 'None' then
-            state.def_text:visible(true)
-            local defMode = state[state.DefenseMode.value ..'DefenseMode'].current
-            state.def_text:update({['defense']=defMode})
-        else
-            state.def_text:visible(false)
-        end
+            state.def_text:show()
+            state.def_text:update({defense=state[state.DefenseMode.value ..'DefenseMode'].current})
+        else state.def_text:hide() end
 
         if state.OffenseMode.value ~= 'Normal' then
-            state.off_text:visible(true)
-            state.off_text:update({['offense']=state.OffenseMode.value})
-        else
-            state.off_text:visible(false)
-        end
+            state.off_text:show()
+            state.off_text:update({offense=state.OffenseMode.value})
+        else state.off_text:hide() end
 
         if state.CombatForm.has_value then
-            state.dw_text:visible(true)
-            state.dw_text:update({['dw']=state.CombatForm.value})
-        else
-            state.dw_text:visible(false)
-        end
+            state.dw_text:show()
+            state.dw_text:update({dw=state.CombatForm.value})
+        else state.dw_text:hide() end
     end)
 end
 
 function destroy_state_text()
     if state.texts_event_id then
         windower.unregister_event(state.texts_event_id)
-        state.mb_text:visible(false)
-        state.nodmg_text:visible(false)
-        state.swap_text:visible(false)
-        state.sird_text:visible(false)
-        state.hyb_text:visible(false)
-        state.def_text:visible(false)
-        state.off_text:visible(false)
-        state.dw_text:visible(false)
-        texts.destroy(state.mb_text)
-        texts.destroy(state.nodmg_text)
-        texts.destroy(state.swap_text)
-        texts.destroy(state.sird_text)
-        texts.destroy(state.hyb_text)
-        texts.destroy(state.def_text)
-        texts.destroy(state.off_text)
-        texts.destroy(state.dw_text)
+        for text in S{state.mb_text, state.nodmg_text, state.swap_text, state.sird_text, state.stnpc_text,
+                      state.hyb_text, state.def_text, state.off_text, state.dw_text}:it() do
+            text:hide()
+            text:destroy()
+        end
     end
+    state.texts_event_id = nil
 end

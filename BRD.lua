@@ -13,12 +13,6 @@ function get_sets()
 
     -- Load and initialize the include file.
     include('Mote-Include.lua')
-
-    -- auto translates (defines at_stuff())
-    include('at-stuff.lua')
-
-    -- ws properties (sets info.ws_props)
-    include('ws-props.lua')
 end
 
 -- Setup vars that are user-independent.  state.Buff vars initialized here will automatically be tracked.
@@ -35,8 +29,6 @@ function job_setup()
     state.Buff.doom              = buffactive.doom or false
 
     include('Mote-TreasureHunter')
-    state.aeonic_aftermath_precast = false
-    state.texts_event_id = nil
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -61,13 +53,17 @@ function user_setup()
     state.ExtraSongsMode = M{['description']='Extra Songs','None','Dummy','FullLength'}  -- Set/unset with !c/!@c
     state.DummySongs = {['1']="Bewitching Etude",['2']="Enchanting Etude"}
 
-    state.HarpLullaby = M(false, 'Harp Lullaby Radius')                 -- Toggle with !z
+    state.HarpLullaby = M(true,  'Harp Lullaby Radius')                 -- Toggle with !z
     state.ZendikIdle  = M(false, 'Zendik Sphere')                       -- toggle with @z
     state.LongSongs   = M(false, 'Uneven Songs')                        -- Toggle with !@z
     state.WSMsg       = M(false, 'WS Message')                          -- Toggle with ^\
     state.DiaMsg      = M(false, 'Dia Message')                         -- Toggle with ^@\
     state.Fishing     = M(false, 'Fishing Gear')
     init_state_text()
+
+    info.magic_ws = S{'Aeolian Edge','Cyclone','Gust Slash','Energy Steal','Energy Drain',
+                      'Burning Blade','Red Lotus Blade','Shining Blade','Seraph Blade','Sanguine Blade',
+                      'Rock Crusher','Earth Crusher','Starburst','Sunburst','Cataclysm'}
 
     -- Mote-libs handle obis, gorgets, and other elemental things.
     -- These are default fallbacks if situationally appropriate gear is not available.
@@ -89,7 +85,6 @@ function user_setup()
         augments={'CHR+20','Accuracy+20 Attack+20','CHR+10','Weapon skill damage +10%','Phys. dmg. taken-10%'}}
     gear.MEVACape = {name="Intarabus's Cape", augments={'MND+20','Eva.+20 /Mag. Eva.+20','Mag. Evasion+10','Phys. dmg. taken-10%'}}
 
-    -- Binds overriding Mote defaults
     send_command('unbind ^F10')
     send_command('unbind ^F11')
     send_command('unbind ^F12')
@@ -111,7 +106,7 @@ function user_setup()
     send_command('bind !@w gs c reset OffenseMode')
     send_command('bind !^q gs c weap Carn')
     send_command('bind !^w gs c weap Aen')
-    send_command('bind ^@w gs c weap Aen Twash')
+    send_command('bind ^@w gs c set CombatWeapon Xoanon')
     send_command('bind !^e gs c weap Twash')
     send_command('bind !^r gs c weap Naeg')
     send_command('bind ^\\\\ gs c toggle WSMsg')
@@ -122,8 +117,7 @@ function user_setup()
     send_command('bind !@z gs c toggle LongSongs')
     send_command('bind !c  gs c set ExtraSongsMode Dummy')
     send_command('bind !@c gs c reset ExtraSongsMode')
-    send_command('bind %\\\\ gs c ListWS')
-    -- JA binds
+
     send_command('bind !^` input /ja "Soul Voice" <me>')
     send_command('bind ^@` input /ja "Clarion Call" <me>')
     send_command('bind ^@tab input /ja Troubadour <me>')
@@ -131,7 +125,7 @@ function user_setup()
     send_command('bind ^` input /ja Marcato <me>')
     send_command('bind @tab input /ja Pianissimo <me>')
     send_command('bind @q input /ja Tenuto <me>')
-    -- Spell Binds
+
     send_command('bind ^tab input /ma "Magic Finale"')
     send_command('bind ^q input /ma Dispelga')
     send_command('bind !@` input /ma "Chocobo Mazurka" <stpc>')
@@ -180,31 +174,32 @@ function user_setup()
     send_command('bind !@- input /ma "Light Threnody II"')
     send_command('bind !@= input /ma "Dark Threnody II"')
 
-    info.weapon_type = {['Carn']='Dagger',['CarnSari']='Dagger',['Twashtar']='Dagger',['TwashCent']='Dagger',
-                        ['Aeneas']='Dagger',['AenTwash']='Dagger',['AenBlur']='Dagger',
-                        ['Naegling']='Sword',['NaegCent']='Sword',['Xoanon']='Staff'}
-    info.ws_binds = T{
+    info.ws_binds = make_keybind_list(T{
         ['Dagger']=L{
-            {bind='!^1|%1',ws='"Energy Drain"'},
-            {bind='!^2|%2',ws='"Rudra\'s Storm"'},
-            {bind='!^3|%3',ws='"Mordant Rime"'},
-            {bind='!^4|%4',ws='"Evisceration"'},
-            {bind='!^5|%5',ws='"Exenterator"'},
-            {bind='!^6|%6',ws='"Aeolian Edge"'},
-            {bind='!^7|%7',ws='"Cyclone"'},
-            {bind='!^d',ws='"Shadowstitch"'}},
+            'bind !^1|%1 input /ws "Energy Drain"',
+            'bind !^2|%2 input /ws "Rudra\'s Storm"',
+            'bind !^3|%3 input /ws "Mordant Rime"',
+            'bind !^4|%4 input /ws "Evisceration"',
+            'bind !^5|%5 input /ws "Exenterator"',
+            'bind !^6|%6 input /ws "Aeolian Edge"',
+            'bind !^7|%7 input /ws "Cyclone"',
+            'bind !^d input /ws "Shadowstitch"'},
         ['Sword']=L{
-            {bind='!^1|%1',ws='"Sanguine Blade"'},
-            {bind='!^3|%3',ws='"Savage Blade"'},
-            {bind='!^6|%6',ws='"Circle Blade"'},
-            {bind='!^d',ws='"Flat Blade"'}},
+            'bind !^1|%1 input /ws "Sanguine Blade"',
+            'bind !^3|%3 input /ws "Savage Blade"',
+            'bind !^6|%6 input /ws "Circle Blade"',
+            'bind !^d input /ws "Flat Blade"'},
         ['Staff']=L{
-            {bind='!^1|%1',ws='"Shell Crusher"'},
-            {bind='!^2|%2',ws='"Shattersoul"'},
-            {bind='!^3|%3',ws='"Retribution"'},
-            {bind='!^4|%4',ws='"Spirit Taker"'},
-            {bind='!^6|%6',ws='"Cataclysm"'}}}
-    set_weaponskill_keybinds()
+            'bind !^1|%1 input /ws "Shell Crusher"',
+            'bind !^2|%2 input /ws "Shattersoul"',
+            'bind !^3|%3 input /ws "Retribution"',
+            'bind !^4|%4 input /ws "Spirit Taker"',
+            'bind !^6|%6 input /ws "Cataclysm"'}},
+        {['Carn']='Dagger',['CarnSari']='Dagger',['Twashtar']='Dagger',['TwashCent']='Dagger',
+         ['Aeneas']='Dagger',['AenTwash']='Dagger',['AenBlur']='Dagger',
+         ['Naegling']='Sword',['NaegCent']='Sword',['Xoanon']='Staff'})
+    info.ws_binds:bind(state.CombatWeapon)
+    send_command('bind %\\\\ gs c ListWS')
 
     send_command('bind !b input /ma "Horde Lullaby"')
 
@@ -381,6 +376,7 @@ function user_unload()
     send_command('unbind !@b')
     send_command('unbind !n')
 
+    info.ws_binds:unbind()
     destroy_state_text()
 end
 
@@ -443,16 +439,18 @@ function init_gear_sets()
         back=gear.RudraCape,waist="Grunfeld Rope",legs="Bihu Cannions +3",feet="Ayanmo Gambieras +2"}
     sets.precast.WS['Mordant Rime'] = {range="Linos",
         head="Bihu Roundlet +3",neck="Bard's Charm +2",ear1="Telos Earring",ear2="Regal Earring",
-        body="Bihu Justaucorps +3",hands="Bihu Cuffs +3",ring1="Airy Ring",ring2="Ilabrat Ring",
+        body="Bihu Justaucorps +3",hands="Bihu Cuffs +3",ring1="Metamorph Ring +1",ring2="Ilabrat Ring",
         back=gear.RimeCape,waist="Grunfeld Rope",legs="Bihu Cannions +3",feet="Bihu Slippers +3"}
     sets.precast.WS['Aeolian Edge'] = set_combine(sets.precast.WS, {
         head="Chironic Hat",neck="Fotia Gorget",ear1="Friomisi Earring",ear2="Hecate's Earring",
-        body="Chironic Doublet",hands="Chironic Gloves",ring1="Acumen Ring",ring2="Sangoma Ring",
+        body="Chironic Doublet",hands="Chironic Gloves",ring1="Metamorph Ring +1",ring2="Ilabrat Ring",
         back=gear.RudraCape,waist="Fotia Belt",legs="Lengo Pants",feet=gear.chir_feet_ma})
     sets.precast.WS['Cyclone'] = set_combine(sets.precast.WS['Aeolian Edge'], {})
     sets.precast.WS['Cataclysm'] = set_combine(sets.precast.WS['Aeolian Edge'], {head="Pixie Hairpin +1",ring2="Archon Ring"})
     sets.precast.WS['Energy Drain'] = set_combine(sets.precast.WS['Cataclysm'], {})
     sets.precast.WS['Sanguine Blade'] = set_combine(sets.precast.WS['Cataclysm'], {})
+    sets.orpheus = {waist="Orpheus's Sash"}
+    sets.ele_obi = {waist="Hachirin-no-Obi"}
 
     -- Midcast Sets
 
@@ -535,9 +533,10 @@ function init_gear_sets()
     -- cure potency +50
     sets.midcast.Curaga = sets.midcast.Cure
     sets.midcast.StatusRemoval = {}
-    sets.midcast.Cursna = {neck="Malison Medallion",hands="Inyanga Dastanas +2",
+    sets.midcast.Cursna = {neck="Debilis Medallion",hands="Inyanga Dastanas +2",
         ring1="Haoma's Ring",ring2="Haoma's Ring",feet="Vanya Clogs"}
-    -- healing skill 242, cursna +45 (est. 26% success)
+    sets.cmp_belt  = {waist="Shinjutsu-no-Obi +1"}
+    sets.gishdubar = {waist="Gishdubar Sash"}
 
     sets.midcast.EnhancingDuration = {main="Daybreak",sub="Ammurapi Shield",
         head="Telchine Cap",body="Telchine Chasuble",hands="Telchine Gloves",
@@ -619,9 +618,6 @@ function job_precast(spell, action, spellMap, eventArgs)
             equip(sets.midcast['Honor March'])
         end
         eventArgs.handled = true
-    elseif spell.type == 'WeaponSkill' then
-        state.aeonic_aftermath_precast = (buffactive["Aftermath: Lv.1"] or buffactive["Aftermath: Lv.2"] or buffactive["Aftermath: Lv.3"])
-        custom_aftermath_timers_precast(spell)
     elseif spell.english == "Pianissimo" and buffactive.Pianissimo then
         send_command('cancel Pianissimo')
         eventArgs.cancel = true
@@ -633,6 +629,14 @@ function job_precast(spell, action, spellMap, eventArgs)
     elseif spell.english == "Dark Arts" and buffactive['Dark Arts'] then
         send_command('input /ja "Addendum: Black" <me>')
         eventArgs.cancel = true
+    end
+end
+
+-- Run after the general precast() is done.
+function job_post_precast(spell, action, spellMap, eventArgs)
+    if spell.type == 'WeaponSkill' then
+        if info.magic_ws:contains(spell.english) then equip(resolve_orpheus(spell, sets.ele_obi)) end
+        if buffactive['elvorseal'] and player.inventory["Angantyr Boots"] then equip({feet="Angantyr Boots"}) end
     end
 end
 
@@ -681,7 +685,7 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
         end
 
     elseif spell.target.type == 'SELF' then
-        if S{'Cure','Curaga','Refresh'}:contains(spellMap) then
+        if S{'Cure','Refresh'}:contains(spellMap) then
             equip({waist="Gishdubar Sash"})
         elseif spell.english == 'Cursna' then
             equip(sets.buff.doom)
@@ -693,13 +697,7 @@ end
 function job_aftercast(spell, action, spellMap, eventArgs)
     if spell.interrupted then
         send_command('wait 0.5;gs c update')
-        if buffactive.Amnesia and S{'JobAbility','WeaponSkill'}:contains(spell.type) then
-            add_to_chat(123, 'Amnesia prevents using '..spell.english)
-        elseif buffactive.Silence and S{'WhiteMagic','BlackMagic','Ninjutsu','BardSong'}:contains(spell.type) then
-            add_to_chat(123, 'Silence prevents using '..spell.english)
-        elseif has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
-            add_to_chat(123, 'Status prevents using '..spell.english)
-        end
+        interrupted_message(spell)
     else
         if 'Lullaby' == spellMap then
             lullaby_timer(spell)
@@ -711,9 +709,8 @@ function job_aftercast(spell, action, spellMap, eventArgs)
             end
         elseif spell.type == 'WeaponSkill' then
             if state.WSMsg.value then
-                ws_msg(spell)
+                send_command('@input /p '..spell.english)
             end
-            custom_aftermath_timers_aftercast(spell)
         end
         if state.Buff.Troubadour and spell.type == 'BardSong' then
             -- skip aftercast swaps so rapid singing isn't broken
@@ -763,20 +760,17 @@ end
 function job_state_change(stateField, newValue, oldValue)
     if stateField == 'Offense Mode' then
         enable('main','sub','ammo')
-        handle_equipping_gear(player.status)
-        set_weaponskill_keybinds()
         if newValue ~= 'None' then
             equip(sets.weapons[state.CombatWeapon.value])
             disable('main','sub','ammo')
         end
+        handle_equipping_gear(player.status)
     elseif stateField == 'Combat Weapon' then
-        enable('main','sub','ammo')
-        set_weaponskill_keybinds()
+        info.ws_binds:bind(state.CombatWeapon)
         if state.OffenseMode.value ~= 'None' then
+            enable('main','sub','ammo')
             equip(sets.weapons[state.CombatWeapon.value])
-            if state.CombatWeapon.value ~= 'None' then
-                disable('main','sub','ammo')
-            end
+            disable('main','sub','ammo')
         end
     elseif stateField == 'Fishing Gear' then
         if newValue then
@@ -952,97 +946,24 @@ function job_self_command(cmdParams, eventArgs)
             add_to_chat(123, 'Invalid dummy command.')
         end
     elseif cmdParams[1] == 'ListWS' then
-        add_to_chat(122, 'ListWS:')
-        for ws in info.ws_binds[info.weapon_type[state.CombatWeapon.value]]:it() do
-            add_to_chat(122, "%3s : %s":format(ws.bind,ws.ws))
-        end
+        info.ws_binds:print('ListWS:')
     elseif cmdParams[1] == 'weap' then
-        -- sets CombatWeapon to the first matching value by prefix and optional suffix
-        if #cmdParams < 2 then return end
-        local prefix = cmdParams[2] or nil
-        local suffix = cmdParams[3] or nil
-        local weapons = L{}
-        for i,v in ipairs(state.CombatWeapon) do
-            if type(v) == 'string' then weapons:append(v) end
-        end
-
-        weapons = weapons:filter(function(w) return w:startswith(prefix) end)
-        if suffix then
-            local weapons_with_suffix = weapons:filter(function(w) return w:endswith(suffix) end)
-            if not weapons_with_suffix:empty() then weapons = weapons_with_suffix end
-        end
-
-        if weapons:empty() then
-            add_to_chat(123, 'no matching weapon for '..prefix..''..(suffix and '..'..suffix or ''))
-        else
-            handle_set({'CombatWeapon',weapons[1]})
-        end
-    elseif cmdParams[1] == 'mooglehp' then
-        equip({neck="Sanctity Necklace",ear1="Thureous Earring",ear2="Etiolation Earring",
-        ring1="Etana Ring",ring2="Ilabrat Ring",back="Moonbeam Cape"})
-        disable('neck','ear1','ear2','ring1','ring2','back')
-        if cmdParams[2] and cmdParams[2] == 'off' then
-            enable('neck','ear1','ear2','ring1','ring2','back')
-            handle_equipping_gear(player.status)
-        end
+        weap_self_command(cmdParams, 'CombatWeapon')
+    elseif cmdParams[1] == 'save' then
+        save_self_command(cmdParams)
+    --elseif cmdParams[1] == 'mooglehp' then
+    --    equip({neck="Sanctity Necklace",ear1="Thureous Earring",ear2="Etiolation Earring",
+    --    ring1="Etana Ring",ring2="Ilabrat Ring",back="Moonbeam Cape"})
+    --    disable('neck','ear1','ear2','ring1','ring2','back')
+    --    if cmdParams[2] and cmdParams[2] == 'off' then
+    --        enable('neck','ear1','ear2','ring1','ring2','back')
+    --        handle_equipping_gear(player.status)
+    --    end
     end
 end
 
--- Handle auto-targetting based on local setup.
 function job_auto_change_target(spell, action, spellMap, eventArgs)
-    if spell.target.raw == '<stpc>' then
-        if spell.type == 'BardSong' then
-            if state.Buff.Pianissimo then
-                if player.target and player.target.isallymember then
-                    if player.target.type == 'SELF' then
-                        change_target('<me>')
-                    elseif player.target.type == 'PLAYER'
-                    or     player.target.type == 'NPC' and npcs.Trust:contains(player.target.name) then
-                        change_target('<t>')
-                    end
-                end
-            else
-                change_target('<me>')
-            end
-        elseif S{'SELF','PLAYER'}:contains(player.target.type)
-        or 'NPC' == player.target.type and npcs.Trust:contains(player.target.name) then
-            if S{'Cure','Curaga','Regen'}:contains(spellMap)
-            or spell.targets.Party and spell.skill == 'Enhancing Magic' then
-                -- Change some spells to use <t> instead of <stpc> when already targetting a player.
-                -- <stpc> macros are convenient while engaged, but add delay in backline situations.
-                change_target('<t>')
-                eventArgs.handled = true
-            end
-        elseif 'NPC' == player.target.type and player.target.name ~= 'Luopan' then
-            add_to_chat(122,'Is this a trust? ['..player.target.name..']')
-        end
-    elseif spell.target.raw == '<stnpc>' and spell.targets.Enemy and player.status ~= 'Engaged' then
-        if 'MONSTER' == player.target.type
-        or 'PLAYER'  == player.target.type and windower.ffxi.get_mob_by_index(player.target.index).charmed then
-            -- Likewise for crowd-control while unengaged.
-            change_target('<t>')
-            eventArgs.handled = true
-        end
-    elseif spell.target.raw == '<t>' and spell.targets.Enemy and player.target.type ~= 'MONSTER' then
-        if not player.target.name
-        or 'SELF'   == player.target.type
-        or 'PLAYER' == player.target.type and not windower.ffxi.get_mob_by_index(player.target.index).charmed
-        or 'NPC'    == player.target.type and (npcs.Trust:contains(player.target.name) or player.target.name == 'Luopan') then
-            if spellMap ~= 'Cure' then
-                -- Change enfeebles and such to fall back to <bt> when watching a player.
-                change_target('<bt>')
-                eventArgs.handled = true
-            end
-        elseif 'NPC' == player.target.type then
-            add_to_chat(122,'Is this a trust? ['..player.target.name..']')
-        end
-    elseif spell.target.raw == ('<t>') and spell.english == 'Goddess\'s Hymnus' then
-        -- Hymnus seems to not target correctly under pianissimo, unlike other songs.
-        if not (player.target and player.target.name and state.Buff.Pianissimo and 'PLAYER' == player.target.type) then
-            change_target('<me>')
-            eventArgs.handled = true
-        end
-    end
+    custom_auto_change_target(spell, action, spellMap, eventArgs)
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -1109,93 +1030,38 @@ function lullaby_timer(spell)
     send_command('@timers c "'..spell.english..' ['..spell.target.name..']" '..tostring(dur)..' down')
 end
 
-function ws_msg(spell)
-    -- optional party chat messages for weaponskills
-    local at_ws
-    local good_ats = true
-    local props = info.ws_props[spell.english].props
-    local at_props = {}
-    local aeonic = state.aeonic_aftermath_precast and info.ws_props[spell.english].aeonic
-        and player.equipment.main == info.ws_props[spell.english].aeonic.weapon
-
-    at_ws = at_stuff(spell.english) -- shift-jis
-    good_ats = (at_ws ~= nil)
-    if props then
-        if aeonic then
-            local prop = info.ws_props[spell.english].aeonic.sc
-            local at_prop = at_stuff(prop)
-            table.insert(at_props, at_prop)
-            good_ats = (good_ats and at_prop)
-        end
-        for i, prop in ipairs(props) do
-            local at_prop = at_stuff(prop)
-            table.insert(at_props, at_prop)
-            good_ats = (good_ats and at_prop)
-        end
-    end
-
-    if good_ats then
-        if props then
-            windower.chat.input('/p used '..at_ws..' ('..table.concat(at_props,'')..')')
-        else
-            windower.chat.input('/p used '..at_ws)
-        end
-    else
-        windower.chat.input('/p used '..spell.english)
-    end
-end
-
--- issues send_command()s to set weaponskill keybinds for current value of state.CombatWeapon
--- checks and sets state.WSBinds to determine if send_command()s are needed
--- info.weapon_type and info.ws_binds map state.CombatWeapon to a table of keybinds
-function set_weaponskill_keybinds()
-    if state.CombatWeapon.value == 'None' then return end
-    local cur_weapon_type = info.weapon_type[state.CombatWeapon.value]
-    if state.WSBinds.value ~= cur_weapon_type then
-        for ws in info.ws_binds[cur_weapon_type]:it() do
-            send_command("bind %s input /ws %s":format(ws.bind,ws.ws))
-        end
-        state.WSBinds:set(cur_weapon_type)
-    end
-end
-
 function init_state_text()
     destroy_state_text()
-    local harp_text_settings ={pos={x=130,y=698},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local dummy_text_settings={pos={x=130,y=680},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local hyb_text_settings = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local def_text_settings = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    state.harp_text = texts.new('HarpLullaby', harp_text_settings)
     state.dummy_text = texts.new('DummySong', dummy_text_settings)
     state.hyb_text = texts.new('/${hybrid}', hyb_text_settings)
     state.def_text = texts.new('(${defense})', def_text_settings)
 
+    windower.register_event('logout', destroy_state_text)
     state.texts_event_id = windower.register_event('prerender', function()
-        state.harp_text:visible(state.HarpLullaby.value)
         state.dummy_text:visible((state.ExtraSongsMode.value ~= 'None'))
-        state.hyb_text:visible((state.HybridMode.value ~= 'Normal'))
-        state.def_text:visible((state.DefenseMode.value ~= 'None'))
 
-        state.hyb_text:update({['hybrid']=state.HybridMode.value})
+        if state.HybridMode.value ~= 'Normal' then
+            state.hyb_text:show()
+            state.hyb_text:update({hybrid=state.HybridMode.value})
+        else state.hyb_text:hide() end
 
-        local defMode = '---'
         if state.DefenseMode.value ~= 'None' then
-            defMode = state[state.DefenseMode.value ..'DefenseMode'].current
-        end
-        state.def_text:update({['defense']=defMode})
+            state.def_text:show()
+            state.def_text:update({defense=state[state.DefenseMode.value..'DefenseMode'].current})
+        else state.def_text:hide() end
     end)
 end
 
 function destroy_state_text()
     if state.texts_event_id then
         windower.unregister_event(state.texts_event_id)
-        state.harp_text:visible(false)
-        state.dummy_text:visible(false)
-        state.hyb_text:visible(false)
-        state.def_text:visible(false)
-        texts.destroy(state.harp_text)
-        texts.destroy(state.dummy_text)
-        texts.destroy(state.hyb_text)
-        texts.destroy(state.def_text)
+        for text in S{state.dummy_text, state.hyb_text, state.def_text}:it() do
+            text:hide()
+            text:destroy()
+        end
     end
+    state.texts_event_id = nil
 end
