@@ -1,6 +1,5 @@
 -- Modified from 'https://github.com/Kinematics/GearSwap-Jobs/blob/master/THF.lua'
 -- TODO relic feet
--- TODO subtle blow set (chirich 10, sari 8, adh.bonnet 8, sarissaphoroi 5, herc.boots 6, /nin 15)
 
 -- NOTES
 -- mug steals hp
@@ -52,20 +51,21 @@ end
 
 -- Setup vars that are user-dependent.  Can override this function in a sidecar file.
 function user_setup()
-    state.OffenseMode:options('Normal','MDef','Acc')            -- Cycle with F9, set with !w, @c, !c, !@c
-    state.HybridMode:options('Normal','PDef')                   -- Cycle with ^F9
-    state.WeaponskillMode:options('Normal','Acc','NoDmg')       -- Cycle with @F9
+    state.OffenseMode:options('Normal','MDef','Acc','None')     -- Cycle with F9, set with !w, @c, !c, !@w
+    state.HybridMode:options('Normal','PDef')                   -- Cycle with ^space
+    state.WeaponskillMode:options('Normal','PDT')--,'NoDmg')    -- Cycle with @F9
     state.CastingMode:options('TH','MAcc')                      -- Cycle with F10
     state.IdleMode:options('Normal','Eva','Rf','STP')           -- Cycle with F11
-    state.PhysicalDefenseMode:options('EvaPDT','EvaEng','Kite') -- Cycle with !z
+    state.PhysicalDefenseMode:options('EvaEng','EvaPDT','Kite') -- Cycle with !z
     state.MagicalDefenseMode:options('MEVA')                    -- Cycle with @z
-    state.CombatWeapon = M{['description']='Combat Weapon'}     -- Set with !^q/w/e/r, !@w, ^@w
-    state.CombatWeapon:options('TwashSari','TwashCent','TwashGand','TaurSari','TaurShijo','AenSari','AenTwash',
-                               'GandSari','GandCent','GandTwash','GandEva','NaegBlur','NaegCent')
+    state.CombatWeapon = M{['description']='Combat Weapon'}     -- Set with [~]!^q|w|e|r, ^@w
+    state.CombatWeapon:options('TwashTern','TwashCent','TwashGand','TwashTern','TaurTwash','TaurShijo','AenSari','AenTwash',
+                               'GandSari','GandCent','GandTwash','GandTern','NaegTern','NaegCent')
     state.WSBinds = M{['description']='WS Binds',['string']=''}
 
     state.WSMsg     = M(false, 'WS Message')                    -- Toggle with ^\
     state.THAeolian = M(false, 'TH Aeolian')                    -- Toggle with ^z
+    state.SATAHUD   = M(false, 'SATA HUD')                      -- Toggle with !^\
     init_state_text()
 
     info.magic_ws = S{'Aeolian Edge','Cyclone','Gust Slash','Energy Steal','Energy Drain',
@@ -82,8 +82,6 @@ function user_setup()
     gear.herc_hands_ma = {name="Herculean Gloves",
         augments={'Mag. Acc.+18 "Mag.Atk.Bns."+18','Magic burst dmg.+3%','Mag. Acc.+12','"Mag.Atk.Bns."+10',}}
     gear.herc_legs_ma  = {name="Herculean Trousers",
-        augments={'Mag. Acc.+20 "Mag.Atk.Bns."+20','"Fast Cast"+2','INT+8','Mag. Acc.+11','"Mag.Atk.Bns."+14'}}
-    gear.herc_legs_ma2 = {name="Herculean Trousers",
         augments={'"Mag.Atk.Bns."+30','Weapon Skill Acc.+5','Accuracy+14 Attack+14','Mag. Acc.+16 "Mag.Atk.Bns."+16'}}
     gear.herc_feet_ma  = {name="Herculean Boots",
         augments={'Mag. Acc.+19 "Mag.Atk.Bns."+19','Enmity-2','MND+4','Mag. Acc.+4','"Mag.Atk.Bns."+15'}}
@@ -93,7 +91,6 @@ function user_setup()
         augments={'Accuracy+25 Attack+25','Weapon skill damage +3%','DEX+3','Accuracy+14','Attack+5'}}
     gear.herc_feet_wsd  = {name="Herculean Boots",
         augments={'Accuracy+16 Attack+16','Weapon skill damage +2%','DEX+10','Accuracy+6','Attack+14'}}
-    gear.herc_hands_ta = {name="Herculean Gloves", augments={'Accuracy+24 Attack+24','"Triple Atk."+2','AGI+4','Accuracy+13','Attack+14'}}
     gear.herc_feet_ta  = {name="Herculean Boots", augments={'Rng.Acc.+4','"Triple Atk."+4','Accuracy+14','Attack+12'}}
     gear.herc_hands_dt = {name="Herculean Gloves", augments={'Attack+27','Damage taken-4%','DEX+5','Accuracy+9'}}
     gear.herc_head_rf = {name="Herculean Helm",
@@ -109,15 +106,15 @@ function user_setup()
         augments={'AGI+20','Eva.+20 /Mag. Eva.+20','Evasion+10','"Fast Cast"+10','Phys. dmg. taken-10%'}}
     gear.TPCape   = {name="Toutatis's Cape",
         augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','"Store TP"+10','Phys. dmg. taken-10%'}}
+    gear.DWCape   = {name="Toutatis's Cape",
+        augments={'DEX+20','Accuracy+20 Attack+20','DEX+10','"Dual Wield"+10','Phys. dmg. taken-10%'}}
     gear.WSDCape  = {name="Toutatis's Cape",
         augments={'DEX+20','Accuracy+20 Attack+20','DEX+10','Weapon skill damage +10%','Phys. dmg. taken-10%'}}
     gear.EvisCape = {name="Toutatis's Cape", augments={'DEX+20','Accuracy+20 Attack+20','DEX+10','Crit.hit rate+10','Phys. dmg. taken-10%'}}
 
-    -- Additional local binds
-    send_command('unbind ^F10')
-    send_command('unbind ^F11')
-    send_command('bind %` gs c update user')
+    send_command('bind %`|F12 gs c update user')
     send_command('bind F9   gs c cycle OffenseMode')
+    send_command('bind @F9  gs c cycle WeaponskillMode')
     send_command('bind !F9  gs c reset OffenseMode')
     send_command('bind F10  gs c cycle CastingMode')
     send_command('bind !F10 gs c reset CastingMode')
@@ -133,19 +130,23 @@ function user_setup()
     send_command('bind @space gs c set DefenseMode Magical')
     send_command('bind !@space gs c reset DefenseMode')
     send_command('bind !w  gs c reset OffenseMode')
+    send_command('bind !@w gs c set   OffenseMode None')
     send_command('bind @c  gs c set OffenseMode MDef')
     send_command('bind !c  gs c set OffenseMode Acc')
-    send_command('bind !^q gs c set CombatWeapon TaurShijo')
-    send_command('bind !^w gs c set CombatWeapon GandCent')
-    send_command('bind !@w gs c set CombatWeapon NaegBlur')
-    send_command('bind ^@w gs c set CombatWeapon AenTwash')
-    send_command('bind !^e gs c set CombatWeapon TwashCent')
-    send_command('bind ^@e gs c set CombatWeapon TwashSari')
-    send_command('bind !^r gs c set CombatWeapon NaegCent')
+    send_command('bind !^q  gs c set CombatWeapon TaurTwash')
+    send_command('bind ~!^q gs c set CombatWeapon TaurShijo')
+    send_command('bind !^w  gs c set CombatWeapon GandCent')
+    send_command('bind ~!^w gs c set CombatWeapon GandTern')
+    send_command('bind ^@w  gs c set CombatWeapon AenTwash')
+    send_command('bind !^e  gs c set CombatWeapon TwashCent')
+    send_command('bind ~!^e gs c set CombatWeapon TwashTern')
+    send_command('bind !^r  gs c set CombatWeapon NaegCent')
+    send_command('bind ~!^r gs c set CombatWeapon NaegTern')
     send_command('bind ^z gs c toggle THAeolian')
     send_command('bind !z gs c cycle PhysicalDefenseMode')
     send_command('bind @z gs c cycle MagicalDefenseMode')
-    send_command('bind ^\\\\ gs c toggle WSMsg')
+    send_command('bind ^\\\\  gs c toggle WSMsg')
+    send_command('bind !^\\\\  gs c toggle SATAHUD')
 
     send_command('bind !^` input /ja "Perfect Dodge" <me>')
     send_command('bind ^@` input /ja Larceny')
@@ -161,18 +162,18 @@ function user_setup()
     send_command('bind @g gs equip phlx')
     send_command('bind @n input /item "Living Key" <t>')
 
-    send_command('bind ^@1 input /ja Collaborator <stpc>')
-    send_command('bind ^@2 input /ja Collaborator <p1>')
-    send_command('bind ^@3 input /ja Collaborator <p2>')
-    send_command('bind ^@4 input /ja Collaborator <p3>')
-    send_command('bind ^@5 input /ja Collaborator <p4>')
-    send_command('bind ^@6 input /ja Collaborator <p5>')
-    send_command('bind ~^1 input /ja Accomplice <stpc>')
-    send_command('bind ~^2 input /ja Accomplice <p1>')
-    send_command('bind ~^3 input /ja Accomplice <p2>')
-    send_command('bind ~^4 input /ja Accomplice <p3>')
-    send_command('bind ~^5 input /ja Accomplice <p4>')
-    send_command('bind ~^6 input /ja Accomplice <p5>')
+    send_command('bind ^@1  input /ja Collaborator <stpc>')
+    send_command('bind ^@2  input /ja Collaborator <p1>')
+    send_command('bind ^@3  input /ja Collaborator <p2>')
+    send_command('bind ^@4  input /ja Collaborator <p3>')
+    send_command('bind ^@5  input /ja Collaborator <p4>')
+    send_command('bind ^@6  input /ja Collaborator <p5>')
+    send_command('bind ~^@1 input /ja Accomplice <stpc>')
+    send_command('bind ~^@2 input /ja Accomplice <p1>')
+    send_command('bind ~^@3 input /ja Accomplice <p2>')
+    send_command('bind ~^@4 input /ja Accomplice <p3>')
+    send_command('bind ~^@5 input /ja Accomplice <p4>')
+    send_command('bind ~^@6 input /ja Accomplice <p5>')
 
     send_command('bind !1 input /ja Feint')
     send_command('bind !2 input /ja Bully')
@@ -185,19 +186,19 @@ function user_setup()
 
     info.ws_binds = make_keybind_list(T{
         ['Dagger']=L{
-            'bind ^1|%1 input /ws "Evisceration"',
-            'bind ^2|%2 input /ws "Rudra\'s Storm"',
-            'bind ^3|%3 input /ws "Mandalic Stab"',
-            'bind ^4|%4 input /ws "Shark Bite"',
-            'bind ^5|%5 input /ws "Exenterator"',
-            'bind ^6|%6 input /ws "Aeolian Edge"',
-            'bind !^1   input /ws "Evisceration" <stnpc>',
-            'bind !^2   input /ws "Rudra\'s Storm" <stnpc>',
-            'bind !^3   input /ws "Mandalic Stab" <stnpc>',
-            'bind !^4   input /ws "Shark Bite" <stnpc>',
-            'bind !^5   input /ws "Exenterator" <stnpc>',
-            'bind !^6   input /ws "Cyclone" <stnpc>',
-            'bind !^d   input /ws "Shadowstitch"'},
+            'bind ^1|%1   input /ws "Evisceration"',
+            'bind ^2|%2   input /ws "Rudra\'s Storm"',
+            'bind ^3|%3   input /ws "Mandalic Stab"',
+            'bind ^4|%4   input /ws "Shark Bite"',
+            'bind ^5|%5   input /ws "Exenterator"',
+            'bind ^6|%6   input /ws "Aeolian Edge"',
+            'bind !^1|%~1 input /ws "Evisceration" <stnpc>',
+            'bind !^2|%~2 input /ws "Rudra\'s Storm" <stnpc>',
+            'bind !^3|%~3 input /ws "Mandalic Stab" <stnpc>',
+            'bind !^4|%~4 input /ws "Shark Bite" <stnpc>',
+            'bind !^5|%~5 input /ws "Exenterator" <stnpc>',
+            'bind !^6|%~6 input /ws "Cyclone" <stnpc>',
+            'bind !^d     input /ws "Shadowstitch"'},
         ['Sword']=L{
             'bind ^1|%1 input /ws "Sanguine Blade"',
             'bind ^2|%2 input /ws "Vorpal Blade"',
@@ -206,10 +207,10 @@ function user_setup()
             'bind ^5|%5 input /ws "Seraph Blade"',
             'bind ^6|%6 input /ws "Circle Blade"',
             'bind !^d   input /ws "Flat Blade"'}},
-        {['TwashSari']='Dagger',['TwashCent']='Dagger',['TwashGand']='Dagger',
-         ['TaurSari']='Dagger',['TaurShijo']='Dagger',['AenSari']='Dagger',['AenTwash']='Dagger',
-         ['GandSari']='Dagger',['GandCent']='Dagger',['GandTwash']='Dagger',['GandEva']='Dagger',
-         ['NaegBlur']='Sword',['NaegCent']='Sword'})
+        {['TwashTern']='Dagger',['TwashCent']='Dagger',['TwashGand']='Dagger',
+         ['TaurTwash']='Dagger',['TaurShijo']='Dagger',['AenSari']='Dagger',['AenTwash']='Dagger',
+         ['GandSari']='Dagger',['GandCent']='Dagger',['GandTwash']='Dagger',['GandTern']='Dagger',
+         ['NaegTern']='Sword',['NaegCent']='Sword'})
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
 
@@ -289,7 +290,15 @@ end
 
 -- Called when this job file is unloaded (eg: job change)
 function user_unload()
-    send_command('unbind %`')
+    send_command('unbind %`|F12')
+    send_command('unbind F9')
+    send_command('unbind @F9')
+    send_command('unbind !F9')
+    send_command('unbind F10')
+    send_command('unbind !F10')
+    send_command('unbind F11')
+    send_command('unbind !F11')
+    send_command('unbind @F11')
     send_command('unbind ^F12')
     send_command('unbind !F12')
     send_command('unbind @F12')
@@ -302,13 +311,15 @@ function user_unload()
     send_command('unbind !^w')
     send_command('unbind !^e')
     send_command('unbind !^r')
+    send_command('unbind ~!^q')
+    send_command('unbind ~!^w')
+    send_command('unbind ~!^e')
+    send_command('unbind ~!^r')
     send_command('unbind !w')
     send_command('unbind !@w')
     send_command('unbind ^@w')
-    send_command('unbind ^@e')
     send_command('unbind @c')
     send_command('unbind !c')
-    send_command('unbind !@c')
     send_command('unbind ^z')
     send_command('unbind !z')
     send_command('unbind @z')
@@ -328,12 +339,12 @@ function user_unload()
     send_command('unbind ^@4')
     send_command('unbind ^@5')
     send_command('unbind ^@6')
-    send_command('unbind ~^1')
-    send_command('unbind ~^2')
-    send_command('unbind ~^3')
-    send_command('unbind ~^4')
-    send_command('unbind ~^5')
-    send_command('unbind ~^6')
+    send_command('unbind ~^@1')
+    send_command('unbind ~^@2')
+    send_command('unbind ~^@3')
+    send_command('unbind ~^@4')
+    send_command('unbind ~^@5')
+    send_command('unbind ~^@6')
     send_command('unbind ^1')
     send_command('unbind ^2')
     send_command('unbind ^3')
@@ -346,12 +357,6 @@ function user_unload()
     send_command('unbind %4')
     send_command('unbind %5')
     send_command('unbind %6')
-    send_command('unbind ^@1')
-    send_command('unbind ^@2')
-    send_command('unbind ^@3')
-    send_command('unbind ^@4')
-    send_command('unbind ^@5')
-    send_command('unbind ^@6')
     send_command('unbind !1')
     send_command('unbind !2')
     send_command('unbind !3')
@@ -379,6 +384,7 @@ function user_unload()
     send_command('unbind !n')
     send_command('unbind @n')
     send_command('unbind ^\\\\')
+    send_command('unbind !^\\\\')
     send_command('unbind %\\\\')
 
     info.ws_binds:unbind()
@@ -390,18 +396,18 @@ end
 function init_gear_sets()
 
     sets.weapons = {}
-    sets.weapons.TwashSari = {main="Twashtar",sub="Taming Sari"}
+    sets.weapons.TwashTern = {main="Twashtar",sub="Ternion Dagger +1"}
     sets.weapons.TwashCent = {main="Twashtar",sub="Centovente"}
     sets.weapons.TwashGand = {main="Twashtar",sub="Gandring"}
     sets.weapons.GandSari  = {main="Gandring",sub="Taming Sari"}
     sets.weapons.GandCent  = {main="Gandring",sub="Centovente"}
     sets.weapons.GandTwash = {main="Gandring",sub="Twashtar"}
-    --sets.weapons.GandEva   = {main="Gandring",sub="Nibiru Knife"}
-    sets.weapons.TaurSari  = {main="Tauret",sub="Taming Sari"}
+    sets.weapons.GandTern  = {main="Gandring",sub="Ternion Dagger +1"}
+    sets.weapons.TaurTwash = {main="Tauret",sub="Twashtar"}
     sets.weapons.TaurShijo = {main="Tauret",sub="Shijo"}
     sets.weapons.AenSari   = {main="Aeneas",sub="Taming Sari"}
     sets.weapons.AenTwash  = {main="Aeneas",sub="Twashtar"}
-    sets.weapons.NaegBlur  = {main="Naegling",sub="Blurred Knife +1"}
+    sets.weapons.NaegTern  = {main="Naegling",sub="Ternion Dagger +1"}
     sets.weapons.NaegCent  = {main="Naegling",sub="Centovente"}
 
     sets.TreasureHunter1 = {waist="Chaac Belt"}                               -- for gandring/sari
@@ -469,6 +475,8 @@ function init_gear_sets()
         head=gear.herc_head_wsd,neck="Assassin's Gorget +2",ear1="Moonshade Earring",ear2="Odr Earring",
         body="Meghanada Cuirie +2",hands="Meghanada Gloves +2",ring1="Regal Ring",ring2="Ilabrat Ring",
         back=gear.WSDCape,waist="Grunfeld Rope",legs="Plunderer's Culottes +3",feet=gear.herc_feet_wsd}
+    sets.precast.WS.Rudras.PDT  = set_combine(sets.precast.WS.Rudras, {
+        neck="Loricate Torque +1",ring1="Vocane Ring +1",ring2="Defending Ring"})
     sets.precast.WS.Rudras.SA   = set_combine(sets.precast.WS.Rudras, {ammo="Yetshila +1",head="Pillager's Bonnet +3"})
     sets.precast.WS.Rudras.TA   = set_combine(sets.precast.WS.Rudras.SA, {body="Plunderer's Vest +3"})
     sets.precast.WS.Rudras.SATA = set_combine(sets.precast.WS.Rudras.SA, {body="Plunderer's Vest +3"})
@@ -486,6 +494,7 @@ function init_gear_sets()
     sets.precast.WS['Shark Bite'].SATA     = set_combine(sets.precast.WS.Rudras.SATA, {ear2="Sherida Earring"})
     sets.precast.WS['Savage Blade']        = set_combine(sets.precast.WS.Rudras, {
         neck="Caro Necklace",ear2="Sherida Earring",ring2="Gere Ring"})
+    sets.precast.WS['Savage Blade'].PDT    = set_combine(sets.precast.WS.Rudras.PDT, {ear2="Sherida Earring"})
     sets.precast.WS['Savage Blade'].SA     = set_combine(sets.precast.WS['Savage Blade'], {ammo="Yetshila +1",head="Pillager's Bonnet +3"})
     sets.precast.WS['Savage Blade'].TA     = set_combine(sets.precast.WS['Savage Blade'].SA, {body="Plunderer's Vest +3"})
     sets.precast.WS['Savage Blade'].SATA   = set_combine(sets.precast.WS['Savage Blade'].SA, {body="Plunderer's Vest +3"})
@@ -497,8 +506,7 @@ function init_gear_sets()
         body="Plunderer's Vest +3",hands="Mummu Wrists +2",ring1="Regal Ring",ring2="Gere Ring",
         back=gear.EvisCape,waist="Fotia Belt",legs="Pillager's Culottes +3",feet="Mummu Gamashes +2"}
     sets.precast.WS.Evisceration.Acc  = set_combine(sets.precast.WS.Evisceration, {head="Pillager's Bonnet +3"})
-    sets.precast.WS.Evisceration.TA   = set_combine(sets.precast.WS.Evisceration, {})
-    sets.precast.WS.Evisceration.SATA = set_combine(sets.precast.WS.Evisceration, {})
+    sets.precast.WS.Evisceration.PDT  = set_combine(sets.precast.WS.Evisceration, {ring1="Vocane Ring +1",ring2="Defending Ring"})
     sets.precast.WS['Vorpal Blade']   = set_combine(sets.precast.WS.Evisceration, {})
 
     sets.precast.WS.Shadowstitch = {ammo="Yamarang",
@@ -510,7 +518,7 @@ function init_gear_sets()
     sets.precast.WS['Aeolian Edge'] = {ammo="Pemphredo Tathlum",
         head=gear.herc_head_ma,neck="Sanctity Necklace",ear1="Moonshade Earring",ear2="Friomisi Earring",
         body="Samnuha Coat",hands=gear.herc_hands_ma,ring1="Dingir Ring",ring2="Ilabrat Ring",
-        back=gear.WSDCape,waist="Fotia Belt",legs=gear.herc_legs_ma2,feet=gear.herc_feet_ma}
+        back=gear.WSDCape,waist="Fotia Belt",legs=gear.herc_legs_ma,feet=gear.herc_feet_ma}
     sets.precast.WS.Cyclone            = set_combine(sets.precast.WS['Aeolian Edge'], {})
     sets.precast.WS['Sanguine Blade']  = set_combine(sets.precast.WS['Aeolian Edge'], {head="Pixie Hairpin +1",ring1="Archon Ring"})
     sets.orpheus = {waist="Orpheus's Sash"}
@@ -545,28 +553,28 @@ function init_gear_sets()
     info.th_gearsets = T{'Sleepga','Diaga','Poisonga'}
 
     -- Sets to return to when not performing an action.
-    sets.idle = {ammo="Yamarang",
+    sets.idle = {main="Gandring",sub="Ternion Dagger +1",ammo="Yamarang",
         head="Turms Cap +1",neck="Loricate Torque +1",ear1="Eabani Earring",ear2="Infused Earring",
         body="Malignance Tabard",hands="Turms Mittens +1",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.IdleCape,waist="Engraved Belt",legs="Malignance Tights",feet="Pillager's Poulaines +3"}
     -- pdt-50, mdt-40, rg+14, eva~1253, meva+661
-    sets.idle.Eva = {ammo="Yamarang",
+    sets.idle.Eva = {main="Gandring",sub="Ternion Dagger +1",ammo="Yamarang",
         head="Turms Cap +1",neck="Assassin's Gorget +2",ear1="Eabani Earring",ear2="Infused Earring",
         body="Malignance Tabard",hands="Turms Mittens +1",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.IdleCape,waist="Sveltesse Gouriz +1",legs="Malignance Tights",feet="Turms Leggings +1"}
     -- pdt-44, mdt-34, rg+19, eva~1320, meva+689
-    sets.idle.Rf = {ammo="Staunch Tathlum +1",
+    sets.idle.Rf = {main="Gandring",sub="Ternion Dagger +1",ammo="Staunch Tathlum +1",
         head=gear.herc_head_rf,neck="Loricate Torque +1",ear1="Eabani Earring",ear2="Infused Earring",
         body="Mekosuchinae Harness",hands="Malignance Gloves",ring1=gear.Lstikini,ring2=gear.Rstikini,
         back=gear.IdleCape,waist="Flume Belt +1",legs="Rawhide Trousers",feet="Malignance Boots"}
-    sets.idle.STP = {ammo="Yamarang",
+    sets.idle.STP = {main="Gandring",sub="Ternion Dagger +1",ammo="Yamarang",
         head="Turms Cap +1",neck="Anu Torque",ear1="Dedition Earring",ear2="Sherida Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1="Moonlight Ring",ring2="Ilabrat Ring",
         back=gear.TPCape,waist="Goading Belt",legs="Malignance Tights",feet="Malignance Boots"}
 
     sets.defense.EvaPDT = set_combine(sets.idle.Eva, {ammo="Staunch Tathlum +1",waist="Flume Belt +1"})
     -- pdt-50, mdt-37, rg+19, eva~1290, meva+674
-    sets.defense.EvaEng = {ammo="Yamarang",
+    sets.defense.EvaEng = {main="Gandring",sub="Ternion Dagger +1",ammo="Yamarang",
         head="Malignance Chapeau",neck="Assassin's Gorget +2",ear1="Telos Earring",ear2="Sherida Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1="Moonlight Ring",ring2="Defending Ring",
         back=gear.TPCape,waist="Reiki Yotai",legs="Malignance Tights",feet="Malignance Boots"}
@@ -574,7 +582,7 @@ function init_gear_sets()
     -- TwashCent: acc~1325/1099, haste+26, dw+7, stp+82, da+6, ta+4
     sets.defense.Eva = set_combine(sets.idle.Eva, {})
     sets.defense.Kite = set_combine(sets.idle, {})
-    sets.defense.MEVA = {ammo="Yamarang",
+    sets.defense.MEVA = {main="Gandring",sub="Ternion Dagger +1",ammo="Yamarang",
         head="Malignance Chapeau",neck="Assassin's Gorget +2",ear1="Eabani Earring",ear2="Sherida Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.IdleCape,waist="Engraved Belt",legs="Malignance Tights",feet="Malignance Boots"}
@@ -585,36 +593,37 @@ function init_gear_sets()
     sets.midcast.FastRecast = set_combine(sets.defense.EvaPDT, {})
 
     -- Engaged sets
-    sets.engaged = {ammo="Yamarang",
+    sets.engaged = {main="Tauret",sub="Ternion Dagger +1",ammo="Yamarang",
         head="Adhemar Bonnet +1",neck="Assassin's Gorget +2",ear1="Telos Earring",ear2="Sherida Earring",
         body="Adhemar Jacket +1",hands="Adhemar Wristbands +1",ring1="Hetairoi Ring",ring2="Gere Ring",
         back=gear.TPCape,waist="Windbuffet Belt +1",legs="Samnuha Tights",feet=gear.herc_feet_ta}
     -- TwashCent: acc~1216/990, haste+26, dw+6, stp+33, da+12, ta+32, qa+2, pdt-12, eva~1009, meva+336
-    sets.engaged.DW30 = set_combine(sets.engaged, {ear1="Eabani Earring",waist="Reiki Yotai"})
+    sets.engaged.DW30 = set_combine(sets.engaged, {ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"})
     sets.engaged.TaurShijo = set_combine(sets.engaged, {body="Pillager's Vest +3"})
     -- TaurShijo: acc~1224/1216, haste+26, dw+5, stp+33, da+12, ta+37, qa+2, pdt-12, eva~1043, meva+361
 
     sets.engaged.PDef = set_combine(sets.engaged, {ammo="Staunch Tathlum +1",
         head="Malignance Chapeau",body="Malignance Tabard",ring1="Moonlight Ring",waist="Reiki Yotai",legs="Malignance Tights"})
     -- TwashCent: acc~1274/1048, haste+26, dw+7, stp+65, da+6, ta+19, pdt-42, mdt-30, eva~1134, meva+530
-    sets.engaged.DW30.PDef = set_combine(sets.engaged.PDef, {ear1="Eabani Earring",body="Adhemar Jacket +1"})
+    sets.engaged.DW30.PDef = set_combine(sets.engaged.PDef, {ear1="Eabani Earring",body="Adhemar Jacket +1",back=gear.DWCape})
     sets.engaged.TaurShijo.PDef = set_combine(sets.engaged.PDef, {waist="Windbuffet Belt +1"})
 
     sets.engaged.MDef = set_combine(sets.engaged, {
         head="Malignance Chapeau",body="Malignance Tabard",hands="Malignance Gloves",
         waist="Reiki Yotai",legs="Malignance Tights",feet="Malignance Boots"})
     -- TwashCent: acc~1317/1091, haste+26, dw+7, stp+77, da+6, ta+10, pdt-41, mdt-31, eva~1238, meva+689
-    sets.engaged.DW30.MDef = set_combine(sets.engaged.MDef, {ear1="Eabani Earring"})
+    sets.engaged.DW30.MDef = set_combine(sets.engaged.MDef, {ear1="Eabani Earring",back=gear.DWCape})
     sets.engaged.TaurShijo.MDef = set_combine(sets.engaged.MDef, {waist="Windbuffet Belt +1"})
 
     sets.engaged.Acc = set_combine(sets.engaged, {
         head="Plunderer's Bonnet +3",body="Pillager's Vest +3",waist="Reiki Yotai",legs="Pillager's Culottes +3"})
     -- TwashCent: acc~1312/1086, haste+26, dw+7, stp+30, da+9, ta+35, pdt-12, eva~1075, meva+399
-    sets.engaged.DW30.Acc = set_combine(sets.engaged.Acc, {ear1="Eabani Earring",body="Adhemar Jacket +1",waist="Reiki Yotai"})
+    sets.engaged.DW30.Acc = set_combine(sets.engaged.Acc, {
+        ear1="Eabani Earring",body="Adhemar Jacket +1",back=gear.DWCape,waist="Reiki Yotai"})
     sets.engaged.TaurShijo.Acc = set_combine(sets.engaged.Acc, {waist="Windbuffet Belt +1"})
 
     sets.engaged.Acc.PDef = set_combine(sets.engaged.PDef, {ammo="Yamarang"})
-    sets.engaged.DW30.Acc.PDef = set_combine(sets.engaged.Acc.PDef, {ear1="Eabani Earring"})
+    sets.engaged.DW30.Acc.PDef = set_combine(sets.engaged.Acc.PDef, {ear1="Eabani Earring",back=gear.DWCape})
     sets.engaged.TaurShijo.Acc.PDef = set_combine(sets.engaged.Acc.PDef, {waist="Windbuffet Belt +1"})
 
 end
@@ -652,17 +661,29 @@ function job_post_precast(spell, action, spellMap, eventArgs)
             else
                 equip(sets.precast.WS.NoDmg)
             end
-        elseif info.magic_ws:contains(spell.english) then
-            equip(resolve_orpheus(spell, sets.ele_obi))
-        elseif buffactive['elvorseal'] then
-            if player.inventory["Heidrek Boots"] then equip({feet="Heidrek Boots"}) end
+        elseif state.WeaponskillMode.value == 'Normal' then
+            if state.DefenseMode.value ~= 'None' then
+                if not state.Buff['Sneak Attack'] and not state.Buff['Trick Attack']
+                and S{'Rudra\'s Storm','Evisceration','Savage Blade'}:contains(spell.english) then
+                    equip(sets.precast.WS[spell.english].PDT)
+                end
+            elseif spell.english == 'Evisceration' and state.OffenseMode.value == 'Acc' then
+                equip(sets.precast.WS.Evisceration.Acc)
+            end
+
+            if info.magic_ws:contains(spell.english) then
+                equip(resolve_ele_belt(spell, sets.ele_obi))
+            end
+
+            if buffactive['elvorseal'] then
+                if player.inventory["Heidrek Boots"] then equip({feet="Heidrek Boots"}) end
+            end
         end
-        if state.THAeolian.value and S{'Aeolian Edge','Cyclone'}:contains(spell.english)
+
+        if state.THAeolian.value and spell.english == 'Aeolian Edge'
         or state.TreasureMode.value == 'Fulltime' then
             equip(sets.TreasureHunter)
         end
-    elseif spell.targets.Enemy and state.TreasureMode.value == 'Fulltime' then
-        equip(sets.TreasureHunter)
     end
 end
 
@@ -682,7 +703,7 @@ function job_aftercast(spell, action, spellMap, eventArgs)
         if state.WSMsg.value then
             send_command('@input /p '..spell.english)
         end
-        if S{'Aeolian Edge','Cyclone'}:contains(spell.english) then
+        if spell.english == 'Aeolian Edge' then
             state.THAeolian:unset()
         end
         -- Weaponskills wipe SATA/Feint.  Turn those state vars off before default gearing is attempted.
@@ -760,7 +781,17 @@ function job_state_change(stateField, newValue, oldValue)
         info.ws_binds:bind(state.CombatWeapon)
         if state.OffenseMode.value ~= 'None' then
             enable('main','sub','range','ammo')
-            equip(sets.weapons[state.CombatWeapon.value])
+            -- try to handle exchanging mainhand and offhand weapons gracefully
+            local new_set = sets.weapons[state.CombatWeapon.value]
+            if player.equipment.sub == new_set.main then
+                equip({main=empty,sub=empty})
+                add_to_chat(104, 'unequipped weapons')
+            elseif player.equipment.main == new_set.sub then
+                equip({main=new_set.main,sub=empty})
+                add_to_chat(104, 'unequipped offhand')
+            else
+                equip(new_set)
+            end
             disable('main','sub')
         end
         if     sets.weapons[state.CombatWeapon.value].main == "Gandring" then
@@ -817,6 +848,18 @@ function customize_idle_set(idleSet)
     return idleSet
 end
 
+-- Modify the default defense set after it was constructed.
+function customize_defense_set(defenseSet)
+    defmode = state[state.DefenseMode.value..'DefenseMode'].value
+    if defmode == 'EvaEng' and state.CombatForm.has_value and state.CombatForm.value:startswith('DW') then
+        defenseSet = set_combine(defenseSet, {back=gear.DWCape})
+    end
+    if state.Buff.doom then
+        defenseSet = set_combine(defenseSet, sets.buff.doom)
+    end
+    return defenseSet
+end
+
 -- Modify the default melee set after it was constructed.
 function customize_melee_set(meleeSet)
     if state.DefenseMode.value == 'None' then
@@ -867,9 +910,13 @@ function display_current_job_state(eventArgs)
     if state.CombatForm.has_value then
         msg = msg .. '/' .. state.CombatForm.value
     end
-    msg = msg .. '] WS[' .. state.WeaponskillMode.current .. ']'
+    msg = msg .. ']'
+
+    if state.WeaponskillMode.value ~= 'Normal' then
+        msg = msg .. ' WS[' .. state.WeaponskillMode.current .. ']'
+    end
     msg = msg .. ' Idle[' .. state.IdleMode.current .. ']'
-    msg = msg .. ' TH['..state.TreasureMode.value..']'
+    msg = msg .. ' TH[' .. state.TreasureMode.value .. ']'
 
     if state.DefenseMode.value ~= 'None' then
         local defMode = state[state.DefenseMode.value ..'DefenseMode'].current
@@ -880,13 +927,6 @@ function display_current_job_state(eventArgs)
     end
     if state.Kiting.value then
         msg = msg .. ' Kiting'
-    end
-
-    if state.PCTargetMode.value ~= 'default' then
-        msg = msg .. ', Target PC: ' .. state.PCTargetMode.value
-    end
-    if state.SelectNPCTargets.value then
-        msg = msg .. ', Target NPCs'
     end
 
     add_to_chat(122, msg)
@@ -940,50 +980,165 @@ end
 
 function init_state_text()
     destroy_state_text()
-    local th_ae_text_settings= {flags={draggable=false},bg={alpha=150}}
-    local nodmg_text_settings= {pos={x=53},flags={draggable=false},bg={alpha=150}}
-    local hyb_text_settings  = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    local def_text_settings  = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    local off_text_settings  = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    local dw_text_settings   = {pos={x=130,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    state.th_ae_text= texts.new('THAE', th_ae_text_settings)
-    state.nodmg_text= texts.new('NoDmg', nodmg_text_settings)
-    state.hyb_text  = texts.new('/${hybrid}', hyb_text_settings)
-    state.def_text  = texts.new('(${defense})', def_text_settings)
-    state.off_text  = texts.new('${offense}', off_text_settings)
-    state.dw_text   = texts.new('${dw}', dw_text_settings)
+    local th_ae_text_settings = {flags={draggable=false},bg={alpha=150}}
+    local nodmg_text_settings = {pos={x=53},flags={draggable=false},bg={alpha=150}}
+    local hyb_text_settings   = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    local def_text_settings   = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    local off_text_settings   = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    local dw_text_settings    = {pos={x=130,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    local sa_text_settings    = {pos={x=1000,y=697},flags={draggable=false,bold=true},
+                                 bg={alpha=150},padding=1,text={font='Courier New',size=10,stroke={width=1}}}
+    local ta_text_settings    = {pos={x=1000,y=718},flags={draggable=false,bold=true},
+                                 bg={alpha=150},padding=1,text={font='Courier New',size=10,stroke={width=1}}}
+    state.th_ae_text= texts.new('THAE',           th_ae_text_settings)
+    state.nodmg_text= texts.new('NoDmg',          nodmg_text_settings)
+    state.hyb_text  = texts.new('initializing..', hyb_text_settings)
+    state.def_text  = texts.new('initializing..', def_text_settings)
+    state.off_text  = texts.new('initializing..', off_text_settings)
+    state.dw_text   = texts.new('initializing..', dw_text_settings)
+    state.sa_text   = texts.new('initializing..', sa_text_settings)
+    state.ta_text   = texts.new('initializing..', ta_text_settings)
 
+    local counter, interval = 0, 5 -- only update sata texts every <interval> frames
     windower.register_event('logout', destroy_state_text)
     state.texts_event_id = windower.register_event('prerender', function()
         state.th_ae_text:visible(state.THAeolian.value)
         state.nodmg_text:visible((state.WeaponskillMode.value == 'NoDmg'))
 
         if state.HybridMode.value ~= 'Normal' then
+            state.hyb_text:text('/'..state.HybridMode.value)
             state.hyb_text:show()
-            state.hyb_text:update({hybrid=state.HybridMode.value})
         else state.hyb_text:hide() end
 
         if state.DefenseMode.value ~= 'None' then
+            state.def_text:text('(%s)':format(state[state.DefenseMode.value..'DefenseMode'].value))
             state.def_text:show()
-            state.def_text:update({defense=state[state.DefenseMode.value..'DefenseMode'].current})
         else state.def_text:hide() end
 
         if state.OffenseMode.value ~= 'Normal' then
+            state.off_text:text(state.OffenseMode.value)
             state.off_text:show()
-            state.off_text:update({offense=state.OffenseMode.value})
         else state.off_text:hide() end
 
         if state.CombatForm.has_value then
+            state.dw_text:text(state.CombatForm.value)
             state.dw_text:show()
-            state.dw_text:update({dw=state.CombatForm.value})
         else state.dw_text:hide() end
+
+        counter = counter + 1
+        if counter >= interval and state.SATAHUD.value
+        and player.target and player.target.type == 'MONSTER' and not areas.Cities:contains(world.area) then
+            counter = 0
+            if state.Buff['Sneak Attack'] then
+                -- mob table position values seem to be much more up-to-date than player and player.target
+                local mob = windower.ffxi.get_mob_by_id(player.target.id)
+                local me = windower.ffxi.get_mob_by_id(player.id)
+                local delta_x = mob.x - me.x
+                local delta_y = mob.y - me.y
+
+                -- mob.facing is from 0 (east) to 2*pi running clockwise
+                -- math.atan2 is from -pi to pi with 0 being mob to your east running counter-clockwise
+                local corrected_mob_facing   -- version of mob.facing which is consistent with math.atan2
+                if mob.facing < math.pi then corrected_mob_facing = -mob.facing
+                else                         corrected_mob_facing = 2*math.pi - mob.facing
+                end
+
+                local atan2 = math.atan2(delta_y, delta_x)
+                local theta = atan2 - corrected_mob_facing
+
+                -- theta should be 0 when directly behind the target, and pi when directly in front of it, and between -pi and pi
+                local corrected_theta = theta
+                if     theta >  math.pi then corrected_theta = theta - 2*math.pi
+                elseif theta < -math.pi then corrected_theta = theta + 2*math.pi
+                end
+
+                -- sneak attack seems to work within 44 degrees of behind the target, or roughly 0.768 radians
+                local degrees = math.deg(corrected_theta)
+                if math.abs(degrees) < 44 then
+                    state.sa_text:text('SA OK (%.1f deg)':format(degrees))
+                    state.sa_text:bg_color(0,180,0)
+                else
+                    state.sa_text:text('SA X (%.1f deg)':format(degrees))
+                    state.sa_text:bg_color(180,0,0)
+                end
+                state.sa_text:show()
+            else state.sa_text:hide() end
+
+            if state.Buff['Trick Attack'] then
+                local mob = windower.ffxi.get_mob_by_id(player.target.id)
+
+                -- first find alliance members roughly within ws range of the target, and closer to it than you
+                -- (distances are left squared)
+                local near_dist = (mob.model_size/2 + 4) ^ 2
+                local near_allies = L{}
+                if mob.distance < near_dist then -- mob roughly within ws range
+                    local party = windower.ffxi.get_party()
+                    for _, member in pairs(party) do
+                        if type(member) == 'table' and member.mob and member.mob.valid_target
+                        and member.name ~= player.name and member.mob.distance < mob.distance then -- ally closer to me than target
+                            local d_x = member.mob.x - mob.x
+                            local d_y = member.mob.y - mob.y
+                            member.mob.distance_to_target_2 = d_x^2 + d_y^2
+                            if member.mob.distance_to_target_2 < mob.distance then -- ally closer to target than i am
+                                near_allies:append(member.mob)
+                            end
+                        end
+                    end
+                end
+
+                -- find closest ally in a TA-able position
+                local valid_ta = false
+                if not near_allies:empty() then
+                    local me = windower.ffxi.get_mob_by_id(player.id)
+
+                    -- check for a line-circle intersection where the line is between you and ally,
+                    -- and the circle is defined by enemy position and model size
+                    -- take my position as coordinate 0,0 for simplicity
+                    -- note that this check is a bit too strict, as it does not account for player model sizes
+                    -- and may not work on small targets such as chiggoes
+                    --
+                    -- a more accurate check may be to see if an ally's circle intersects the area
+                    -- between outer tangents of thf and mob circles
+                    --
+                    -- discriminant = r^2 * (1 + m)^2 - (b - m*a)^2
+                    -- where r is half the enemy model size, (a,b) is the enemy position, and m is the slope of the line
+                    local r2 = (mob.model_size/2) ^ 2
+                    local a = mob.x - me.x
+                    local b = mob.y - me.y
+
+                    near_allies:sort(function(a,b) return a.distance_to_target_2 < b.distance_to_target_2 end)
+                    for ally in near_allies:it() do
+                        local m = (ally.y - me.y) / (ally.x - me.x)
+                        local discriminant = r2 * (1 + m)^2 - (b - m * a)^2
+
+                        if discriminant > 0 then
+                            state.ta_text:text('TA on ' .. ally.name)
+                            state.ta_text:bg_color(0,180,0)
+                            valid_ta = true
+                            break
+                        end
+                    end
+                end
+
+                if not valid_ta then
+                    state.ta_text:text('TA X')
+                    state.ta_text:bg_color(180,0,0)
+                end
+                state.ta_text:show()
+
+            else state.ta_text:hide() end
+        elseif counter >= interval then
+            state.sa_text:hide()
+            state.ta_text:hide()
+        end
     end)
 end
 
 function destroy_state_text()
     if state.texts_event_id then
         windower.unregister_event(state.texts_event_id)
-        for text in S{state.th_ae_text, state.nodmg_text, state.hyb_text, state.def_text, state.off_text, state.dw_text}:it() do
+        for text in S{state.th_ae_text, state.nodmg_text, state.hyb_text, state.def_text, state.off_text, state.dw_text,
+                      state.sa_text, state.ta_text}:it() do
             text:hide()
             text:destroy()
         end

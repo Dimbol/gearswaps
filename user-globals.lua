@@ -37,6 +37,9 @@ function make_keybind_list(binds, weapon_types)
                     local _, _, bind, cmd = bind_cmd:find('bind +([^ ]+) +input +(.*)')
                     add_to_chat(122, '%4s : %s':format(bind, cmd))
                 end
+            else
+                if header then add_to_chat(122, header) end
+                add_to_chat(121, 'No binds to print.')
             end
         end
         return ws_keybind_list
@@ -154,13 +157,15 @@ function report_ja_recasts(recast_ids, n)
 end
 
 -- returns a set containing an appropriate belt for magic damage
--- example usage: equip(resolve_orpheus(spell, sets.ele_obi, sets.nuke_belt, 3))
-function resolve_orpheus(spell, obi, alt_belt, alt_threshold)
+-- example usage: equip(resolve_ele_belt(spell, sets.ele_obi, sets.nuke_belt, 3))
+function resolve_ele_belt(spell, obi, alt_belt, alt_threshold)
     local belts = L{}
-    local orph_mag = math.min(math.max(1, math.floor(15 + 2 - spell.target.distance)), 15)
-    if player.inventory["Orpheus's Sash"] or player.wardrobe["Orpheus's Sash"] or player.wardrobe2["Orpheus's Sash"]
-    or player.wardrobe3["Orpheus's Sash"] or player.wardrobe4["Orpheus's Sash"] then
-        belts:append({belt={waist="Orpheus's Sash"}, mag=orph_mag})
+    if spell.target.type == 'MONSTER' then
+        if player.wardrobe3["Orpheus's Sash"] or player.wardrobe4["Orpheus's Sash"] or player.wardrobe["Orpheus's Sash"]
+        or player.wardrobe2["Orpheus's Sash"] or player.inventory["Orpheus's Sash"] then
+            local orph_mag = math.min(math.max(1, math.floor(15 + 2 - spell.target.distance)), 15)
+            belts:append({belt={waist="Orpheus's Sash"}, mag=orph_mag})
+        end
     end
 
     if type(obi) == 'table' then

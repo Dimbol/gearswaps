@@ -159,12 +159,11 @@ function user_setup()
     gear.herc_hands_ma = {name="Herculean Gloves",
         augments={'Mag. Acc.+18 "Mag.Atk.Bns."+18','Magic burst dmg.+3%','Mag. Acc.+12','"Mag.Atk.Bns."+10'}}
     gear.herc_legs_ma  = {name="Herculean Trousers",
-        augments={'Mag. Acc.+20 "Mag.Atk.Bns."+20','"Fast Cast"+2','INT+8','Mag. Acc.+11','"Mag.Atk.Bns."+14'}}
+        augments={'"Mag.Atk.Bns."+30','Weapon Skill Acc.+5','Accuracy+14 Attack+14','Mag. Acc.+16 "Mag.Atk.Bns."+16'}}
     gear.herc_feet_ma  = {name="Herculean Boots",
         augments={'Mag. Acc.+19 "Mag.Atk.Bns."+19','Enmity-2','MND+4','Mag. Acc.+4','"Mag.Atk.Bns."+15'}}
     gear.herc_head_wsd = {name="Herculean Helm",
         augments={'"Cure" spellcasting time -10%','Pet: INT+6','Weapon skill damage +9%'}}
-    gear.herc_hands_ta = {name="Herculean Gloves", augments={'Accuracy+24 Attack+24','"Triple Atk."+2','AGI+4','Accuracy+13','Attack+14'}}
     gear.herc_feet_ta  = {name="Herculean Boots", augments={'Rng.Acc.+4','"Triple Atk."+4','Accuracy+14','Attack+12'}}
     gear.herc_head_rf = {name="Herculean Helm",
         augments={'Accuracy+17','DEX+6','"Refresh"+2','Accuracy+16 Attack+16','Mag. Acc.+20 "Mag.Atk.Bns."+20'}}
@@ -228,13 +227,7 @@ function user_setup()
     -- have typos to hpgear[] keys return that key instead of nil, so `//gs validate' catches the issue
     setmetatable(hpgear, {__index = function(t, k) return k end})
 
-    -- Binds
-    send_command('unbind ^=')
-    send_command('unbind ^F9')
-    send_command('unbind ^F10')
-    send_command('unbind ^F11')
-    send_command('unbind ^F12')
-    send_command('bind %` gs c update user')
+    send_command('bind %`|F12 gs c update user')
     send_command('bind F9   gs c cycle OffenseMode')
     send_command('bind @F9  gs c cycle WeaponskillMode')
     send_command('bind !F9  gs c reset OffenseMode')
@@ -431,7 +424,15 @@ end
 
 -- Called when this job file is unloaded (eg: job change)
 function user_unload()
-    send_command('unbind %`')
+    send_command('unbind %`|F12')
+    send_command('unbind F9')
+    send_command('unbind @F9')
+    send_command('unbind !F9')
+    send_command('unbind F10')
+    send_command('unbind !F10')
+    send_command('unbind F11')
+    send_command('unbind !F11')
+    send_command('unbind @F11')
     send_command('unbind ^space')
     send_command('unbind ^@space')
     send_command('unbind !space')
@@ -923,7 +924,7 @@ function job_post_precast(spell, action, spellMap, eventArgs)
     if spell.type == 'Effusion' then
         if S{'Swipe','Lunge'}:contains(spell.english) then
             spell.element = triple_rune_string() or ''
-            equip(resolve_orpheus(spell, sets.ele_obi, sets.nuke_belt, 3))
+            equip(resolve_ele_belt(spell, sets.ele_obi, sets.nuke_belt, 3))
             if buffactive.Tenebrae then
                 equip(sets.dark_dmg)
             end
@@ -933,7 +934,7 @@ function job_post_precast(spell, action, spellMap, eventArgs)
             equip(sets.precast.JA['One for All'].hp)
         end
     elseif spell.type == 'WeaponSkill' then
-        if spell.english == 'Sanguine Blade' then equip(resolve_orpheus(spell, sets.ele_obi, sets.nuke_belt, 3)) end
+        if spell.english == 'Sanguine Blade' then equip(resolve_ele_belt(spell, sets.ele_obi, sets.nuke_belt, 3)) end
         if buffactive['elvorseal'] and player.inventory["Heidrek Boots"] then equip({feet="Heidrek Boots"}) end
     end
 end
@@ -1123,6 +1124,14 @@ function customize_idle_set(idleSet)
         idleSet = set_combine(idleSet, sets.buff.Embolden)
     end
     return idleSet
+end
+
+-- Modify the default defense set after it was constructed.
+function customize_defense_set(defenseSet)
+    if state.Buff.doom then
+        defenseSet = set_combine(defenseSet, sets.buff.doom)
+    end
+    return defenseSet
 end
 
 -- Modify the default melee set after it was constructed.

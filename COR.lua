@@ -46,10 +46,10 @@ function user_setup()
     state.MagicalDefenseMode:options('MEVA')
     state.CombatWeapon = M{['description']='Combat Weapon'}
     if S{'DNC','NIN'}:contains(player.sub_job) then
-        state.CombatWeapon:options('Club','Staff','Dagger')
+        state.CombatWeapon:options('NaegBlur','NaegTaur','RosBlur','RosTaur','TaurBlur','Aeolian','AeolianDP')
 		state.CombatForm:set('DW')
     else
-        state.CombatWeapon:options('Club','Staff','Dagger')
+        state.CombatWeapon:options('Rostam','Naegling','Tauret')
 		state.CombatForm:reset()
     end
     state.WSMsg = M(false, 'WS Message')                                    -- Toggle with ^\
@@ -92,13 +92,10 @@ function user_setup()
         augments={'Mag. Acc.+18 "Mag.Atk.Bns."+18','Magic burst dmg.+3%','Mag. Acc.+12','"Mag.Atk.Bns."+10'}}
     gear.herc_legs_ma   = {name="Herculean Trousers",
         augments={'"Mag.Atk.Bns."+30','Weapon Skill Acc.+5','Accuracy+14 Attack+14','Mag. Acc.+16 "Mag.Atk.Bns."+16'}}
-    gear.herc_legs_macc = {name="Herculean Trousers",
-        augments={'Mag. Acc.+20 "Mag.Atk.Bns."+20','"Fast Cast"+2','INT+8','Mag. Acc.+11','"Mag.Atk.Bns."+14'}}
     gear.herc_feet_ma   = {name="Herculean Boots",
         augments={'Mag. Acc.+19 "Mag.Atk.Bns."+19','Enmity-2','MND+4','Mag. Acc.+4','"Mag.Atk.Bns."+15'}}
     gear.herc_head_wsd  = {name="Herculean Helm",
         augments={'"Cure" spellcasting time -10%','Pet: INT+6','Weapon skill damage +9%'}}
-    gear.herc_hands_ta  = {name="Herculean Gloves", augments={'Accuracy+24 Attack+24','"Triple Atk."+2','AGI+4','Accuracy+13','Attack+14'}}
     gear.herc_feet_ta   = {name="Herculean Boots", augments={'Rng.Acc.+4','"Triple Atk."+4','Accuracy+14','Attack+12'}}
     gear.herc_head_rf   = {name="Herculean Helm",
         augments={'Accuracy+17','DEX+6','"Refresh"+2','Accuracy+16 Attack+16','Mag. Acc.+20 "Mag.Atk.Bns."+20'}}
@@ -107,10 +104,7 @@ function user_setup()
         augments={'Attack+3','"Cure" spellcasting time -2%','"Treasure Hunter"+2','Accuracy+1 Attack+1'}}
     gear.herc_head_fc = {name="Herculean Helm", augments={'"Mag.Atk.Bns."+2','"Fast Cast"+5'}}
 
-    -- Binds overriding Mote defaults
-    send_command('unbind ^F10')
-    send_command('unbind ^F11')
-    send_command('bind %` gs c update user')
+    send_command('bind %`|F10 gs c update user')
     send_command('bind F10  gs c cycle CastingMode')
     send_command('bind !F10 gs c reset CastingMode')
     send_command('bind F11  gs c cycle IdleMode')
@@ -176,26 +170,6 @@ function user_setup()
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
 
-        sets.weapons.Naegling  = {main="Naegling",sub="Nusku Shield",range="Ataktos"}
-        sets.weapons.Tauret    = {main="Tauret",sub="Nusku Shield",range="Death Penalty"}
-        sets.weapons.Rostam    = {main="Rostam",sub="Nusku Shield",range="Fomalhaut"}
-        sets.weapons.NaegBlur  = {main="Naegling",sub="Blurred Knife +1",range="Ataktos"}
-        sets.weapons.NaegTaur  = {main="Naegling",sub="Tauret",range="Death Penalty"}
-        sets.weapons.RosBlur   = {main="Rostam",sub="Blurred Knife +1",range="Death Penalty"}
-        sets.weapons.RosTaur   = {main="Rostam",sub="Tauret",range="Death Penalty"}
-        sets.weapons.Aeolian   = {main="Tauret",sub="Naegling",range="Ataktos"}
-        sets.weapons.AeolianDP = {main="Tauret",sub="Naegling",range="Death Penalty"}
-        sets.weapons.TaurBlur  = {main="Tauret",sub="Blurred Knife +1",range="Fomalhaut"}
-        send_command('bind !^1|%1 input /ws Wildfire')
-        send_command('bind !^2|%2 input /ws "Leaden Salute"')
-        send_command('bind !^3|%3 input /ws "Last Stand"')
-        send_command('bind !^4|%4 input /ws "Savage Blade"')
-        send_command('bind !^5|%5 input /ws Requiescat')
-        send_command('bind !^6|%6 input /ws "Aeolian Edge"')
-        send_command('bind !b input //savageblade')
-        send_command('bind @b input //savageblade <stnpc>')
-        send_command('bind !^d input //flatblade')
-
     info.roll_binds = make_keybind_list(L{
         'bind @`   input /ja "Bolter\'s Roll" <me>',
         'bind ^1   input /ja Double-Up <me>',
@@ -218,7 +192,7 @@ function user_setup()
         'bind ~^@3 input /ja "Gallant\'s Roll" <me>',
         'bind ~^@4 input /ja "Monk\'s Roll" <me>'})
     info.roll_binds:bind()
-    send_command('bind %backspace gs c ListRolls')
+    send_command('bind @backspace gs c ListRolls')
 
     if     player.sub_job == 'WAR' then
         send_command('bind !4 input /ja Berserk <me>')
@@ -285,8 +259,14 @@ end
 
 -- Called when this job file is unloaded (eg: job change)
 function user_unload()
-    send_command('unbind %`')
-    send_command('unbind %backspace')
+    send_command('unbind %`|F10')
+    send_command('unbind F10')
+    send_command('unbind !F10')
+    send_command('unbind F11')
+    send_command('unbind !F11')
+    send_command('unbind @F11')
+    send_command('unbind !F12')
+    send_command('unbind @backspace')
     send_command('unbind ^space')
     send_command('unbind !space')
     send_command('unbind @space')
@@ -453,7 +433,7 @@ function init_gear_sets()
     sets.precast.WS['Leaden Salute'] = set_combine(sets.precast.WS.Wildfire, {
         head="Pixie Hairpin +1",ear2="Moonshade Earring",ring2="Archon Ring"})
     sets.precast.WS['Leaden Salute'].Acc = set_combine(sets.precast.WS['Leaden Salute'], {
-        neck="Sanctity Necklace",ear1="Hermetic Earring",hands=gear.herc_hands_ma,waist="Kwahu Kachina Belt",legs=gear.herc_legs_macc})
+        neck="Sanctity Necklace",ear1="Hermetic Earring",hands=gear.herc_hands_ma,waist="Kwahu Kachina Belt",legs=gear.herc_legs_ma})
     sets.precast.WS['Leaden Salute'].Enmity = set_combine(sets.precast.WS['Leaden Salute'], {
         ear1="Novia Earring",legs="Laksamana's Trews +3"})
     sets.precast.WS['Sanguine Blade'] = set_combine(sets.precast.WS['Leaden Salute'], {ear2="Hecate's Earring"})
@@ -479,7 +459,7 @@ function init_gear_sets()
         head="Meghanada Visor +2",body="Meghanada Cuirie +2"})
     sets.precast.WS.Requiescat = {
         head="Meghanada Visor +2",neck="Fotia Gorget",ear1="Telos Earring",ear2="Dignitary's Earring",
-        body="Meghanada Cuirie +2",hands=gear.herc_hands_ta,ring1="Epona's Ring",ring2="Regal Ring",
+        body="Meghanada Cuirie +2",hands="Meghanada Gloves +2",ring1="Epona's Ring",ring2="Regal Ring",
         back=gear.METPCape,waist="Fotia Belt",legs="Meghanada Chausses +2",feet="Meghanada Jambeaux +2"}
     sets.precast.WS.Evisceration = {
         head="Adhemar Bonnet +1",neck="Fotia Gorget",ear1="Telos Earring",ear2="Odr Earring",
@@ -603,7 +583,6 @@ function init_gear_sets()
     sets.engaged.Acc.PDef = set_combine(sets.engaged.PDef, {})
 
     -- Sets that depend upon idle sets
-    sets.resting = set_combine(sets.idle, {main="Chatoyant Staff",sub="Niobid Strap"})
     sets.midcast['Dia II']  = set_combine(sets.idle, sets.TreasureHunter)
     sets.midcast.FastRecast = set_combine(sets.idle.PDT, {hands="Leyline Gloves"})
     sets.midcast.Utsusemi   = set_combine(sets.idle.PDT, {})
@@ -641,7 +620,7 @@ function job_post_precast(spell, action, spellMap, eventArgs)
     if (spell.type == 'CorsairRoll' or spell.english == "Double-Up") and state.LuzafRing.value then
         equip(sets.precast.LuzafRing)
     elseif spell.type == 'WeaponSkill' then
-        if info.magic_ws:contains(spell.english) then equip(resolve_orpheus(spell, sets.ele_obi, sets.nuke_belt, 2.5)) end
+        if info.magic_ws:contains(spell.english) then equip(resolve_ele_belt(spell, sets.ele_obi, sets.nuke_belt, 2.5)) end
         if buffactive['elvorseal'] and player.inventory["Heidrek Boots"] then equip({feet="Heidrek Boots"}) end
         if S{'Maquette Abdhaljs-Legion'}:contains(world.area)
         and state.WeaponskillMode.value == 'Enmity' then
@@ -655,7 +634,7 @@ end
 -- eventArgs is the same one used in job_midcast, in case information needs to be persisted.
 function job_post_midcast(spell, action, spellMap, eventArgs)
     if spell.type == 'CorsairShot' then
-        equip(resolve_orpheus(spell, sets.ele_obi, sets.nuke_belt, 2.5))
+        equip(resolve_ele_belt(spell, sets.ele_obi, sets.nuke_belt, 2.5))
         if state.CastingMode.value == 'TH' then
             state.CastingMode:reset()
         end
@@ -738,9 +717,9 @@ function job_state_change(stateField, newValue, oldValue)
             equip(sets.weapons[state.CombatWeapon.value])
             disable('main','sub','range')
             if sets.weapons[state.CombatWeapon.value].range == 'Death Penalty' then
-                state.castingmode:set('Normal')
+                state.CastingMode:set('Normal')
             else
-                state.castingmode:set('STP')
+                state.CastingMode:set('STP')
             end
         else
             state.CastingMode:set('Normal')

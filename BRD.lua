@@ -43,14 +43,14 @@ function user_setup()
     state.IdleMode:options('Normal','Refresh','PDT','MEVA')             -- Cycle with F11, reset with !F11
     state.CombatWeapon = M{['description']='Combat Weapon'}             -- Cycle with @F9
     if S{'DNC','NIN'}:contains(player.sub_job) then
-        state.CombatWeapon:options('CarnSari','AenBlur','AenTwash','TwashCent','NaegCent','Xoanon')
+        state.CombatWeapon:options('CarnTern','AenBlur','AenTwash','TwashCent','NaegCent','NaegTern','Xoanon')
 		state.CombatForm:set('DW')
     else
         state.CombatWeapon:options('Carn','Aeneas','Twashtar','Naegling','Xoanon')
 		state.CombatForm:reset()
     end
     state.WSBinds = M{['description']='WS Binds',['string']=''}
-    state.ExtraSongsMode = M{['description']='Extra Songs','None','Dummy','FullLength'}  -- Set/unset with !c/!@c
+    state.ExtraSongsMode = M{['description']='Extra Songs','None','Dummy','FullHarp'}  -- Set/unset with !c/!@c
     state.DummySongs = {['1']="Bewitching Etude",['2']="Enchanting Etude"}
 
     state.HarpLullaby = M(true,  'Harp Lullaby Radius')                 -- Toggle with !z
@@ -85,14 +85,9 @@ function user_setup()
         augments={'CHR+20','Accuracy+20 Attack+20','CHR+10','Weapon skill damage +10%','Phys. dmg. taken-10%'}}
     gear.MEVACape = {name="Intarabus's Cape", augments={'MND+20','Eva.+20 /Mag. Eva.+20','Mag. Evasion+10','Phys. dmg. taken-10%'}}
 
-    send_command('unbind ^F10')
-    send_command('unbind ^F11')
-    send_command('unbind ^F12')
-    send_command('bind %` gs c update user')
+    send_command('bind %`|F12 gs c update user')
     send_command('bind F9   gs c cycle OffenseMode')
     send_command('bind !F9  gs c reset OffenseMode')
-    send_command('bind @F9  gs c cycle CombatWeapon')
-    send_command('bind !@F9 gs c cycleback CombatWeapon')
     send_command('bind F10  gs c cycle CastingMode')
     send_command('bind !F10 gs c reset CastingMode')
     send_command('bind F11  gs c cycle IdleMode')
@@ -115,8 +110,9 @@ function user_setup()
     send_command('bind !z  gs c toggle HarpLullaby')
     send_command('bind @z  gs c toggle ZendikIdle')
     send_command('bind !@z gs c toggle LongSongs')
-    send_command('bind !c  gs c set ExtraSongsMode Dummy')
-    send_command('bind !@c gs c reset ExtraSongsMode')
+    send_command('bind !c  gs c set ExtraSongsMode FullHarp')
+    send_command('bind !@c gs c set ExtraSongsMode Dummy')
+    send_command('bind ^c gs c reset ExtraSongsMode')
 
     send_command('bind !^` input /ja "Soul Voice" <me>')
     send_command('bind ^@` input /ja "Clarion Call" <me>')
@@ -195,9 +191,9 @@ function user_setup()
             'bind !^3|%3 input /ws "Retribution"',
             'bind !^4|%4 input /ws "Spirit Taker"',
             'bind !^6|%6 input /ws "Cataclysm"'}},
-        {['Carn']='Dagger',['CarnSari']='Dagger',['Twashtar']='Dagger',['TwashCent']='Dagger',
+        {['Carn']='Dagger',['CarnTern']='Dagger',['Twashtar']='Dagger',['TwashCent']='Dagger',
          ['Aeneas']='Dagger',['AenTwash']='Dagger',['AenBlur']='Dagger',
-         ['Naegling']='Sword',['NaegCent']='Sword',['Xoanon']='Staff'})
+         ['Naegling']='Sword',['NaegCent']='Sword',['NaegTern']='Sword',['Xoanon']='Staff'})
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
 
@@ -257,7 +253,14 @@ end
 
 -- Called when this job file is unloaded (eg: job change)
 function user_unload()
-    send_command('unbind %`')
+    send_command('unbind %`|F12')
+    send_command('unbind F9')
+    send_command('unbind !F9')
+    send_command('unbind F10')
+    send_command('unbind !F10')
+    send_command('unbind F11')
+    send_command('unbind !F11')
+    send_command('unbind @F11')
     send_command('unbind ^space')
     send_command('unbind !space')
     send_command('unbind @space')
@@ -267,6 +270,7 @@ function user_unload()
     send_command('unbind !@z')
     send_command('unbind !c')
     send_command('unbind !@c')
+    send_command('unbind ^c')
     send_command('unbind !w')
     send_command('unbind !@w')
     send_command('unbind !^q')
@@ -388,12 +392,13 @@ function init_gear_sets()
     sets.weapons.Aeneas    = {main="Aeneas",sub="Genmei Shield"}
     sets.weapons.Twashtar  = {main="Twashtar",sub="Genmei Shield"}
     sets.weapons.Tauret    = {main="Tauret",sub="Genmei Shield"}
-    sets.weapons.CarnSari  = {main="Carnwenhan",sub="Taming Sari"}
+    sets.weapons.CarnTern  = {main="Carnwenhan",sub="Ternion Dagger +1"}
     sets.weapons.AenBlur   = {main="Aeneas",sub="Blurred Knife +1"}
     sets.weapons.AenTwash  = {main="Aeneas",sub="Twashtar"}
     sets.weapons.TwashBlur = {main="Twashtar",sub="Blurred Knife +1"}
     sets.weapons.TwashCent = {main="Twashtar",sub="Centovente"}
     sets.weapons.Naegling  = {main="Naegling",sub="Centovente"}
+    sets.weapons.NaegTern  = {main="Naegling",sub="Ternion Dagger +1"}
     sets.weapons.NaegCent  = {main="Naegling",sub="Centovente"}
     sets.weapons.Xoanon    = {main="Xoanon",sub="Bloodrain Strap"}
     sets.weapons.Sari      = {main="Taming Sari",sub="Genmei Shield"}
@@ -479,6 +484,12 @@ function init_gear_sets()
         body="Aoidos' Hongreline +2",feet="Fili Cothurnes +1"})                                                           -- dur+162
     sets.midcast.BardSong = set_combine(sets.midcast.SongEffect, {body="Aoidos' Hongreline +2",legs="Inyanga Shalwar"})   -- dur+162
 
+    sets.midcast.Prelude.FullHarp = set_combine(sets.midcast.Prelude, {range="Daurdabla",feet="Inyanga Crackows +2"})
+    sets.midcast.March.FullHarp   = set_combine(sets.midcast.March,   {range="Daurdabla",feet="Inyanga Crackows +2"})
+    sets.midcast.Minne.FullHarp   = set_combine(sets.midcast.Minne,   {range="Daurdabla",feet="Inyanga Crackows +2"})
+    sets.midcast.Etude.FullHarp   = set_combine(sets.midcast.Etude,   {range="Daurdabla",feet="Inyanga Crackows +2"})
+    sets.midcast.Ballad.FullHarp  = set_combine(sets.midcast.Ballad,  {range="Daurdabla",feet="Inyanga Crackows +2"})
+
     sets.midcast.LongMadrigal        = set_combine(sets.midcast.SongEffect, {head="Fili Calot +1"})                       -- dur+189
     sets.midcast.LongPrelude         = set_combine(sets.midcast.SongEffect, {back=gear.SongCape})                         -- dur+179
     sets.midcast.LongMarch           = set_combine(sets.midcast.SongEffect, {hands="Fili Manchettes +1"})                 -- dur+179
@@ -544,10 +555,10 @@ function init_gear_sets()
     sets.midcast['Enhancing Magic'] = {main="Daybreak",sub="Ammurapi Shield",
         head="Telchine Cap",neck="Incanter's Torque",ear1="Andoaa Earring",ear2="Mimir Earring",
         body="Telchine Chasuble",hands="Inyanga Dastanas +2",ring1=gear.Lstikini,ring2=gear.Rstikini,
-        back="Perimede Cape",waist="Embla Sash",legs="Telchine Braconi",feet="Telchine Pigaches"}
-    sets.midcast.Stoneskin = set_combine(sets.midcast.EnhancingDuration, {neck="Nodens Gorget",waist="Siegel Sash"})
-    sets.midcast.Aquaveil = set_combine(sets.midcast.EnhancingDuration, {head="Chironic Hat"})
-    sets.midcast.Regen = set_combine(sets.midcast.EnhancingDuration, {head="Inyanga Tiara +2"})
+        back="Perimede Cape",waist="Embla Sash",legs="Shedir Seraweels",feet="Telchine Pigaches"}
+    sets.midcast.Stoneskin = set_combine(sets.midcast.EnhancingDuration, {neck="Nodens Gorget",waist="Siegel Sash",legs="Shedir Seraweels"})
+    sets.midcast.Aquaveil  = set_combine(sets.midcast.EnhancingDuration, {head="Chironic Hat",legs="Shedir Seraweels"})
+    sets.midcast.Regen     = set_combine(sets.midcast.EnhancingDuration, {head="Inyanga Tiara +2"})
     sets.midcast.FixedPotencyEnhancing = sets.midcast.EnhancingDuration
     sets.midcast.Klimaform = {}
 
@@ -599,8 +610,6 @@ function init_gear_sets()
 	sets.engaged.DW.PDef     = set_combine(sets.engaged.PDef,     {ear1="Eabani Earring",waist="Reiki Yotai"})
 	sets.engaged.DW.Acc.PDef = set_combine(sets.engaged.Acc.PDef, {ear2="Eabani Earring",waist="Reiki Yotai"})
 
-    sets.resting = set_combine(sets.idle, {main="Boonwell Staff",sub="Niobid Strap",waist="Shinjutsu-no-obi +1"})
-
     -- Sets that depend upon idle sets
     sets.midcast.FastRecast = set_combine(sets.idle.PDT, {})
     sets.midcast['Dia II'] = set_combine(sets.idle, {main="Taming Sari",
@@ -635,7 +644,7 @@ end
 -- Run after the general precast() is done.
 function job_post_precast(spell, action, spellMap, eventArgs)
     if spell.type == 'WeaponSkill' then
-        if info.magic_ws:contains(spell.english) then equip(resolve_orpheus(spell, sets.ele_obi)) end
+        if info.magic_ws:contains(spell.english) then equip(resolve_ele_belt(spell, sets.ele_obi)) end
         if buffactive['elvorseal'] and player.inventory["Angantyr Boots"] then equip({feet="Angantyr Boots"}) end
     end
 end
@@ -657,8 +666,12 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
         -- Handle special cases for dummy songs
         if state.ExtraSongsMode.value == 'Dummy' then
             equip(set_combine(sets.idle[state.IdleMode.value] or sets.idle, sets.midcast.DummySong))
-        elseif state.ExtraSongsMode.value == 'FullLength' then
-            equip(set_combine(sets.midcast.SongEffect, sets.midcast.DummySong))
+        elseif state.ExtraSongsMode.value == 'FullHarp' then
+            if sets.midcast[spellMap] and sets.midcast[spellMap].FullHarp then
+                equip(sets.midcast[spellMap].FullHarp)
+            else
+                equip(set_combine(sets.midcast.SongEffect, sets.midcast.DummySong))
+            end
         end
         state.ExtraSongsMode:reset()
 
