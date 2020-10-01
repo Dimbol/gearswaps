@@ -61,7 +61,6 @@ function user_setup()
     state.CombatWeapon = M{['description']='Combat Weapon'}     -- Set with [~]!^q|w|e|r, ^@w
     state.CombatWeapon:options('TwashTern','TwashCent','TwashGand','TwashTern','TaurTwash','TaurShijo','AenSari','AenTwash',
                                'GandSari','GandCent','GandTwash','GandTern','NaegTern','NaegCent')
-    state.WSBinds = M{['description']='WS Binds',['string']=''}
 
     state.WSMsg     = M(false, 'WS Message')                    -- Toggle with ^\
     state.THAeolian = M(false, 'TH Aeolian')                    -- Toggle with ^z
@@ -112,77 +111,8 @@ function user_setup()
         augments={'DEX+20','Accuracy+20 Attack+20','DEX+10','Weapon skill damage +10%','Phys. dmg. taken-10%'}}
     gear.EvisCape = {name="Toutatis's Cape", augments={'DEX+20','Accuracy+20 Attack+20','DEX+10','Crit.hit rate+10','Phys. dmg. taken-10%'}}
 
-    send_command('bind %`|F12 gs c update user')
-    send_command('bind F9   gs c cycle OffenseMode')
-    send_command('bind @F9  gs c cycle WeaponskillMode')
-    send_command('bind !F9  gs c reset OffenseMode')
-    send_command('bind F10  gs c cycle CastingMode')
-    send_command('bind !F10 gs c reset CastingMode')
-    send_command('bind F11  gs c cycle IdleMode')
-    send_command('bind !F11 gs c reset IdleMode')
-    send_command('bind @F11 gs c toggle Kiting')
-    send_command('bind ^F12  gs c set TreasureMode None')
-    send_command('bind !F12  gs c set TreasureMode Tag')
-    send_command('bind @F12  gs c set TreasureMode SATA')
-    send_command('bind !@F12 gs c set TreasureMode Fulltime')
-    send_command('bind ^space gs c cycle HybridMode')
-    send_command('bind !space gs c set DefenseMode Physical')
-    send_command('bind @space gs c set DefenseMode Magical')
-    send_command('bind !@space gs c reset DefenseMode')
-    send_command('bind !w  gs c reset OffenseMode')
-    send_command('bind !@w gs c set   OffenseMode None')
-    send_command('bind @c  gs c set OffenseMode MDef')
-    send_command('bind !c  gs c set OffenseMode Acc')
-    send_command('bind !^q  gs c set CombatWeapon TaurTwash')
-    send_command('bind ~!^q gs c set CombatWeapon TaurShijo')
-    send_command('bind !^w  gs c set CombatWeapon GandCent')
-    send_command('bind ~!^w gs c set CombatWeapon GandTern')
-    send_command('bind ^@w  gs c set CombatWeapon AenTwash')
-    send_command('bind !^e  gs c set CombatWeapon TwashCent')
-    send_command('bind ~!^e gs c set CombatWeapon TwashTern')
-    send_command('bind !^r  gs c set CombatWeapon NaegCent')
-    send_command('bind ~!^r gs c set CombatWeapon NaegTern')
-    send_command('bind ^z gs c toggle THAeolian')
-    send_command('bind !z gs c cycle PhysicalDefenseMode')
-    send_command('bind @z gs c cycle MagicalDefenseMode')
-    send_command('bind ^\\\\  gs c toggle WSMsg')
-    send_command('bind !^\\\\  gs c toggle SATAHUD')
-
-    send_command('bind !^` input /ja "Perfect Dodge" <me>')
-    send_command('bind ^@` input /ja Larceny')
-    send_command('bind ^` input /ja "Assassin\'s Charge" <me>')
-    send_command('bind ^tab input /ja "Sneak Attack" <me>')
-    send_command('bind ^q input /ja "Trick Attack" <me>')
-    send_command('bind ^@tab input /ja Steal')
-    send_command('bind ^@q input /ja Flee <me>')
-    send_command('bind !@q input /ja Hide <me>')
-    send_command('bind @tab input /ja Mug')
-    send_command('bind @q input /ja Despoil')
-    send_command('bind !b input //cancel haste')
-    send_command('bind @g gs equip phlx')
-    send_command('bind @n input /item "Living Key" <t>')
-
-    send_command('bind ^@1  input /ja Collaborator <stpc>')
-    send_command('bind ^@2  input /ja Collaborator <p1>')
-    send_command('bind ^@3  input /ja Collaborator <p2>')
-    send_command('bind ^@4  input /ja Collaborator <p3>')
-    send_command('bind ^@5  input /ja Collaborator <p4>')
-    send_command('bind ^@6  input /ja Collaborator <p5>')
-    send_command('bind ~^@1 input /ja Accomplice <stpc>')
-    send_command('bind ~^@2 input /ja Accomplice <p1>')
-    send_command('bind ~^@3 input /ja Accomplice <p2>')
-    send_command('bind ~^@4 input /ja Accomplice <p3>')
-    send_command('bind ~^@5 input /ja Accomplice <p4>')
-    send_command('bind ~^@6 input /ja Accomplice <p5>')
-
-    send_command('bind !1 input /ja Feint')
-    send_command('bind !2 input /ja Bully')
-    send_command('bind !3 input /ja Conspirator <me>')
-
-    send_command('bind !9 gs c set CombatForm DW30')
-    send_command('bind !0 gs c reset CombatForm')
-
-    send_command('bind @1 input /ra <stnpc>')
+    info.keybinds = make_keybind_list(job_keybinds())
+    info.keybinds:bind()
 
     info.ws_binds = make_keybind_list(T{
         ['Dagger']=L{
@@ -214,180 +144,15 @@ function user_setup()
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
 
-    if     player.sub_job == 'WAR' then
-        send_command('bind !4  input /ja Berserk <me>')
-        send_command('bind !5  input /ja Aggressor <me>')
-        send_command('bind !6  input /ja Warcry <me>')
-        send_command('bind !d  input /ja Provoke')
-        send_command('bind @d  input /ja Provoke <stnpc>')
-        send_command('bind !@d input /ja Defender <me>')
-    elseif player.sub_job == 'DRK' then
-        send_command('bind !4  input /ja "Last Resort" <me>')
-        send_command('bind !5  input /ja Souleater <me>')
-        send_command('bind !6  input /ja "Arcane Circle" <me>')
-        send_command('bind !e  input /ma Absorb-TP')
-        send_command('bind !d  input /ma Stun')
-        send_command('bind @d  input /ma Stun <stnpc>')
-        send_command('bind !@d input /ma Poisonga <stnpc>')
-    elseif player.sub_job == 'DRG' then
-        send_command('bind !4  input /ja "High Jump"')
-        send_command('bind !6  input /ja "Ancient Circle" <me>')
-        send_command('bind !e  input /ja "High Jump"')
-        send_command('bind !@e input /ja Jump')
-    elseif player.sub_job == 'NIN' then
-        send_command('bind !e  input /ma "Utsusemi: Ni" <me>')
-        send_command('bind !@e input /ma "Utsusemi: Ichi" <me>')
-    elseif player.sub_job == 'DNC' then
-        send_command('bind !4  input /recast "Curing Waltz III"; input /ja "Curing Waltz III" <stpc>')
-        send_command('bind !5  input /recast "Healing Waltz"; input /ja "Healing Waltz" <stpc>')
-        send_command('bind !6  input /ja "Divine Waltz" <me>')
-        send_command('bind !v  input /ja "Spectral Jig" <me>')
-        send_command('bind !d  input /ja "Animated Flourish"')
-        send_command('bind @d  input /ja "Animated Flourish" <stnpc>')
-        send_command('bind !@d input /ja "Violent Flourish"')
-        send_command('bind !f  input /ja "Haste Samba" <me>')
-        send_command('bind !@f input /ja "Reverse Flourish" <me>')
-        send_command('bind !e  input /ja "Box Step"')
-        send_command('bind !@e input /ja Quickstep')
-    elseif player.sub_job == 'RUN' then
-        send_command('bind @1 input /ja Ignis <me>')    -- fire up,    ice down
-        send_command('bind @2 input /ja Gelus <me>')    -- ice up,     wind down
-        send_command('bind @3 input /ja Flabra <me>')   -- wind up,    earth down
-        send_command('bind @4 input /ja Tellus <me>')   -- earth up,   thunder down
-        send_command('bind @5 input /ja Sulpor <me>')   -- thunder up, water down
-        send_command('bind @6 input /ja Unda <me>')     -- water up,   fire down
-        send_command('bind @7 input /ja Lux <me>')      -- light up,   dark down
-        send_command('bind @8 input /ja Tenebrae <me>') -- dark up,    light down
-        send_command('bind !4 input /ja Swordplay <me>')
-        send_command('bind !5 input /ja Vallation <me>')
-        send_command('bind !6 input /ja Pflug <me>')
-        send_command('bind !d input /ma Flash')
-        send_command('bind @d input /ma Flash <stnpc>')
-        send_command('bind !^v input /ma Aquaveil <me>')
-    elseif player.sub_job == 'SAM' then
-        send_command('bind !4 input /ja Meditate <me>')
-        send_command('bind !5 input /ja Sekkanoki <me>')
-        send_command('bind !6 input /ja "Warding Circle" <me>')
-        send_command('bind !d input /ja "Third Eye" <me>')
-    elseif player.sub_job == 'BLM' then
-        send_command('bind !e  input /ma Sleepga')
-        send_command('bind @e  input /ma Sleepga <stnpc>')
-        send_command('bind !@e input /ja "Elemental Seal" <me>')
-        send_command('bind !d  input /ma Stun')
-        send_command('bind @d  input /ma Stun <stnpc>')
-    elseif player.sub_job == 'RDM' then
-        send_command('bind !d  input /ma Dispel')
-        send_command('bind @d  input /ma Diaga <stnpc>')
-        send_command('bind !f  input /ma Haste <me>')
-        send_command('bind @f  input /ma Refresh <me>')
-        send_command('bind @v  input /ma Aquaveil <me>')
-        send_command('bind !g  input /ma Phalanx <me>')
-        send_command('bind !@g input /ma Stoneskin <me>')
-    end
-
     select_default_macro_book()
 end
 
 -- Called when this job file is unloaded (eg: job change)
 function user_unload()
-    send_command('unbind %`|F12')
-    send_command('unbind F9')
-    send_command('unbind @F9')
-    send_command('unbind !F9')
-    send_command('unbind F10')
-    send_command('unbind !F10')
-    send_command('unbind F11')
-    send_command('unbind !F11')
-    send_command('unbind @F11')
-    send_command('unbind ^F12')
-    send_command('unbind !F12')
-    send_command('unbind @F12')
-    send_command('unbind !@F12')
-    send_command('unbind ^space')
-    send_command('unbind !space')
-    send_command('unbind @space')
-    send_command('unbind !@space')
-    send_command('unbind !^q')
-    send_command('unbind !^w')
-    send_command('unbind !^e')
-    send_command('unbind !^r')
-    send_command('unbind ~!^q')
-    send_command('unbind ~!^w')
-    send_command('unbind ~!^e')
-    send_command('unbind ~!^r')
-    send_command('unbind !w')
-    send_command('unbind !@w')
-    send_command('unbind ^@w')
-    send_command('unbind @c')
-    send_command('unbind !c')
-    send_command('unbind ^z')
-    send_command('unbind !z')
-    send_command('unbind @z')
-    send_command('unbind !^`')
-    send_command('unbind !@q')
-    send_command('unbind @q')
-    send_command('unbind ^@q')
-    send_command('unbind ^tab')
-    send_command('unbind @tab')
-    send_command('unbind ^@tab')
-    send_command('unbind ^`')
-    send_command('unbind ^q')
-    send_command('unbind ^@`')
-    send_command('unbind ^@1')
-    send_command('unbind ^@2')
-    send_command('unbind ^@3')
-    send_command('unbind ^@4')
-    send_command('unbind ^@5')
-    send_command('unbind ^@6')
-    send_command('unbind ~^@1')
-    send_command('unbind ~^@2')
-    send_command('unbind ~^@3')
-    send_command('unbind ~^@4')
-    send_command('unbind ~^@5')
-    send_command('unbind ~^@6')
-    send_command('unbind ^1')
-    send_command('unbind ^2')
-    send_command('unbind ^3')
-    send_command('unbind ^4')
-    send_command('unbind ^5')
-    send_command('unbind ^6')
-    send_command('unbind %1')
-    send_command('unbind %2')
-    send_command('unbind %3')
-    send_command('unbind %4')
-    send_command('unbind %5')
-    send_command('unbind %6')
-    send_command('unbind !1')
-    send_command('unbind !2')
-    send_command('unbind !3')
-    send_command('unbind !4')
-    send_command('unbind !5')
-    send_command('unbind !6')
-    send_command('unbind !9')
-    send_command('unbind !0')
-    send_command('unbind @1')
-    send_command('unbind !v')
-    send_command('unbind !d')
-    send_command('unbind @d')
-    send_command('unbind !@d')
-    send_command('unbind !f')
-    send_command('unbind @f')
-    send_command('unbind !@f')
-    send_command('unbind !g')
-    send_command('unbind @g')
-    send_command('unbind !@g')
-    send_command('unbind !e')
-    send_command('unbind @e')
-    send_command('unbind !@e')
-    send_command('unbind @v')
-    send_command('unbind !b')
-    send_command('unbind !n')
-    send_command('unbind @n')
-    send_command('unbind ^\\\\')
-    send_command('unbind !^\\\\')
-    send_command('unbind %\\\\')
+    info.keybinds:unbind()
 
     info.ws_binds:unbind()
+    send_command('unbind %\\\\')
 
     destroy_state_text()
 end
@@ -410,11 +175,11 @@ function init_gear_sets()
     sets.weapons.NaegTern  = {main="Naegling",sub="Ternion Dagger +1"}
     sets.weapons.NaegCent  = {main="Naegling",sub="Centovente"}
 
-    sets.TreasureHunter1 = {waist="Chaac Belt"}                               -- for gandring/sari
-    sets.TreasureHunter2 = {hands="Plunderer's Armlets +3"}                   -- for gandring/X
-    sets.TreasureHunter4 = {hands="Plunderer's Armlets +3"}                   -- for X/sari
-    sets.TreasureHunter5 = {hands="Plunderer's Armlets +3",waist="Chaac Belt"}
-    sets.TreasureHunter  = set_combine(sets.TreasureHunter4, {})
+    sets.TreasureHunter1 = {waist="Chaac Belt"}                                 -- for gandring/sari
+    sets.TreasureHunter2 = {hands="Plunderer's Armlets +3"}                     -- for gandring/X
+    sets.TreasureHunter4 = {hands="Plunderer's Armlets +3"}                     -- for X/sari
+    sets.TreasureHunter5 = {hands="Plunderer's Armlets +3",waist="Chaac Belt"}  -- default
+    sets.TreasureHunter  = set_combine(sets.TreasureHunter5, {})
     sets.buff['Sneak Attack'] = {hands="Skulker's Armlets +1"}
     sets.buff['Trick Attack'] = {body="Plunderer's Vest +3"}
     --sets.buff['Trick Attack'] = {body="Plunderer's Vest +3",hands="Pillager's Armlets +3"}
@@ -785,10 +550,10 @@ function job_state_change(stateField, newValue, oldValue)
             local new_set = sets.weapons[state.CombatWeapon.value]
             if player.equipment.sub == new_set.main then
                 equip({main=empty,sub=empty})
-                add_to_chat(104, 'unequipped weapons')
+                add_to_chat(123, 'unequipped weapons')
             elseif player.equipment.main == new_set.sub then
                 equip({main=new_set.main,sub=empty})
-                add_to_chat(104, 'unequipped offhand')
+                add_to_chat(123, 'unequipped offhand')
             else
                 equip(new_set)
             end
@@ -806,6 +571,10 @@ function job_state_change(stateField, newValue, oldValue)
             sets.TreasureHunter = set_combine(sets.TreasureHunter5, {})
         end
         update_th_sets(sets.TreasureHunter)
+    elseif stateField == 'Defense Mode' then
+        if newValue ~= 'None' then
+            handle_equipping_gear(player.status)
+        end
     end
 end
 
@@ -851,8 +620,12 @@ end
 -- Modify the default defense set after it was constructed.
 function customize_defense_set(defenseSet)
     defmode = state[state.DefenseMode.value..'DefenseMode'].value
-    if defmode == 'EvaEng' and state.CombatForm.has_value and state.CombatForm.value:startswith('DW') then
-        defenseSet = set_combine(defenseSet, {back=gear.DWCape})
+    if defmode == 'EvaEng' then
+        if player.status ~= 'Engaged' then
+            defenseSet = sets.defense.Kite
+        elseif state.CombatForm.has_value and state.CombatForm.value:startswith('DW') then
+            defenseSet = set_combine(defenseSet, {back=gear.DWCape})
+        end
     end
     if state.Buff.doom then
         defenseSet = set_combine(defenseSet, sets.buff.doom)
@@ -940,10 +713,21 @@ end
 
 -- Called for custom player commands.
 function job_self_command(cmdParams, eventArgs)
+    eventArgs.handled = true
     if cmdParams[1] == 'ListWS' then
         info.ws_binds:print('ListWS:')
     elseif cmdParams[1] == 'save' then
         save_self_command(cmdParams)
+    elseif cmdParams[1] == 'rebind' then
+        info.keybinds:bind()
+    elseif cmdParams[1] == 'retag' then
+        if state.TreasureMode.value ~= 'None' and player.target and player.target.type == 'MONSTER' then
+            add_to_chat(121,'retagging target for TH')
+            info.tagged_mobs[player.target.id] = nil
+            TH_for_first_hit()
+        end
+    else
+        eventArgs.handled = false
     end
 end
 
@@ -976,6 +760,165 @@ end
 function select_default_macro_book()
     set_macro_page(1,8)
     send_command('bind !^l input /lockstyleset 8')
+end
+
+-- returns a list for use with make_keybind_list
+function job_keybinds()
+    local bind_command_list = L{
+        'bind %`|F12 gs c update user',
+        'bind F9   gs c cycle OffenseMode',
+        'bind @F9  gs c cycle WeaponskillMode',
+        'bind !F9  gs c reset OffenseMode',
+        'bind F10  gs c cycle CastingMode',
+        'bind !F10 gs c reset CastingMode',
+        'bind F11  gs c cycle IdleMode',
+        'bind !F11 gs c reset IdleMode',
+        'bind @F11 gs c toggle Kiting',
+        'bind ^F12  gs c set TreasureMode None',
+        'bind !F12  gs c set TreasureMode Tag',
+        'bind @F12  gs c set TreasureMode SATA',
+        'bind !@F12 gs c set TreasureMode Fulltime',
+        'bind ^space gs c cycle HybridMode',
+        'bind !space gs c set DefenseMode Physical',
+        'bind @space gs c set DefenseMode Magical',
+        'bind !@space gs c reset DefenseMode',
+        'bind !w  gs c reset OffenseMode',
+        'bind !@w gs c set   OffenseMode None',
+        'bind @c  gs c set OffenseMode MDef',
+        'bind !c  gs c set OffenseMode Acc',
+        'bind %c  gs c retag',
+        'bind !^q  gs c set CombatWeapon TaurTwash',
+        'bind ~!^q gs c set CombatWeapon TaurShijo',
+        'bind !^w  gs c set CombatWeapon GandCent',
+        'bind ~!^w gs c set CombatWeapon GandTern',
+        'bind ^@w  gs c set CombatWeapon AenTwash',
+        'bind !^e  gs c set CombatWeapon TwashCent',
+        'bind ~!^e gs c set CombatWeapon TwashTern',
+        'bind !^r  gs c set CombatWeapon NaegCent',
+        'bind ~!^r gs c set CombatWeapon NaegTern',
+        'bind ^z gs c toggle THAeolian',
+        'bind !z gs c cycle PhysicalDefenseMode',
+        'bind @z gs c cycle MagicalDefenseMode',
+        'bind ^\\\\  gs c toggle WSMsg',
+        'bind !^\\\\  gs c toggle SATAHUD',
+
+        'bind !^` input /ja "Perfect Dodge" <me>',
+        'bind ^@` input /ja Larceny',
+        'bind ^` input /ja "Assassin\'s Charge" <me>',
+        'bind ^tab input /ja "Sneak Attack" <me>',
+        'bind ^q input /ja "Trick Attack" <me>',
+        'bind ^@tab input /ja Steal',
+        'bind ^@q input /ja Flee <me>',
+        'bind !@q input /ja Hide <me>',
+        'bind @tab input /ja Mug',
+        'bind @q input /ja Despoil',
+        'bind !b input //cancel haste',
+        'bind @g gs equip phlx',
+        'bind @n input /item "Living Key" <t>',
+
+        'bind ^@1  input /ja Collaborator <stpc>',
+        'bind ^@2  input /ja Collaborator <p1>',
+        'bind ^@3  input /ja Collaborator <p2>',
+        'bind ^@4  input /ja Collaborator <p3>',
+        'bind ^@5  input /ja Collaborator <p4>',
+        'bind ^@6  input /ja Collaborator <p5>',
+        'bind ~^@1 input /ja Accomplice <stpc>',
+        'bind ~^@2 input /ja Accomplice <p1>',
+        'bind ~^@3 input /ja Accomplice <p2>',
+        'bind ~^@4 input /ja Accomplice <p3>',
+        'bind ~^@5 input /ja Accomplice <p4>',
+        'bind ~^@6 input /ja Accomplice <p5>',
+
+        'bind !1 input /ja Feint',
+        'bind !2 input /ja Bully',
+        'bind !3 input /ja Conspirator <me>',
+
+        'bind !9 gs c set CombatForm DW30',
+        'bind !0 gs c reset CombatForm',
+
+        'bind @1 input /ra <stnpc>'}
+
+    if     player.sub_job == 'WAR' then
+        bind_command_list:extend(L{
+            'bind !4  input /ja Berserk <me>',
+            'bind !5  input /ja Aggressor <me>',
+            'bind !6  input /ja Warcry <me>',
+            'bind !d  input /ja Provoke',
+            'bind @d  input /ja Provoke <stnpc>',
+            'bind !@d input /ja Defender <me>'})
+    elseif player.sub_job == 'DRK' then
+        bind_command_list:extend(L{
+            'bind !4  input /ja "Last Resort" <me>',
+            'bind !5  input /ja Souleater <me>',
+            'bind !6  input /ja "Arcane Circle" <me>',
+            'bind !e  input /ma Absorb-TP',
+            'bind !d  input /ma Stun',
+            'bind @d  input /ma Stun <stnpc>',
+            'bind !@d input /ma Poisonga <stnpc>'})
+    elseif player.sub_job == 'DRG' then
+        bind_command_list:extend(L{
+            'bind !4  input /ja "High Jump"',
+            'bind !6  input /ja "Ancient Circle" <me>',
+            'bind !e  input /ja "High Jump"',
+            'bind !@e input /ja Jump'})
+    elseif player.sub_job == 'NIN' then
+        bind_command_list:extend(L{
+            'bind !e  input /ma "Utsusemi: Ni" <me>',
+            'bind !@e input /ma "Utsusemi: Ichi" <me>'})
+    elseif player.sub_job == 'DNC' then
+        bind_command_list:extend(L{
+            'bind !4  input /recast "Curing Waltz III"; input /ja "Curing Waltz III" <stpc>',
+            'bind !5  input /recast "Healing Waltz"; input /ja "Healing Waltz" <stpc>',
+            'bind !6  input /ja "Divine Waltz" <me>',
+            'bind !v  input /ja "Spectral Jig" <me>',
+            'bind !d  input /ja "Animated Flourish"',
+            'bind @d  input /ja "Animated Flourish" <stnpc>',
+            'bind !@d input /ja "Violent Flourish"',
+            'bind !f  input /ja "Haste Samba" <me>',
+            'bind !@f input /ja "Reverse Flourish" <me>',
+            'bind !e  input /ja "Box Step"',
+            'bind !@e input /ja Quickstep'})
+    elseif player.sub_job == 'RUN' then
+        bind_command_list:extend(L{
+            'bind @1 input /ja Ignis <me>',    -- fire up,    ice down
+            'bind @2 input /ja Gelus <me>',    -- ice up,     wind down
+            'bind @3 input /ja Flabra <me>',   -- wind up,    earth down
+            'bind @4 input /ja Tellus <me>',   -- earth up,   thunder down
+            'bind @5 input /ja Sulpor <me>',   -- thunder up, water down
+            'bind @6 input /ja Unda <me>',     -- water up,   fire down
+            'bind @7 input /ja Lux <me>',      -- light up,   dark down
+            'bind @8 input /ja Tenebrae <me>', -- dark up,    light down
+            'bind !4 input /ja Swordplay <me>',
+            'bind !5 input /ja Vallation <me>',
+            'bind !6 input /ja Pflug <me>',
+            'bind !d input /ma Flash',
+            'bind @d input /ma Flash <stnpc>',
+            'bind !^v input /ma Aquaveil <me>'})
+    elseif player.sub_job == 'SAM' then
+        bind_command_list:extend(L{
+            'bind !4 input /ja Meditate <me>',
+            'bind !5 input /ja Sekkanoki <me>',
+            'bind !6 input /ja "Warding Circle" <me>',
+            'bind !d input /ja "Third Eye" <me>'})
+    elseif player.sub_job == 'BLM' then
+        bind_command_list:extend(L{
+            'bind !e  input /ma Sleepga',
+            'bind @e  input /ma Sleepga <stnpc>',
+            'bind !@e input /ja "Elemental Seal" <me>',
+            'bind !d  input /ma Stun',
+            'bind @d  input /ma Stun <stnpc>'})
+    elseif player.sub_job == 'RDM' then
+        bind_command_list:extend(L{
+            'bind !d  input /ma Dispel',
+            'bind @d  input /ma Diaga <stnpc>',
+            'bind !f  input /ma Haste <me>',
+            'bind @f  input /ma Refresh <me>',
+            'bind @v  input /ma Aquaveil <me>',
+            'bind !g  input /ma Phalanx <me>',
+            'bind !@g input /ma Stoneskin <me>'})
+    end
+
+    return bind_command_list
 end
 
 function init_state_text()

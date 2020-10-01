@@ -75,15 +75,14 @@ function user_setup()
     state.PhysicalDefenseMode:options('PDT','EvaPDT')           -- Cycle with !z
     state.MagicalDefenseMode:options('MEVA')                    -- Cycle with @z
     state.CombatWeapon = M{['description']='Combat Weapon'}     -- Set with !^q through !^r and others
-    state.CombatWeapon:options('Heishi','HeiTern','HeishiTP','HeiFudo',
+    state.CombatWeapon:options('Heishi','HeiTern','HeishiTP','HeiChi',
                                'Nagi','NagiTP','Kannagi','Kikoku','FudoB','FudoBTP','FudoC','FudoCTP','Gokotai',
-                               'AEDagger','SCDagger','GKatana','Club','Naeg','NaegTP')
-    state.WSBinds = M{['description']='WS Binds',['string']=''}
+                               'AEDagger','SCDagger','GKatana','GKGekko','Club','Naeg','NaegTP')
 
     state.MagicBurst = M(true,  'Magic Burst')                  -- Toggle with ^z
     state.WSMsg      = M(false, 'WS Message')                   -- Toggle with ^\
     state.SIRDUtsu   = M(false, 'SIRD Utsu')                    -- Set with !@c
-    state.LastUtsu   = M{['description']='Utsu Tier',3,2,1,0}   -- determines when to cancel
+    state.LastUtsu   = M{['description']='Utsu Tier',3,2,1}     -- determines when to cancel
     state.AutoHybrid = M{['description']='Auto Hybrid','off','Utsu','Miga'}
     state.Fishing    = M(false, 'Fishing Gear')
     state.Cooking    = M(false, 'Cooking Gear')
@@ -151,61 +150,8 @@ function user_setup()
     gear.FCCape    =  {name="Andartia's Mantle",
         augments={'INT+20','Mag. Acc+20 /Mag. Dmg.+20','Mag. Acc.+10','"Fast Cast"+10','Phys. dmg. taken-10%'}}
 
-    send_command('bind %`|F12 gs c update user')
-    send_command('bind F9   gs c cycle OffenseMode')
-    send_command('bind !F9  gs c cycle RangedMode')
-    send_command('bind F10  gs c cycle CastingMode')
-    send_command('bind !F10 gs c reset CastingMode')
-    send_command('bind F11  gs c cycle IdleMode')
-    send_command('bind !F11 gs c reset IdleMode')
-    send_command('bind @F11 gs c toggle Kiting')
-    send_command('bind !F12 gs c cycle TreasureMode')
-    send_command('bind ^space  gs c cycle HybridMode')
-    send_command('bind !space  gs c set DefenseMode Physical')
-    send_command('bind @space  gs c set DefenseMode Magical')
-    send_command('bind !@space gs c reset DefenseMode')
-    send_command('bind ^@space gs c set AutoHybrid Utsu')
-    send_command('bind !^space gs c set AutoHybrid Miga')
-    send_command('bind @backspace gs c CountTools')
-    send_command('bind ^\\\\ gs c toggle WSMsg')
-    send_command('bind ^z  gs c toggle MagicBurst')
-    send_command('bind !z  gs c cycle PhysicalDefenseMode')
-    send_command('bind @z  gs c cycle MagicalDefenseMode')
-    send_command('bind !w  gs c reset OffenseMode')
-    send_command('bind !@w gs c set   OffenseMode None')
-    send_command('bind ~^q gs c tpbonus')
-    send_command('bind !^q  gs c set CombatWeapon Nagi')
-    send_command('bind ~!^q gs c set CombatWeapon Kannagi')
-    send_command('bind ^@q  gs c set CombatWeapon AEDagger')
-    send_command('bind ~^@q gs c set CombatWeapon SCDagger')
-    send_command('bind !^w  gs c set CombatWeapon Heishi')
-    send_command('bind ~!^w gs c set CombatWeapon Kikoku')
-    send_command('bind ^@w  gs c set CombatWeapon GKatana')
-    send_command('bind !^e  gs c set CombatWeapon FudoB')
-    send_command('bind ~!^e gs c set CombatWeapon FudoC')
-    send_command('bind !^r  gs c set CombatWeapon NaegTP')
-    send_command('bind !-         gs c set RangedMode Tathlum')
-    send_command('bind !=         gs c set RangedMode Shuriken')
-    send_command('bind !backspace gs c set RangedMode Blink')
-    send_command('bind !c  gs c set OffenseMode Acc')
-    send_command('bind @c  gs c set OffenseMode MEVA')
-    send_command('bind !@c gs c toggle SIRDUtsu')
-    send_command('bind ^c  gs c nocancel')
-    send_command('bind ^q  gs c toggle SelectNPCTargets')
-
-    send_command('bind !^` input /ja "Mijin Gakure" <t>')
-    send_command('bind ^@` input /ja Mikage')
-    send_command('bind @` input /ja Futae')
-    send_command('bind ^@tab input /ja Issekigan')  -- 1/0 and 300/200+ per parry
-
-    send_command('bind !1 input /ja Yonin')
-    send_command('bind !2 input /ja Innin')
-    send_command('bind !3 input /ja Sange')
-
-    send_command('bind !7 gs c set CombatForm DW00')
-    send_command('bind !8 gs c set CombatForm DW15')
-    send_command('bind !9 gs c set CombatForm DW30')
-    send_command('bind !0 gs c reset CombatForm')
+    info.keybinds = make_keybind_list(job_keybinds())
+    info.keybinds:bind()
 
     info.ws_binds = make_keybind_list(T{
         ['Katana']=L{
@@ -233,11 +179,10 @@ function user_setup()
             'bind !^4   input /ws "Blade: To" <stnpc>',
             'bind !^5   input /ws "Blade: Teki" <stnpc>'},
         ['Dagger']=L{
-            'bind ^1|%1 input /ws "Engergy Drain" <stnpc>',
-            'bind ^2|%2 input /ws "Evisceration" <stnpc>',
-            'bind ^3|%3 input /ws "Wasp Sting" <stnpc>',
-            'bind ^4|%4 input /ws "Gust Slash" <stnpc>',
-            'bind ^5|%5 input /ws "Exenterator" <stnpc>',
+            'bind ^1|%1 input /ws "Evisceration" <stnpc>',
+            'bind ^2|%2 input /ws "Wasp Sting" <stnpc>',
+            'bind ^3|%3 input /ws "Gust Slash" <stnpc>',
+            'bind ^4|%4 input /ws "Exenterator" <stnpc>',
             'bind ^6|%6 input /ws "Aeolian Edge" <stnpc>',
             'bind ^7|%7 input /ws "Cyclone" <stnpc>'},
         ['GKatana']=L{
@@ -260,154 +205,26 @@ function user_setup()
             'bind ^2|%2 input /ws "Judgement" <stnpc>',
             'bind ^3|%3 input /ws "True Strike" <stnpc>',
             'bind !^d   input /ws "Brainshaker" <stnpc>'}},
-        {['Heishi']='Katana',['HeiTern']='Katana',['HeishiTP']='Katana',['HeiFudo']='Katana',
+        {['Heishi']='Katana',['HeiTern']='Katana',['HeishiTP']='Katana',['HeiChi']='Katana',
          ['Gokotai']='Katana',['Nagi']='Katana',['NagiTP']='Katana',['Kannagi']='Katana',
          ['FudoB']='Katana',['FudoBTP']='Katana',['FudoC']='Katana',['FudoCTP']='Katana',
          ['Kikoku']='RKatana',
          ['AEDagger']='Dagger',['SCDagger']='Dagger',['Naeg']='Sword',['NaegTP']='Sword',
-         ['GKatana']='GKatana',['Club']='Club'})
+         ['GKatana']='GKatana',['GKGekko']='GKatana',['Club']='Club'})
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
 
-    send_command('bind ^@1 input /ma "Katon: San"')
-    send_command('bind ^@2 input /ma "Hyoton: San"')
-    send_command('bind ^@3 input /ma "Huton: San"')
-    send_command('bind ^@4 input /ma "Doton: San"')
-    send_command('bind ^@5 input /ma "Raiton: San"')
-    send_command('bind ^@6 input /ma "Suiton: San"')
-
-    send_command('bind ~^@1 input /ma "Katon: Ni"')
-    send_command('bind ~^@2 input /ma "Hyoton: Ni"')
-    send_command('bind ~^@3 input /ma "Huton: Ni"')
-    send_command('bind ~^@4 input /ma "Doton: Ni"')
-    send_command('bind ~^@5 input /ma "Raiton: Ni"')
-    send_command('bind ~^@6 input /ma "Suiton: Ni"')
-
-    send_command('bind !@1 input /ma "Kurayami: Ni"')           -- acc-30
-    send_command('bind !@2 input /ma "Hojo: Ni"')               -- 20% slow
-    send_command('bind !@3 input /ma "Jubaku: Ichi"')           -- 20% para
-    send_command('bind !@4 input /ma "Aisha: Ichi"')            -- 15% att down
-    send_command('bind !@5 input /ma "Yurin: Ichi"')            -- 10% inhibit tp
-    send_command('bind !@6 input /ma "Dokumori: Ichi"')         -- 3/tick poison
-
-    send_command('bind @1 input /ma "Kurayami: Ni" <stnpc>')
-    send_command('bind @2 input /ma "Hojo: Ni" <stnpc>')
-    send_command('bind @3 input /ma "Jubaku: Ichi" <stnpc>')
-    send_command('bind @4 input /ma "Aisha: Ichi" <stnpc>')
-    send_command('bind @5 input /ma "Yurin: Ichi" <stnpc>')
-    send_command('bind @6 input /ma "Dokumori: Ichi" <stnpc>')
-
-    send_command('bind !e input /ma "Utsusemi: Ni"')            -- 0/160 (160/480 yonin)
-    send_command('bind @e input /ma "Utsusemi: San"')           -- ditto
-    send_command('bind !@e input /ma "Utsusemi: Ichi"')         -- ditto
-    send_command('bind !g input /ma "Migawari: Ichi"')
-    send_command('bind !@g gs equip phlx')                      -- phalanx+15
-    send_command('bind @f input /ma "Gekka: Ichi"')             -- enm+30
-    send_command('bind !@f input /ma "Yain: Ichi"')             -- enm-15
-    send_command('bind !f input /ma "Kakka: Ichi"')             -- stp+10
-    send_command('bind !b input /ma "Myoshu: Ichi"')            -- sb+10
-    send_command('bind !v input /ma "Tonko: Ni"')
-    send_command('bind @v input /ma "Monomi: Ichi"')
-
     info.recast_ids = L{{name='Yonin',id=146},{name='Issekigan',id=57}}
     if     player.sub_job == 'WAR' then
-        send_command('bind !4 input /ja Berserk <me>')
-        send_command('bind !5 input /ja Aggressor <me>')
-        send_command('bind !6 input /ja Warcry <me>')           -- 1/300 per target
-        send_command('bind !d input /ja Provoke')               -- 0/1800
-        send_command('bind @d input /ja Provoke <stnpc>')
-        send_command('bind !@d input /ja Defender <me>')
         info.recast_ids:extend(L{{name='Provoke',id=5},{name='Warcry',id=2}})
     elseif player.sub_job == 'DRG' then
-        send_command('bind !4 input /ja "High Jump"')
-        send_command('bind !6 input /ja "Ancient Circle" <me>')
         info.recast_ids:extend(L{{name='High Jump',id=159}})
     elseif player.sub_job == 'DRK' then
-        send_command('bind !4 input /ja "Last Resort" <me>')    -- 1/1300
-        send_command('bind !5 input /ja Souleater <me>')        -- 1/1300, +25acc, +?/+? per hit
-        send_command('bind !6 input /ja "Arcane Circle" <me>')
-        send_command('bind !d input /ma Stun')                  -- 180/1280
-        send_command('bind @d input /ma Stun <stnpc>')
-        send_command('bind !@d input /ma Poisonga')
         info.recast_ids:extend(L{{name='Last Resort',id=87},{name='Souleater',id=85}})
     elseif player.sub_job == 'RUN' then
-        send_command('bind @1 input /ja Ignis <me>')            -- fire up,    ice down
-        send_command('bind @2 input /ja Gelus <me>')            -- ice up,     wind down
-        send_command('bind @3 input /ja Flabra <me>')           -- wind up,    earth down
-        send_command('bind @4 input /ja Tellus <me>')           -- earth up,   thunder down
-        send_command('bind @5 input /ja Sulpor <me>')           -- thunder up, water down
-        send_command('bind @6 input /ja Unda <me>')             -- water up,   fire down
-        send_command('bind @7 input /ja Lux <me>')              -- light up,   dark down
-        send_command('bind @8 input /ja Tenebrae <me>')         -- dark up,    light down
-        send_command('bind !4 input /ja Swordplay <me>')        -- 160/320, +3 acc/eva per tick
-        send_command('bind !5 input /ja Pflug <me>')            -- 450/900, +10 resist per rune
-        send_command('bind ^tab input /ja Vallation <me>')      -- 450/900, -15% damage per rune
-        send_command('bind !d input /ma Flash')                 -- 180/1280
-        send_command('bind @d input /ma Flash <stnpc>')
-        send_command('bind !^v input /ma Aquaveil <me>')
-        send_command('bind !6 input /ma Protect <stpc>')
         info.recast_ids:extend(L{{name='Vallation',id=23},{name='Swordplay',id=24},{name='Pflug',id=59}})
     elseif player.sub_job == 'PLD' then
-        send_command('bind !6 input /ja "Holy Circle" <me>')
-        send_command('bind ^tab input /ja Sentinel <me>')       -- 0/900, enm+50 for 30s
-        send_command('bind !d input /ma Flash')                 -- 180/1280
-        send_command('bind @d input /ma Flash <stnpc>')
-        send_command('bind !@d input /ma Banishga')
         info.recast_ids:extend(L{{name='Sentinel',id=75}})
-    elseif player.sub_job == 'BLU' then
-        send_command('bind @1 input /ma "Sheep Song"')          -- (320/320), 6'
-        send_command('bind @2 input /ma "Geist Wall"')          -- (320/320), 6'
-        send_command('bind @3 input /ma "Stinking Gas"')        -- (320/320), 6'
-        send_command('bind !4 input /ma Cocoon <me>')
-        send_command('bind !5 input /ma Refueling <me>')
-        -- wild carrot aliased to //wc
-        send_command('bind !6 input /ma "Healing Breeze" <me>')
-        send_command('bind !d input /ma "Blank Gaze"')          -- (320/320), 12'
-        send_command('bind !@d input /ma Jettatura')            -- (180/1020), 9'
-    elseif player.sub_job == 'DNC' then
-        send_command('bind !` input /ja "Curing Waltz III" <stpc>')
-        send_command('bind @F1 input /ja "Healing Waltz" <stpc>')
-        send_command('bind !4 input /ja "Box Step" <t>')
-        send_command('bind !5 input /ja "Haste Samba" <me>')
-        send_command('bind !6 input /ja "Divine Waltz" <me>')
-        send_command('bind !@f input /ja "Reverse Flourish" <me>')
-        send_command('bind !d input /ja "Animated Flourish"')
-        send_command('bind @d input /ja "Animated Flourish" <stnpc>')
-        send_command('bind !@d input /ja "Violent Flourish" <stnpc>')
-    elseif player.sub_job == 'SAM' then
-        send_command('bind !4 input /ja Meditate <me>')
-        send_command('bind !5 input /ja Sekkanoki <me>')
-        send_command('bind !6 input /ja "Warding Circle" <me>')
-        send_command('bind !d input /ja "Third Eye" <me>')
-    elseif player.sub_job == 'WHM' then
-        send_command('bind !5 input /ma Haste <me>')
-        send_command('bind !6 input /ma Cura <me>')
-        send_command('bind !d input /ma Flash')
-        send_command('bind @d input /ma Flash <stnpc>')
-        send_command('bind !@d input /ma Banishga')
-        send_command('bind !^g input /ma Stoneskin <me>')
-        send_command('bind !^v input /ma Aquaveil <me>')
-    elseif player.sub_job == 'RDM' then
-        send_command('bind !4 input /ma Phalanx <me>')
-        send_command('bind !5 input /ma Haste <me>')
-        send_command('bind !6 input /ma Refresh <me>')
-        send_command('bind ^tab input /ma Dispel')
-        send_command('bind !@d input /ma Diaga')
-        send_command('bind !^g input /ma Stoneskin <me>')
-        send_command('bind !^v input /ma Aquaveil <me>')
-    elseif player.sub_job == 'BLM' then
-        send_command('bind !4 input /ma "Sleep II" <stnpc>')
-        send_command('bind !5 input /ma Sleep <stnpc>')
-        send_command('bind !6 input /ma Sleepga')
-        send_command('bind !d input /ma Stun')
-        send_command('bind @d input /ma Stun <stnpc>')
-        send_command('bind !@d input /ma Poisonga')
-    elseif player.sub_job == 'SMN' then
-        send_command('bind !4 input /ma Diabolos <me>')
-        send_command('bind !5 input /pet Somnolence <t>')
-        send_command('bind !6 input /pet Release <me>')
-        send_command('bind !d input /pet Assault <t>')
-        send_command('bind @d input /pet Retreat <me>')
     end
 
     select_default_macro_book()
@@ -415,133 +232,10 @@ end
 
 -- Called when this job file is unloaded (eg: job change)
 function user_unload()
-    send_command('unbind %`|F12')
-    send_command('unbind F9')
-    send_command('unbind !F9')
-    send_command('unbind F10')
-    send_command('unbind !F10')
-    send_command('unbind F11')
-    send_command('unbind !F11')
-    send_command('unbind @F11')
-    send_command('unbind !F12')
-    send_command('unbind @backspace')
-    send_command('unbind !backspace')
-    send_command('unbind ^space')
-    send_command('unbind !space')
-    send_command('unbind @space')
-    send_command('unbind !@space')
-    send_command('unbind ^@space')
-    send_command('unbind !^space')
-    send_command('unbind ^\\\\')
-    send_command('unbind %\\\\')
-    send_command('unbind ^z')
-    send_command('unbind !z')
-    send_command('unbind @z')
-    send_command('unbind !w')
-    send_command('unbind !@w')
-    send_command('unbind ~^q')
-    send_command('unbind !^q')
-    send_command('unbind ~!^q')
-    send_command('unbind ^@q')
-    send_command('unbind ~^@q')
-    send_command('unbind !^w')
-    send_command('unbind ~!^w')
-    send_command('unbind ^@w')
-    send_command('unbind !^e')
-    send_command('unbind ~!^e')
-    send_command('unbind !^r')
-    send_command('unbind !-')
-    send_command('unbind !=')
-    send_command('unbind !c')
-    send_command('unbind @c')
-    send_command('unbind !@c')
-    send_command('unbind ^c')
-    send_command('unbind ^q')
-
-    send_command('unbind !^`')
-    send_command('unbind ^@`')
-    send_command('unbind @`')
-    send_command('unbind ^tab')
-    send_command('unbind ^@tab')
-
-    send_command('unbind !1')
-    send_command('unbind !2')
-    send_command('unbind !3')
-
-    send_command('unbind !7')
-    send_command('unbind !8')
-    send_command('unbind !9')
-    send_command('unbind !0')
-
-    send_command('unbind ^1')
-    send_command('unbind ^2')
-    send_command('unbind ^3')
-    send_command('unbind ^4')
-    send_command('unbind ^5')
-    send_command('unbind ^6')
-    send_command('unbind !^1')
-    send_command('unbind !^2')
-    send_command('unbind !^3')
-    send_command('unbind !^4')
-    send_command('unbind !^5')
-    send_command('unbind !^6')
-
-    send_command('unbind ^@1')
-    send_command('unbind ^@2')
-    send_command('unbind ^@3')
-    send_command('unbind ^@4')
-    send_command('unbind ^@5')
-    send_command('unbind ^@6')
-
-    send_command('unbind ~^@1')
-    send_command('unbind ~^@2')
-    send_command('unbind ~^@3')
-    send_command('unbind ~^@4')
-    send_command('unbind ~^@5')
-    send_command('unbind ~^@6')
-
-    send_command('unbind !@1')
-    send_command('unbind !@2')
-    send_command('unbind !@3')
-    send_command('unbind !@4')
-    send_command('unbind !@5')
-    send_command('unbind !@6')
-
-    send_command('unbind @1')
-    send_command('unbind @2')
-    send_command('unbind @3')
-    send_command('unbind @4')
-    send_command('unbind @5')
-    send_command('unbind @6')
-    send_command('unbind @7')
-    send_command('unbind @8')
-
-    send_command('unbind !e')
-    send_command('unbind @e')
-    send_command('unbind !@e')
-    send_command('unbind !g')
-    send_command('unbind !@g')
-    send_command('unbind @f')
-    send_command('unbind !@f')
-    send_command('unbind !^f')
-    send_command('unbind !f')
-    send_command('unbind !b')
-    send_command('unbind !v')
-    send_command('unbind @v')
-
-    send_command('unbind !4')
-    send_command('unbind !5')
-    send_command('unbind !6')
-    send_command('unbind !d')
-    send_command('unbind @d')
-    send_command('unbind !^d')
-    send_command('unbind !@d')
-    send_command('unbind !^g')
-    send_command('unbind !^v')
-    send_command('unbind !`')
-    send_command('unbind @F1')
+    info.keybinds:unbind()
 
     info.ws_binds:unbind()
+    send_command('unbind %\\\\')
 
     destroy_state_text()
 end
@@ -552,8 +246,8 @@ function init_gear_sets()
     sets.weapons = {}
     sets.weapons.Heishi   = {main="Heishi Shorinken",sub="Ochu"}
     sets.weapons.HeiTern  = {main="Heishi Shorinken",sub="Ternion Dagger +1"}
+    sets.weapons.HeiChi   = {main="Heishi Shorinken",sub="Gokotai"}
     sets.weapons.HeishiTP = {main="Heishi Shorinken",sub="Hitaki"}
-    sets.weapons.HeiFudo  = {main="Heishi Shorinken",sub="Fudo Masamune"}
     sets.weapons.Nagi     = {main="Nagi",sub="Ochu"}
     sets.weapons.NagiTP   = {main="Nagi",sub="Hitaki"}
     sets.weapons.FudoB    = {main=gear.fudoB,sub="Ternion Dagger +1"}
@@ -562,11 +256,11 @@ function init_gear_sets()
     sets.weapons.FudoCTP  = {main=gear.fudoC,sub="Hitaki"}
     sets.weapons.Kannagi  = {main="Kannagi",sub="Ternion Dagger +1"}
     sets.weapons.Kikoku   = {main="Kikoku",sub="Ochu"}
-    sets.weapons.Gokotai  = {main="Gokotai",sub="Ochu"}
+    sets.weapons.Gokotai  = {main="Gokotai",sub="Tauret"}
     sets.weapons.AEDagger = {main="Tauret",sub="Malevolence"}
     sets.weapons.SCDagger = {main="Tauret",sub="Ternion Dagger +1"}
     sets.weapons.GKatana  = {main="Hachimonji",sub="Bloodrain Strap"}
-    sets.weapons.GKatanaTP= {main="Beryllium Tachi",sub="Bloodrain Strap"}
+    sets.weapons.GKGekko  = {main="Beryllium Tachi",sub="Bloodrain Strap"}
     sets.weapons.Naeg     = {main="Naegling",sub="Ternion Dagger +1"}
     sets.weapons.NaegTP   = {main="Naegling",sub="Hitaki"}
     sets.weapons.Club     = {main="Mafic Cudgel",sub="Hitaki"}
@@ -609,13 +303,15 @@ function init_gear_sets()
     sets.precast.WS['Blade: Ten'] = {ammo="Voluspa Tathlum",
         head="Hachiya Hatsuburi +3",neck="Ninja Nodowa +2",ear1="Lugra Earring +1",ear2="Moonshade Earring",
         body=gear.herc_body_wsd,hands=gear.herc_hands_wsd,ring1="Gere Ring",ring2="Regal Ring",
-        back=gear.TenCape,waist="Grunfeld Rope",legs="Hizamaru Hizayoroi +2",feet="Hizamaru Sune-Ate +2"}
+        back=gear.TenCape,waist="Grunfeld Rope",legs="Mochizuki Hakama +3",feet="Mochizuki Kyahan +3"}
     sets.precast.WS['Blade: Metsu'] = {ammo="Voluspa Tathlum",
         head="Hachiya Hatsuburi +3",neck="Ninja Nodowa +2",ear1="Lugra Earring +1",ear2="Odr Earring",
         body=gear.herc_body_wsd,hands=gear.herc_hands_wsd,ring1="Ilabrat Ring",ring2="Regal Ring",
         back=gear.MetsuCape,waist="Grunfeld Rope",legs="Jokushu Haidate",feet=gear.herc_feet_wsd}
-    sets.precast.WS['Blade: Kamu'] = set_combine(sets.precast.WS['Blade: Ten'], {
-        neck="Fotia Gorget",ear1="Brutal Earring",ear2="Lugra Earring +1",waist="Fotia Belt"})
+    sets.precast.WS['Blade: Kamu'] = {ammo="Voluspa Tathlum",
+        head="Hachiya Hatsuburi +3",neck="Ninja Nodowa +2",ear1="Brutal Earring",ear2="Lugra Earring +1",
+        body="Kendatsuba Samue +1",hands="Malignance Gloves",ring1="Gere Ring",ring2="Epona's Ring",
+        back=gear.TenCape,waist="Fotia Belt",legs="Mochizuki Hakama +3",feet=gear.herc_feet_ta}
     sets.precast.WS['Blade: Hi'] = {ammo="Yetshila +1",
         head="Hachiya Hatsuburi +3",neck="Ninja Nodowa +2",ear1="Odr Earring",ear2="Ishvara Earring",
         body="Kendatsuba Samue +1",hands="Mummu Wrists +2",ring1="Ilabrat Ring",ring2="Regal Ring",
@@ -645,7 +341,7 @@ function init_gear_sets()
     sets.precast.WS['Blade: To'] = {ammo="Seething Bomblet +1",
         head="Mochizuki Hatsuburi +3",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Friomisi Earring",
         body="Samnuha Coat",hands=gear.herc_hands_ma,ring1="Gere Ring",ring2="Epona's Ring",
-        back=gear.TenCape,waist="Fotia Belt",legs=gear.herc_legs_ma,feet=gear.herc_feet_ma}
+        back=gear.TenCape,waist="Fotia Belt",legs="Mochizuki Hakama +3",feet=gear.herc_feet_ma}
     sets.precast.WS['Blade: Teki']  = set_combine(sets.precast.WS['Blade: To'], {})
     sets.precast.WS['Blade: Chi']   = set_combine(sets.precast.WS['Blade: To'], {})
     sets.precast.WS['Tachi: Jinpu'] = set_combine(sets.precast.WS['Blade: To'], {})
@@ -702,19 +398,19 @@ function init_gear_sets()
         back=gear.EnmCape,waist="Goading Belt",legs="Malignance Tights",feet="Hattori Kyahan +1"}
     -- enm+45, pdt-50, dt-28, eva~978, meva+419, sird+106
 
-    sets.midcast.ElementalNinjutsu = {main="Tauret",sub="Malevolence",ammo="Pemphredo Tathlum",
+    sets.midcast.ElementalNinjutsu = {main="Gokotai",sub="Tauret",ammo="Pemphredo Tathlum",
         head="Mochizuki Hatsuburi +3",neck="Sanctity Necklace",ear1="Hecate's Earring",ear2="Friomisi Earring",
         body="Samnuha Coat",hands="Leyline Gloves",ring1="Dingir Ring",ring2="Metamorph Ring +1",
-        back=gear.NukeCape,waist=gear.ElementalObi,legs=gear.herc_legs_ma,feet=gear.herc_feet_ma}
-    sets.midcast.ElementalNinjutsu.MB = set_combine(sets.midcast.ElementalNinjutsu, {sub="Ochu",
-        hands=gear.herc_hands_ma,ring1="Locus Ring",ring2="Mujin Band",feet="Hachiya Kyahan +3"})
+        back=gear.NukeCape,waist="Eschan Stone",legs=gear.herc_legs_ma,feet="Mochizuki Kyahan +3"}
+    sets.midcast.ElementalNinjutsu.MB = set_combine(sets.midcast.ElementalNinjutsu, {
+        neck="Warder's Charm +1",hands=gear.herc_hands_ma,ring1="Locus Ring",ring2="Mujin Band"})
     sets.buff.Futae = {hands="Hattori Tekko +1"}
     sets.orpheus    = {waist="Orpheus's Sash"}
     sets.ele_obi    = {waist="Hachirin-no-Obi"}
     sets.nuke_belt  = {waist="Eschan Stone"}
     sets.donargun   = {range="Donar Gun",ammo=empty}
 
-    sets.midcast.EnfeeblingNinjutsu = {main=gear.fudoC,sub="Tauret",ammo="Yamarang",
+    sets.midcast.EnfeeblingNinjutsu = {main=gear.fudoC,sub="Gokotai",ammo="Yamarang",
         head="Hachiya Hatsuburi +3",neck="Moonlight Necklace",ear1="Dignitary's Earring",ear2="Gwati Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1=gear.Lstikini,ring2="Metamorph Ring +1",
         back=gear.FCCape,waist="Eschan Stone",legs="Malignance Tights",feet="Hachiya Kyahan +3"}
@@ -765,8 +461,8 @@ function init_gear_sets()
     -- pdt-50, dt-41, eva~1184, meva+712, rg+1
     sets.idle.DW = {ammo="Yamarang",
         head="Malignance Chapeau",neck="Loricate Torque +1",ear1="Eabani Earring",ear2="Suppanomimi",
-        body="Adhemar Jacket +1",hands="Malignance Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.DWCape,waist="Reiki Yotai",legs="Malignance Tights",feet="Hizamaru Sune-Ate +2"}
+        body="Adhemar Jacket +1",hands="Floral Gauntlets",ring1="Vocane Ring +1",ring2="Defending Ring",
+        back=gear.DWCape,waist="Reiki Yotai",legs="Mochizuki Hakama +3",feet="Hizamaru Sune-Ate +2"}
 
     sets.defense.PDT    = set_combine(sets.idle.PDT, {})
     sets.defense.EvaPDT = set_combine(sets.idle.EvaPDT, {})
@@ -911,26 +607,42 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
             equip(sets.kajabow)
         end
     elseif spellMap == 'Utsusemi' then
-        if     spell.english:endswith('Ichi') and state.LastUtsu.value > 1 then
-            send_command('cancel copy image,copy image (2),copy image (3)')
-            if state.OffenseMode.value == 'None' and not has_any_buff_of(S{'weakness','slow','Elegy'}) then
-                equip(sets.nagi)
-            end
-        elseif spell.english:endswith('Ni')   and state.LastUtsu.value > 2 then
-            send_command('cancel copy image,copy image (2),copy image (3)')
-            if state.OffenseMode.value == 'None' and not has_any_buff_of(S{'weakness','slow','Elegy'}) then
-                equip(sets.nagi)
-            end
-        elseif not buffactive['Copy Image (4+)'] then
-            if state.OffenseMode.value == 'None' and not has_any_buff_of(S{'weakness','slow','Elegy'}) then
-                equip(sets.nagi)
-            end
-        -- else equip Fudo C
-        end
         if not state.Buff.Yonin and state.CastingMode.value == 'Enmity' then
-            -- always cast utsusemi in dt gear without yonin
             equip(sets.midcast.FastRecast, sets.midcast.Utsusemi)
         end
+
+        -- shadow cancelling and enmity katana logic
+        state.LastUtsu.previous_value = state.LastUtsu.value -- restore to this value in aftercast if interrupted
+        if     spell.english:endswith('Ichi') then
+            if not buffactive['Copy Image (4+)'] then
+                if state.LastUtsu.value > 1 then
+                    send_command('cancel copy image,copy image (2),copy image (3)')
+                end
+                if not has_any_buff_of(S{'weakness','slow','Elegy'}) then
+                    equip(sets.nagi)
+                end
+                state.LastUtsu:set(1)
+            end
+        elseif spell.english:endswith('Ni') then
+            if not buffactive['Copy Image (4+)'] then
+                if state.LastUtsu.value == 3 then
+                    send_command('cancel copy image,copy image (2),copy image (3)')
+                    state.LastUtsu:set(2)
+                end
+                if not has_any_buff_of(S{'weakness','slow','Elegy'}) then
+                    equip(sets.nagi)
+                end
+            end
+            if state.LastUtsu.value < 3 then
+                state.LastUtsu:set(2)
+            end
+        else
+            if not buffactive['Copy Image (4+)'] and not has_any_buff_of(S{'weakness','slow','Elegy'}) then
+                equip(sets.nagi)
+            end
+            state.LastUtsu:set(3)
+        end
+
         if state.SIRDUtsu.value then
             equip(sets.midcast.Utsusemi.SIRD)
         end
@@ -947,6 +659,9 @@ end
 -- Set eventArgs.handled to true if we don't want any automatic gear equipping to be done.
 function job_aftercast(spell, action, spellMap, eventArgs)
     if spell.interrupted then
+        if spellMap == 'Utsusemi' then
+            state.LastUtsu:set(state.LastUtsu.previous_value)
+        end
         send_command('wait 0.5;gs c update')
         interrupted_message(spell)
     elseif spell.type == 'WeaponSkill' then
@@ -961,13 +676,6 @@ function job_aftercast(spell, action, spellMap, eventArgs)
             state.CastingMode:set('Enmity')
         end
     elseif spellMap == 'Utsusemi' then
-        if     spell.english:endswith('Ichi') then
-            if state.LastUtsu.value > 0 then state.LastUtsu:set(1) end
-        elseif spell.english:endswith('Ni') then
-            if state.LastUtsu.value > 0 then state.LastUtsu:set(2) end
-        elseif spell.english:endswith('San') then
-            state.LastUtsu:set(3)
-        end
         if     state.AutoHybrid.value == 'Utsu' then
             state.HybridMode:set('Normal')
         elseif state.AutoHybrid.value == 'Miga' and state.Buff.Migawari then
@@ -1047,23 +755,30 @@ end
 function job_state_change(stateField, newValue, oldValue)
     if stateField == 'Offense Mode' then
         enable('main','sub','range','ammo')
-        if newValue ~= 'None' then
+        if newValue == 'None' then
+            info.ws_binds:bind({value='FudoB'})
+        else
+            if oldValue == 'None' then
+                info.ws_binds:bind(state.CombatWeapon)
+            end
             equip(sets.weapons[state.CombatWeapon.value])
             disable('main','sub')
         end
         handle_equipping_gear(player.status)
     elseif stateField == 'Combat Weapon' then
-        info.ws_binds:bind(state.CombatWeapon)
-        if state.OffenseMode.value ~= 'None' then
+        if state.OffenseMode.value == 'None' then
+            info.ws_binds:bind({value='FudoB'})
+        else
+            info.ws_binds:bind(state.CombatWeapon)
             enable('main','sub','range','ammo')
             -- try to handle exchanging mainhand and offhand weapons gracefully
             local new_set = sets.weapons[state.CombatWeapon.value]
             if player.equipment.sub == new_set.main then
                 equip({main=empty,sub=empty})
-                add_to_chat(104, 'unequipped weapons')
+                add_to_chat(123, 'unequipped weapons')
             elseif player.equipment.main == new_set.sub then
                 equip({main=new_set.main,sub=empty})
-                add_to_chat(104, 'unequipped offhand')
+                add_to_chat(123, 'unequipped offhand')
             else
                 equip(new_set)
             end
@@ -1092,8 +807,11 @@ function job_state_change(stateField, newValue, oldValue)
             handle_equipping_gear(player.status)
         end
     elseif stateField:endswith('Defense Mode') then
-        if newValue == 'MDT50' then
-            state.DefenseMode:set('Magical')
+        if newValue ~= 'None' then
+            if newValue == 'MDT50' then
+                state.DefenseMode:set('Magical')
+            end
+            handle_equipping_gear(player.status)
         end
     elseif stateField == 'Fishing Gear' then
         if newValue then
@@ -1266,9 +984,6 @@ function display_current_job_state(eventArgs)
     if state.SIRDUtsu.value then
         msg = msg .. ' SIRD'
     end
-    if state.LastUtsu.value == 0 then
-        msg = msg .. ' NoCancel'
-    end
     if state.TreasureMode.value ~= 'None' then
         msg = msg .. ' TH+4'
     end
@@ -1297,33 +1012,28 @@ end
 
 -- Called for custom player commands.
 function job_self_command(cmdParams, eventArgs)
+    eventArgs.handled = true
     if     cmdParams[1] == 'CountTools' then
         report_ninja_tools(true)
     elseif cmdParams[1] == 'ListWS' then
         info.ws_binds:print('ListWS:')
-    elseif cmdParams[1] == 'nocancel' then
-        if state.LastUtsu.value > 0 then
-            state.LastUtsu:set(0)
-            add_to_chat(122, 'Shadow cancelling off (until a San).')
-        else
-            state.LastUtsu:set(3)
-            add_to_chat(122, 'Shadow cancelling re-enabled.')
-        end
-    elseif cmdParams[1] == 'tpbonus' then
+    elseif cmdParams[1] == 'altweap' then
         local weap = state.CombatWeapon.value
-        if weap:endswith('TP') then
-            handle_set({'CombatWeapon', weap:sub(1,-3)})
-        elseif state.CombatWeapon:contains(weap..'TP') then
-            handle_set({'CombatWeapon', weap..'TP'})
-        else
-            add_to_chat(123, 'unable to toggle TP bonus offhand.')
-        end
-    elseif cmdParams[1] == 'donar' then
-        enable('range','ammo')
-        equip(sets.donargun)
-        disable('range','ammo')
+        if weap:endswith('TP')    then handle_set({'CombatWeapon', weap:sub(1,-3)})
+        elseif state.CombatWeapon:contains(weap..'TP') then handle_set({'CombatWeapon', weap..'TP'})
+        elseif weap == 'HeiTern'  then handle_set({'CombatWeapon', 'HeiChi'})
+        elseif weap == 'HeiChi'   then handle_set({'CombatWeapon', 'HeiTern'})
+        elseif weap == 'SCDagger' then handle_set({'CombatWeapon', 'AEDagger'})
+        elseif weap == 'AEDagger' then handle_set({'CombatWeapon', 'SCDagger'})
+        elseif weap == 'GKatana'  then handle_set({'CombatWeapon', 'GKGekko'})
+        elseif weap == 'GKGekko'  then handle_set({'CombatWeapon', 'GKatana'})
+        else add_to_chat(123, 'unable to toggle TP bonus offhand.') end
     elseif cmdParams[1] == 'save' then
         save_self_command(cmdParams)
+    elseif cmdParams[1] == 'rebind' then
+        info.keybinds:bind()
+    else
+        eventArgs.handled = false
     end
 end
 
@@ -1334,6 +1044,8 @@ function job_auto_change_target(spell, action, spellMap, eventArgs)
     if spell.type == 'WeaponSkill' and spell.target.raw == '<stnpc>' then
         if not state.SelectNPCTargets.value then
             change_target('<t>')
+        else
+            add_to_chat(121, spell.english..' <stnpc>')
         end
     end
 end
@@ -1346,6 +1058,215 @@ end
 function select_default_macro_book()
     set_macro_page(1,13)
     send_command('bind !^l input /lockstyleset 13')
+end
+
+-- returns a list for use with make_keybind_list
+function job_keybinds()
+    local bind_command_list = L{
+        'bind %`|F12 gs c update user',
+        'bind F9   gs c cycle OffenseMode',
+        'bind !F9  gs c cycle RangedMode',
+        'bind F10  gs c cycle CastingMode',
+        'bind !F10 gs c reset CastingMode',
+        'bind F11  gs c cycle IdleMode',
+        'bind !F11 gs c reset IdleMode',
+        'bind @F11 gs c toggle Kiting',
+        'bind !F12 gs c cycle TreasureMode',
+        'bind ^space  gs c cycle HybridMode',
+        'bind !space  gs c set DefenseMode Physical',
+        'bind @space  gs c set DefenseMode Magical',
+        'bind !@space gs c reset DefenseMode',
+        'bind ^@space gs c set AutoHybrid Utsu',
+        'bind !^space gs c set AutoHybrid Miga',
+        'bind @backspace gs c CountTools',
+        'bind ^\\\\ gs c toggle WSMsg',
+        'bind ^z  gs c toggle MagicBurst',
+        'bind !z  gs c cycle PhysicalDefenseMode',
+        'bind @z  gs c cycle MagicalDefenseMode',
+        'bind !w  gs c reset OffenseMode',
+        'bind !@w gs c set   OffenseMode None',
+        'bind ~^q gs c altweap',
+        'bind !^q  gs c set CombatWeapon Kannagi',
+        'bind ~!^q gs c set CombatWeapon Nagi',
+        'bind ^@q  gs c set CombatWeapon AEDagger',
+        'bind ~^@q gs c set CombatWeapon Gokotai',
+        'bind !^w  gs c set CombatWeapon Heishi',
+        'bind ~!^w gs c set CombatWeapon HeiTern',
+        'bind ^@w  gs c set CombatWeapon GKatana',
+        'bind !^e  gs c set CombatWeapon FudoB',
+        'bind ~!^e gs c set CombatWeapon FudoC',
+        'bind !^r  gs c set CombatWeapon NaegTP',
+        'bind ~!^r gs c set CombatWeapon Kikoku',
+        'bind !-         gs c set RangedMode Tathlum',
+        'bind !=         gs c set RangedMode Shuriken',
+        'bind !backspace gs c set RangedMode Blink',
+        'bind !c  gs c set OffenseMode Acc',
+        'bind @c  gs c set OffenseMode MEVA',
+        'bind !@c gs c toggle SIRDUtsu',
+        'bind ^q  gs c toggle SelectNPCTargets',
+
+        'bind !^` input /ja "Mijin Gakure" <t>',
+        'bind ^@` input /ja Mikage',
+        'bind @` input /ja Futae',
+        'bind ^@tab input /ja Issekigan',  -- 1/0 and 300/200+ per parry
+
+        'bind !1 input /ja Yonin',
+        'bind !2 input /ja Innin',
+        'bind !3 input /ja Sange',
+
+        'bind !7 gs c set CombatForm DW00',
+        'bind !8 gs c set CombatForm DW15',
+        'bind !9 gs c set CombatForm DW30',
+        'bind !0 gs c reset CombatForm',
+
+        'bind ^@1 input /ma "Katon: San"',
+        'bind ^@2 input /ma "Hyoton: San"',
+        'bind ^@3 input /ma "Huton: San"',
+        'bind ^@4 input /ma "Doton: San"',
+        'bind ^@5 input /ma "Raiton: San"',
+        'bind ^@6 input /ma "Suiton: San"',
+
+        'bind ~^@1 input /ma "Katon: Ni"',
+        'bind ~^@2 input /ma "Hyoton: Ni"',
+        'bind ~^@3 input /ma "Huton: Ni"',
+        'bind ~^@4 input /ma "Doton: Ni"',
+        'bind ~^@5 input /ma "Raiton: Ni"',
+        'bind ~^@6 input /ma "Suiton: Ni"',
+
+        'bind !@1 input /ma "Kurayami: Ni"',           -- acc-30
+        'bind !@2 input /ma "Hojo: Ni"',               -- 20% slow
+        'bind !@3 input /ma "Jubaku: Ichi"',           -- 20% para
+        'bind !@4 input /ma "Aisha: Ichi"',            -- 15% att down
+        'bind !@5 input /ma "Yurin: Ichi"',            -- 10% inhibit tp
+        'bind !@6 input /ma "Dokumori: Ichi"',         -- 3/tick poison
+
+        'bind @1 input /ma "Kurayami: Ni" <stnpc>',
+        'bind @2 input /ma "Hojo: Ni" <stnpc>',
+        'bind @3 input /ma "Jubaku: Ichi" <stnpc>',
+        'bind @4 input /ma "Aisha: Ichi" <stnpc>',
+        'bind @5 input /ma "Yurin: Ichi" <stnpc>',
+        'bind @6 input /ma "Dokumori: Ichi" <stnpc>',
+
+        'bind !e input /ma "Utsusemi: Ni"',            -- 0/160 (160/480 yonin)
+        'bind @e input /ma "Utsusemi: San"',           -- ditto
+        'bind !@e input /ma "Utsusemi: Ichi"',         -- ditto
+        'bind !g input /ma "Migawari: Ichi"',
+        'bind !@g gs equip phlx',                      -- phalanx+15
+        'bind @f input /ma "Gekka: Ichi"',             -- enm+30
+        'bind !@f input /ma "Yain: Ichi"',             -- enm-15
+        'bind !f input /ma "Kakka: Ichi"',             -- stp+10
+        'bind !b input /ma "Myoshu: Ichi"',            -- sb+10
+        'bind !v input /ma "Tonko: Ni"',
+        'bind @v input /ma "Monomi: Ichi"'}
+
+    if     player.sub_job == 'WAR' then
+        bind_command_list:extend(L{
+            'bind !4 input /ja Berserk <me>',
+            'bind !5 input /ja Aggressor <me>',
+            'bind !6 input /ja Warcry <me>',           -- 1/300 per target
+            'bind !d input /ja Provoke',               -- 0/1800
+            'bind @d input /ja Provoke <stnpc>',
+            'bind !@d input /ja Defender <me>'})
+    elseif player.sub_job == 'DRG' then
+        bind_command_list:extend(L{
+            'bind !4 input /ja "High Jump"',
+            'bind !6 input /ja "Ancient Circle" <me>'})
+    elseif player.sub_job == 'DRK' then
+        bind_command_list:extend(L{
+            'bind !4 input /ja "Last Resort" <me>',    -- 1/1300
+            'bind !5 input /ja Souleater <me>',        -- 1/1300, +25acc, +?/+? per hit
+            'bind !6 input /ja "Arcane Circle" <me>',
+            'bind !d input /ma Stun',                  -- 180/1280
+            'bind @d input /ma Stun <stnpc>',
+            'bind !@d input /ma Poisonga'})
+    elseif player.sub_job == 'RUN' then
+        bind_command_list:extend(L{
+            'bind @1 input /ja Ignis <me>',            -- fire up,    ice down
+            'bind @2 input /ja Gelus <me>',            -- ice up,     wind down
+            'bind @3 input /ja Flabra <me>',           -- wind up,    earth down
+            'bind @4 input /ja Tellus <me>',           -- earth up,   thunder down
+            'bind @5 input /ja Sulpor <me>',           -- thunder up, water down
+            'bind @6 input /ja Unda <me>',             -- water up,   fire down
+            'bind @7 input /ja Lux <me>',              -- light up,   dark down
+            'bind @8 input /ja Tenebrae <me>',         -- dark up,    light down
+            'bind !4 input /ja Swordplay <me>',        -- 160/320, +3 acc/eva per tick
+            'bind !5 input /ja Pflug <me>',            -- 450/900, +10 resist per rune
+            'bind ^tab input /ja Vallation <me>',      -- 450/900, -15% damage per rune
+            'bind !d input /ma Flash',                 -- 180/1280
+            'bind @d input /ma Flash <stnpc>',
+            'bind !^v input /ma Aquaveil <me>',
+            'bind !6 input /ma Protect <stpc>'})
+    elseif player.sub_job == 'PLD' then
+        bind_command_list:extend(L{
+            'bind !6 input /ja "Holy Circle" <me>',
+            'bind ^tab input /ja Sentinel <me>',       -- 0/900, enm+50 for 30s
+            'bind !d input /ma Flash',                 -- 180/1280
+            'bind @d input /ma Flash <stnpc>',
+            'bind !@d input /ma Banishga'})
+    elseif player.sub_job == 'BLU' then
+        bind_command_list:extend(L{
+            'bind @1 input /ma "Sheep Song"',          -- (320/320), 6'
+            'bind @2 input /ma "Geist Wall"',          -- (320/320), 6'
+            'bind @3 input /ma "Stinking Gas"',        -- (320/320), 6'
+            'bind !4 input /ma Cocoon <me>',
+            'bind !5 input /ma Refueling <me>',
+            -- wild carrot aliased to //wc
+            'bind !6 input /ma "Healing Breeze" <me>',
+            'bind !d input /ma "Blank Gaze"',          -- (320/320), 12'
+            'bind !@d input /ma Jettatura'})            -- (180/1020), 9'
+    elseif player.sub_job == 'DNC' then
+        bind_command_list:extend(L{
+            'bind !` input /ja "Curing Waltz III" <stpc>',
+            'bind @F1 input /ja "Healing Waltz" <stpc>',
+            'bind !4 input /ja "Box Step" <t>',
+            'bind !5 input /ja "Haste Samba" <me>',
+            'bind !6 input /ja "Divine Waltz" <me>',
+            'bind !@f input /ja "Reverse Flourish" <me>',
+            'bind !d input /ja "Animated Flourish"',
+            'bind @d input /ja "Animated Flourish" <stnpc>',
+            'bind !@d input /ja "Violent Flourish" <stnpc>'})
+    elseif player.sub_job == 'SAM' then
+        bind_command_list:extend(L{
+            'bind !4 input /ja Meditate <me>',
+            'bind !5 input /ja Sekkanoki <me>',
+            'bind !6 input /ja "Warding Circle" <me>',
+            'bind !d input /ja "Third Eye" <me>'})
+    elseif player.sub_job == 'WHM' then
+        bind_command_list:extend(L{
+            'bind !5 input /ma Haste <me>',
+            'bind !6 input /ma Cura <me>',
+            'bind !d input /ma Flash',
+            'bind @d input /ma Flash <stnpc>',
+            'bind !@d input /ma Banishga',
+            'bind !^g input /ma Stoneskin <me>',
+            'bind !^v input /ma Aquaveil <me>'})
+    elseif player.sub_job == 'RDM' then
+        bind_command_list:extend(L{
+            'bind !4 input /ma Phalanx <me>',
+            'bind !5 input /ma Haste <me>',
+            'bind !6 input /ma Refresh <me>',
+            'bind ^tab input /ma Dispel',
+            'bind !@d input /ma Diaga',
+            'bind !^g input /ma Stoneskin <me>',
+            'bind !^v input /ma Aquaveil <me>'})
+    elseif player.sub_job == 'BLM' then
+        bind_command_list:extend(L{
+            'bind !4 input /ma "Sleep II" <stnpc>',
+            'bind !5 input /ma Sleep <stnpc>',
+            'bind !6 input /ma Sleepga',
+            'bind !d input /ma Stun',
+            'bind @d input /ma Stun <stnpc>',
+            'bind !@d input /ma Poisonga'})
+    elseif player.sub_job == 'SMN' then
+        bind_command_list:extend(L{
+            'bind !4 input /ma Diabolos <me>',
+            'bind !5 input /pet Somnolence <t>',
+            'bind !6 input /pet Release <me>',
+            'bind !d input /pet Assault <t>',
+            'bind @d input /pet Retreat <me>'})
+    end
+
+    return bind_command_list
 end
 
 -- prints a message with counts of ninja tools
@@ -1368,7 +1289,7 @@ function report_ninja_tools(always_report)
 
     local low = false
     local msg = item_list:map(function(item)
-        if counts[item.id] <= 10 then
+        if counts[item.id] <= 20 then
             low = true
             if state.Buff.Sange and item.name == 'shuriken' then
                 send_command('cancel sange')

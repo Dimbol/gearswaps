@@ -1,5 +1,4 @@
 -- Modified from 'https://github.com/Kinematics/GearSwap-Jobs/blob/master/BRD.lua'
--- Defines gearsets and job keybinds for BRD.
 
 texts = require('texts')
 
@@ -49,7 +48,6 @@ function user_setup()
         state.CombatWeapon:options('Carn','Aeneas','Twashtar','Naegling','Xoanon')
 		state.CombatForm:reset()
     end
-    state.WSBinds = M{['description']='WS Binds',['string']=''}
     state.ExtraSongsMode = M{['description']='Extra Songs','None','Dummy','FullHarp'}  -- Set/unset with !c/!@c
     state.DummySongs = {['1']="Bewitching Etude",['2']="Enchanting Etude"}
 
@@ -85,98 +83,15 @@ function user_setup()
         augments={'CHR+20','Accuracy+20 Attack+20','CHR+10','Weapon skill damage +10%','Phys. dmg. taken-10%'}}
     gear.MEVACape = {name="Intarabus's Cape", augments={'MND+20','Eva.+20 /Mag. Eva.+20','Mag. Evasion+10','Phys. dmg. taken-10%'}}
 
-    send_command('bind %`|F12 gs c update user')
-    send_command('bind F9   gs c cycle OffenseMode')
-    send_command('bind !F9  gs c reset OffenseMode')
-    send_command('bind F10  gs c cycle CastingMode')
-    send_command('bind !F10 gs c reset CastingMode')
-    send_command('bind F11  gs c cycle IdleMode')
-    send_command('bind !F11 gs c reset IdleMode')
-    send_command('bind @F11 gs c toggle Kiting')
-    send_command('bind ^space gs c cycle HybridMode')
-    send_command('bind !space gs c set DefenseMode Physical')
-    send_command('bind @space gs c set DefenseMode Magical')
-    send_command('bind !@space gs c reset DefenseMode')
-    send_command('bind !w  gs c   set OffenseMode Normal')
-    send_command('bind !@w gs c reset OffenseMode')
-    send_command('bind !^q gs c weap Carn')
-    send_command('bind !^w gs c weap Aen')
-    send_command('bind ^@w gs c set CombatWeapon Xoanon')
-    send_command('bind !^e gs c weap Twash')
-    send_command('bind !^r gs c weap Naeg')
-    send_command('bind ^\\\\ gs c toggle WSMsg')
-    send_command('bind ^@\\\\ gs c toggle DiaMsg')
-    send_command('bind !F12 gs c cycle TreasureMode')
-    send_command('bind !z  gs c toggle HarpLullaby')
-    send_command('bind @z  gs c toggle ZendikIdle')
-    send_command('bind !@z gs c toggle LongSongs')
-    send_command('bind !c  gs c set ExtraSongsMode FullHarp')
-    send_command('bind !@c gs c set ExtraSongsMode Dummy')
-    send_command('bind ^c gs c reset ExtraSongsMode')
-
-    send_command('bind !^` input /ja "Soul Voice" <me>')
-    send_command('bind ^@` input /ja "Clarion Call" <me>')
-    send_command('bind ^@tab input /ja Troubadour <me>')
-    send_command('bind ^@q input /ja Nightingale <me>')
-    send_command('bind ^` input /ja Marcato <me>')
-    send_command('bind @tab input /ja Pianissimo <me>')
-    send_command('bind @q input /ja Tenuto <me>')
-
-    send_command('bind ^tab input /ma "Magic Finale"')
-    send_command('bind ^q input /ma Dispelga')
-    send_command('bind !@` input /ma "Chocobo Mazurka" <stpc>')
-
-    send_command('bind ^1  input /ma "Carnage Elegy"')
-    send_command('bind ^@1 input /ma "Carnage Elegy" <stnpc>')
-    send_command('bind ^2  input /ma "Foe Lullaby II" <stnpc>')
-    send_command('bind ^@2 input /ma Foe Lullaby <stnpc>')
-    send_command('bind ^3  input /ma "Horde Lullaby II"')
-    send_command('bind ^@3 input /ma "Horde Lullaby II" <stnpc>')
-    send_command('bind ^4  input /ma "Pining Nocturne"')
-    send_command('bind ^@4 input /ma "Foe Requiem VII"')
-
-    send_command('bind !3 gs c dummy 1')
-    send_command('bind !4 gs c dummy 2')
-    send_command('bind !5 input /ma "Honor March" <stpc>')
-    send_command('bind ^5 input /ma "Victory March" <stpc>')
-    send_command('bind !6 input /ma "Valor Minuet V" <stpc>')
-    send_command('bind ^6 input /ma "Valor Minuet IV" <stpc>')
-    send_command('bind ^@6 input /ma "Valor Minuet III" <stpc>')
-    send_command('bind !7 input /ma "Blade Madrigal" <stpc>')
-    send_command('bind ^7 input /ma "Sword Madrigal" <stpc>')
-    send_command('bind !8 input /ma "Archer\'s Prelude" <stpc>')
-    send_command('bind ^8 input /ma "Hunter\'s Prelude" <stpc>')
-    send_command('bind !9 input /ma "Mage\'s Ballad III" <stpc>')
-    send_command('bind ^9 input /ma "Mage\'s Ballad II" <stpc>')
-    send_command('bind ^@9 input /ma "Mage\'s Ballad" <stpc>')
-    send_command('bind !0 input /ma "Knight\'s Minne V" <stpc>')
-    send_command('bind ^0 input /ma "Knight\'s Minne IV" <stpc>')
-    send_command('bind ^@0 input /ma "Knight\'s Minne III" <stpc>')
-    send_command('bind !- input /ma "Army\'s Paeon VI" <stpc>')
-    send_command('bind ^- input /ma "Army\'s Paeon V" <stpc>')
-    send_command('bind ^@- input /ma "Army\'s Paeon IV" <stpc>')
-    send_command('bind != input /ma "Dragonfoe Mambo" <stpc>')
-    send_command('bind ^= input /ma "Sheepfoe Mambo" <stpc>')
-    send_command('bind !backspace input /ma "Sentinel\'s Scherzo" <stpc>')
-    send_command('bind !^backspace input /ma "Goddess\'s Hymnus" <t>')
-    send_command('bind !@backspace input /ma "Maiden\'s Virelai"')
-
-    send_command('bind !@5 input /ma "Earth Threnody II"')
-    send_command('bind !@6 input /ma "Water Threnody II"')
-    send_command('bind !@7 input /ma "Wind Threnody II"')
-    send_command('bind !@8 input /ma "Fire Threnody II"')
-    send_command('bind !@9 input /ma "Ice Threnody II"')
-    send_command('bind !@0 input /ma "Ltng. Threnody II"')
-    send_command('bind !@- input /ma "Light Threnody II"')
-    send_command('bind !@= input /ma "Dark Threnody II"')
+    info.keybinds = make_keybind_list(job_keybinds())
+    info.keybinds:bind()
 
     info.ws_binds = make_keybind_list(T{
         ['Dagger']=L{
-            'bind !^1|%1 input /ws "Energy Drain"',
+            'bind !^1|%1 input /ws "Evisceration"',
             'bind !^2|%2 input /ws "Rudra\'s Storm"',
             'bind !^3|%3 input /ws "Mordant Rime"',
-            'bind !^4|%4 input /ws "Evisceration"',
-            'bind !^5|%5 input /ws "Exenterator"',
+            'bind !^4|%4 input /ws "Exenterator"',
             'bind !^6|%6 input /ws "Aeolian Edge"',
             'bind !^7|%7 input /ws "Cyclone"',
             'bind !^d input /ws "Shadowstitch"'},
@@ -197,55 +112,13 @@ function user_setup()
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
 
-    send_command('bind !b input /ma "Horde Lullaby"')
-
-    -- Subjob binds
+    info.recast_ids = L{{name="N",id=109},{name="T",id=110},{name="M",id=48}}
     if     player.sub_job == 'WHM' then
-        send_command('bind @` input /ja "Divine Seal" <me>')
-        send_command('bind !1 input /ma "Cure III" <stpc>')
-        send_command('bind !2 input /ma "Cure IV" <stpc>')
-        send_command('bind !@1 input /ma Curaga')
-        send_command('bind !@2 input /ma "Curaga II"')
-        send_command('bind !d input /ma Flash')
-        send_command('bind !@g input /ma Stoneskin <me>')
-        send_command('bind @c input /ma Blink <me>')
-        send_command('bind @v input /ma Aquaveil <me>')
-        send_command('bind !f input /ma Haste')
-        -- Status cure binds (never want to fumble these)
-        send_command('bind @1 input /ma Poisona')
-        send_command('bind @2 input /ma Paralyna')
-        send_command('bind @3 input /ma Blindna')
-        send_command('bind @4 input /ma Silena')
-        send_command('bind @5 input /ma Stona')
-        send_command('bind @6 input /ma Viruna')
-        send_command('bind @7 input /ma Cursna')
-        send_command('bind @F1 input /ma Erase')
-        send_command('bind @F2 input /ma "Dia II"')
-        send_command('bind @F3 input /ma Silence')
+        info.recast_ids:append({name="D.Seal",id=26})
+    elseif player.sub_job == 'SCH' then
+        info.recast_ids:append({name="Strats",id=231})
     elseif player.sub_job == 'BLM' then
-        send_command('bind @` input /ja "Elemental Seal" <me>')
-    elseif player.sub_job == 'DNC' then
-        send_command('bind !1 input /ja "Curing Waltz II" <stpc>')
-        send_command('bind !2 input /ja "Curing Waltz III" <stpc>')
-        send_command('bind @F1 input /ja "Healing Waltz" <stpc>')
-        send_command('bind @F2 input /ja "Divine Waltz" <me>')
-        send_command('bind !v input /ja "Spectral Jig" <me>')
-        send_command('bind !d input /ja "Violent Flourish"')
-        send_command('bind !@d input /ja "Animated Flourish"')
-        send_command('bind !f input /ja "Haste Samba" <me>')
-        send_command('bind !@f input /ja "Reverse Flourish" <me>')
-        send_command('bind !e input /ja "Box Step"')
-        send_command('bind !@e input /ja Quickstep')
-    elseif player.sub_job == 'NIN' then
-        send_command('bind !1 input /target <stpc>')
-        send_command('bind !2 input /target <stpc>')
-        send_command('bind !e input /ma "Utsusemi: Ni" <me>')
-        send_command('bind !@e input /ma "Utsusemi: Ichi" <me>')
-    elseif player.sub_job == 'SMN' then
-        send_command('bind !v input //mewinglullaby')
-        send_command('bind !b input //caitsith')
-        send_command('bind !@b input //release')
-        send_command('bind !n input //retreat')
+        info.recast_ids:append({name="E.Seal",id=38})
     end
 
     select_default_macro_book()
@@ -253,134 +126,11 @@ end
 
 -- Called when this job file is unloaded (eg: job change)
 function user_unload()
-    send_command('unbind %`|F12')
-    send_command('unbind F9')
-    send_command('unbind !F9')
-    send_command('unbind F10')
-    send_command('unbind !F10')
-    send_command('unbind F11')
-    send_command('unbind !F11')
-    send_command('unbind @F11')
-    send_command('unbind ^space')
-    send_command('unbind !space')
-    send_command('unbind @space')
-    send_command('unbind !@space')
-    send_command('unbind !z')
-    send_command('unbind @z')
-    send_command('unbind !@z')
-    send_command('unbind !c')
-    send_command('unbind !@c')
-    send_command('unbind ^c')
-    send_command('unbind !w')
-    send_command('unbind !@w')
-    send_command('unbind !^q')
-    send_command('unbind !^w')
-    send_command('unbind ^@w')
-    send_command('unbind !^e')
-    send_command('unbind !^r')
-    send_command('unbind ^\\\\')
-    send_command('unbind ^@\\\\')
-    send_command('unbind !F12')
-    send_command('unbind !^`')
-    send_command('unbind ^@`')
-    send_command('unbind ^@tab')
-    send_command('unbind ^@q')
-    send_command('unbind ^`')
-    send_command('unbind @tab')
-    send_command('unbind @q')
-    send_command('unbind ^tab')
-    send_command('unbind ^q')
-    send_command('unbind @`')
-    send_command('unbind !@`')
-    send_command('unbind ^1')
-    send_command('unbind ^@1')
-    send_command('unbind ^2')
-    send_command('unbind ^@2')
-    send_command('unbind ^3')
-    send_command('unbind ^@3')
-    send_command('unbind ^4')
-    send_command('unbind ^@4')
-    send_command('unbind !3')
-    send_command('unbind !4')
-    send_command('unbind !5')
-    send_command('unbind ^5')
-    send_command('unbind !6')
-    send_command('unbind ^6')
-    send_command('unbind ^@6')
-    send_command('unbind !7')
-    send_command('unbind ^7')
-    send_command('unbind !8')
-    send_command('unbind ^8')
-    send_command('unbind !9')
-    send_command('unbind ^9')
-    send_command('unbind ^@9')
-    send_command('unbind !0')
-    send_command('unbind ^0')
-    send_command('unbind ^@0')
-    send_command('unbind !-')
-    send_command('unbind ^-')
-    send_command('unbind ^@-')
-    send_command('unbind !=')
-    send_command('unbind ^=')
-    send_command('unbind %\\\\')
-    send_command('unbind !backspace')
-    send_command('unbind !^backspace')
-    send_command('unbind !@backspace')
-    send_command('unbind !@5')
-    send_command('unbind !@6')
-    send_command('unbind !@7')
-    send_command('unbind !@8')
-    send_command('unbind !@9')
-    send_command('unbind !@0')
-    send_command('unbind !@-')
-    send_command('unbind !@=')
-    send_command('unbind !^1')
-    send_command('unbind !^2')
-    send_command('unbind !^3')
-    send_command('unbind !^4')
-    send_command('unbind !^5')
-    send_command('unbind !^6')
-    send_command('unbind !^7')
-    send_command('unbind %1')
-    send_command('unbind %2')
-    send_command('unbind %3')
-    send_command('unbind %4')
-    send_command('unbind %5')
-    send_command('unbind %6')
-    send_command('unbind %7')
-    send_command('unbind !^d')
-    send_command('unbind !^b')
-    send_command('unbind !1')
-    send_command('unbind !2')
-    send_command('unbind !@1')
-    send_command('unbind !@2')
-    send_command('unbind @1')
-    send_command('unbind @2')
-    send_command('unbind @3')
-    send_command('unbind @4')
-    send_command('unbind @5')
-    send_command('unbind @6')
-    send_command('unbind @7')
-    send_command('unbind @F1')
-    send_command('unbind @F2')
-    send_command('unbind @F3')
-    send_command('unbind @F4')
-    send_command('unbind !v')
-    send_command('unbind !d')
-    send_command('unbind !@d')
-    send_command('unbind !f')
-    send_command('unbind !@f')
-    send_command('unbind !g')
-    send_command('unbind !@g')
-    send_command('unbind !e')
-    send_command('unbind !@e')
-    send_command('unbind @c')
-    send_command('unbind @c')
-    send_command('unbind !b')
-    send_command('unbind !@b')
-    send_command('unbind !n')
+    info.keybinds:unbind()
 
     info.ws_binds:unbind()
+    send_command('unbind %\\\\')
+
     destroy_state_text()
 end
 
@@ -632,12 +382,6 @@ function job_precast(spell, action, spellMap, eventArgs)
         eventArgs.cancel = true
     elseif S{'BarElement','Protect','Shell'}:contains(spellMap) or spell.english == 'Flash' then
         eventArgs.handled = true
-    elseif spell.english == "Light Arts" and buffactive['Light Arts'] then
-        send_command('input /ja "Addendum: White" <me>')
-        eventArgs.cancel = true
-    elseif spell.english == "Dark Arts" and buffactive['Dark Arts'] then
-        send_command('input /ja "Addendum: Black" <me>')
-        eventArgs.cancel = true
     end
 end
 
@@ -785,6 +529,10 @@ function job_state_change(stateField, newValue, oldValue)
             equip(sets.weapons[state.CombatWeapon.value])
             disable('main','sub','ammo')
         end
+    elseif stateField == 'Defense Mode' then
+        if newValue ~= 'None' then
+            handle_equipping_gear(player.status)
+        end
     elseif stateField == 'Fishing Gear' then
         if newValue then
             sets.Fishing = {range="Ebisu Fishing Rod +1",ammo=empty,
@@ -868,7 +616,6 @@ end
 -- Function to display the current relevant user state when doing an update.
 function display_current_job_state(eventArgs)
     local msg = ''
-    eventArgs.handled = true
 
     if state.OffenseMode.value ~= 'None' then
         msg = 'TP['
@@ -884,14 +631,10 @@ function display_current_job_state(eventArgs)
 
     msg = msg .. 'Cast['..state.CastingMode.value..']'
     msg = msg .. ' Idle['..state.IdleMode.value..']'
-    if player.sub_job == 'SCH' then
-        if buffactive['Light Arts'] or buffactive['Addendum: White'] then
-            msg = msg .. ' Light Arts'
-        elseif buffactive['Dark Arts'] or buffactive['Addendum: Black'] then
-            msg = msg .. ' Dark Arts'
-        else
-            msg = msg .. ' *No Grimoire*'
-        end
+
+    if state.DefenseMode.value ~= 'None' then
+        local defMode = state[state.DefenseMode.value ..'DefenseMode'].current
+        msg = msg .. ' Def[' .. state.DefenseMode.value .. ':' .. defMode .. ']'
     end
 
     if state.ExtraSongsMode.value ~= 'None' then
@@ -909,11 +652,6 @@ function display_current_job_state(eventArgs)
     if state.DiaMsg.value then
         msg = msg .. ' DiaMsg'
     end
-
-    if state.DefenseMode.value ~= 'None' then
-        local defMode = state[state.DefenseMode.value ..'DefenseMode'].current
-        msg = msg .. ' Def[' .. state.DefenseMode.value .. ':' .. defMode .. ']'
-    end
     if state.TreasureMode.value ~= 'None' then
         msg = msg .. ' TH+3'
     end
@@ -923,14 +661,10 @@ function display_current_job_state(eventArgs)
     if state.Kiting.value == true then
         msg = msg .. ' Kiting'
     end
-    if state.PCTargetMode.value ~= 'default' then
-        msg = msg .. ', Target PC: '..state.PCTargetMode.value
-    end
-    if state.SelectNPCTargets.value == true then
-        msg = msg .. ', Target NPCs'
-    end
 
     add_to_chat(122, msg)
+    report_ja_recasts(info.recast_ids)
+    eventArgs.handled = true
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -939,6 +673,7 @@ end
 
 -- Called for custom player commands.
 function job_self_command(cmdParams, eventArgs)
+    eventArgs.handled = true
     if cmdParams[1] == 'dummy' then
         if S{'1','2'}:contains(cmdParams[2]) then
             state.ExtraSongsMode:set('Dummy')
@@ -964,6 +699,8 @@ function job_self_command(cmdParams, eventArgs)
         weap_self_command(cmdParams, 'CombatWeapon')
     elseif cmdParams[1] == 'save' then
         save_self_command(cmdParams)
+    elseif cmdParams[1] == 'rebind' then
+        info.keybinds:bind()
     --elseif cmdParams[1] == 'mooglehp' then
     --    equip({neck="Sanctity Necklace",ear1="Thureous Earring",ear2="Etiolation Earring",
     --    ring1="Etana Ring",ring2="Ilabrat Ring",back="Moonbeam Cape"})
@@ -972,6 +709,8 @@ function job_self_command(cmdParams, eventArgs)
     --        enable('neck','ear1','ear2','ring1','ring2','back')
     --        handle_equipping_gear(player.status)
     --    end
+    else
+        eventArgs.handled = false
     end
 end
 
@@ -987,6 +726,151 @@ end
 function select_default_macro_book()
     set_macro_page(1, 11)
     send_command('bind !^l input /lockstyleset 11')
+end
+
+-- returns a list for use with make_keybind_list
+function job_keybinds()
+    local bind_command_list = L{
+        'bind %`|F12 gs c update user',
+        'bind F9   gs c cycle OffenseMode',
+        'bind !F9  gs c reset OffenseMode',
+        'bind F10  gs c cycle CastingMode',
+        'bind !F10 gs c reset CastingMode',
+        'bind F11  gs c cycle IdleMode',
+        'bind !F11 gs c reset IdleMode',
+        'bind @F11 gs c toggle Kiting',
+        'bind ^space gs c cycle HybridMode',
+        'bind !space gs c set DefenseMode Physical',
+        'bind @space gs c set DefenseMode Magical',
+        'bind !@space gs c reset DefenseMode',
+        'bind !w  gs c   set OffenseMode Normal',
+        'bind !@w gs c reset OffenseMode',
+        'bind !^q gs c weap Carn',
+        'bind !^w gs c weap Aen',
+        'bind ^@w gs c set CombatWeapon Xoanon',
+        'bind !^e gs c weap Twash',
+        'bind !^r gs c weap Naeg',
+        'bind ^\\\\ gs c toggle WSMsg',
+        'bind ^@\\\\ gs c toggle DiaMsg',
+        'bind !F12 gs c cycle TreasureMode',
+        'bind !z  gs c toggle HarpLullaby',
+        'bind @z  gs c toggle ZendikIdle',
+        'bind !@z gs c toggle LongSongs',
+        'bind !c  gs c set ExtraSongsMode FullHarp',
+        'bind !@c gs c set ExtraSongsMode Dummy',
+        'bind ^c gs c reset ExtraSongsMode',
+
+        'bind !^` input /ja "Soul Voice" <me>',
+        'bind ^@` input /ja "Clarion Call" <me>',
+        'bind ^@tab input /ja Troubadour <me>',
+        'bind ^@q input /ja Nightingale <me>',
+        'bind ^` input /ja Marcato <me>',
+        'bind @tab input /ja Pianissimo <me>',
+        'bind @q input /ja Tenuto <me>',
+
+        'bind ^tab input /ma "Magic Finale"',
+        'bind ^q input /ma Dispelga',
+        'bind !@` input /ma "Chocobo Mazurka" <stpc>',
+
+        'bind ^1  input /ma "Carnage Elegy"',
+        'bind ^@1 input /ma "Carnage Elegy" <stnpc>',
+        'bind ^2  input /ma "Foe Lullaby II" <stnpc>',
+        'bind ^@2 input /ma Foe Lullaby <stnpc>',
+        'bind ^3  input /ma "Horde Lullaby II"',
+        'bind ^@3 input /ma "Horde Lullaby II" <stnpc>',
+        'bind ^4  input /ma "Pining Nocturne"',
+        'bind ^@4 input /ma "Foe Requiem VII"',
+
+        'bind !3 gs c dummy 1',
+        'bind !4 gs c dummy 2',
+        'bind !5 input /ma "Honor March" <stpc>',
+        'bind ^5 input /ma "Victory March" <stpc>',
+        'bind !6 input /ma "Valor Minuet V" <stpc>',
+        'bind ^6 input /ma "Valor Minuet IV" <stpc>',
+        'bind ^@6 input /ma "Valor Minuet III" <stpc>',
+        'bind !7 input /ma "Blade Madrigal" <stpc>',
+        'bind ^7 input /ma "Sword Madrigal" <stpc>',
+        'bind !8 input /ma "Archer\'s Prelude" <stpc>',
+        'bind ^8 input /ma "Hunter\'s Prelude" <stpc>',
+        'bind !9 input /ma "Mage\'s Ballad III" <stpc>',
+        'bind ^9 input /ma "Mage\'s Ballad II" <stpc>',
+        'bind ^@9 input /ma "Mage\'s Ballad" <stpc>',
+        'bind !0 input /ma "Knight\'s Minne V" <stpc>',
+        'bind ^0 input /ma "Knight\'s Minne IV" <stpc>',
+        'bind ^@0 input /ma "Knight\'s Minne III" <stpc>',
+        'bind !- input /ma "Army\'s Paeon VI" <stpc>',
+        'bind ^- input /ma "Army\'s Paeon V" <stpc>',
+        'bind ^@- input /ma "Army\'s Paeon IV" <stpc>',
+        'bind != input /ma "Dragonfoe Mambo" <stpc>',
+        'bind ^= input /ma "Sheepfoe Mambo" <stpc>',
+        'bind !backspace input /ma "Sentinel\'s Scherzo" <stpc>',
+        'bind !^backspace input /ma "Goddess\'s Hymnus" <stpc>',
+        'bind !@backspace input /ma "Maiden\'s Virelai"',
+
+        'bind !@5 input /ma "Earth Threnody II"',
+        'bind !@6 input /ma "Water Threnody II"',
+        'bind !@7 input /ma "Wind Threnody II"',
+        'bind !@8 input /ma "Fire Threnody II"',
+        'bind !@9 input /ma "Ice Threnody II"',
+        'bind !@0 input /ma "Ltng. Threnody II"',
+        'bind !@- input /ma "Light Threnody II"',
+        'bind !@= input /ma "Dark Threnody II"',
+
+        'bind !b input /ma "Horde Lullaby"'}
+
+    if     player.sub_job == 'WHM' then
+        bind_command_list:extend(L{
+            'bind @` input /ja "Divine Seal" <me>',
+            'bind !1 input /ma "Cure III" <stpc>',
+            'bind !2 input /ma "Cure IV" <stpc>',
+            'bind !@1 input /ma Curaga',
+            'bind !@2 input /ma "Curaga II"',
+            'bind !d input /ma Flash',
+            'bind !@g input /ma Stoneskin <me>',
+            'bind @c input /ma Blink <me>',
+            'bind @v input /ma Aquaveil <me>',
+            'bind !f input /ma Haste',
+            'bind @1 input /ma Poisona',
+            'bind @2 input /ma Paralyna',
+            'bind @3 input /ma Blindna',
+            'bind @4 input /ma Silena',
+            'bind @5 input /ma Stona',
+            'bind @6 input /ma Viruna',
+            'bind @7 input /ma Cursna',
+            'bind @F1 input /ma Erase',
+            'bind @F2 input /ma "Dia II"',
+            'bind @F3 input /ma Silence'})
+    elseif player.sub_job == 'BLM' then
+        bind_command_list:extend(L{
+            'bind @` input /ja "Elemental Seal" <me>'})
+    elseif player.sub_job == 'DNC' then
+        bind_command_list:extend(L{
+            'bind !1 input /ja "Curing Waltz II" <stpc>',
+            'bind !2 input /ja "Curing Waltz III" <stpc>',
+            'bind @F1 input /ja "Healing Waltz" <stpc>',
+            'bind @F2 input /ja "Divine Waltz" <me>',
+            'bind !v input /ja "Spectral Jig" <me>',
+            'bind !d input /ja "Violent Flourish"',
+            'bind !@d input /ja "Animated Flourish"',
+            'bind !f input /ja "Haste Samba" <me>',
+            'bind !@f input /ja "Reverse Flourish" <me>',
+            'bind !e input /ja "Box Step"',
+            'bind !@e input /ja Quickstep'})
+    elseif player.sub_job == 'NIN' then
+        bind_command_list:extend(L{
+            'bind !1 input /target <stpc>',
+            'bind !2 input /target <stpc>',
+            'bind !e input /ma "Utsusemi: Ni" <me>',
+            'bind !@e input /ma "Utsusemi: Ichi" <me>'})
+    elseif player.sub_job == 'SMN' then
+        bind_command_list:extend(L{
+            'bind !v input //mewinglullaby',
+            'bind !b input //caitsith',
+            'bind !@b input //release',
+            'bind !n input //retreat'})
+    end
+
+    return bind_command_list
 end
 
 -- Called from job_aftercast

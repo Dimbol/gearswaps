@@ -8,6 +8,44 @@ do
     end
 end
 
+-- General handling of stratagems in an Arts-agnostic way.
+-- Format: gs c scholar <stratagem>
+function handle_stratagems(cmdParams)
+    if not cmdParams[2] then
+        add_to_chat(123,'Error: No stratagem command given.')
+        return
+    end
+    local stratagem = cmdParams[2]
+
+    if stratagem == 'light' then
+        if buffactive['Light Arts'] then        send_command('input /ja "Addendum: White" <me>')
+        else                                    send_command('input /ja "Light Arts" <me>') end
+    elseif stratagem == 'dark' then
+        if buffactive['Dark Arts'] then         send_command('input /ja "Addendum: Black" <me>')
+        else                                    send_command('input /ja "Dark Arts" <me>') end
+    elseif buffactive['Light Arts'] or buffactive['Addendum: White'] then
+        if stratagem == 'cost' then             send_command('input /ja Penury <me>')
+        elseif stratagem == 'speed' then        send_command('input /ja Celerity <me>')
+        elseif stratagem == 'aoe' then          send_command('input /ja Accession <me>')
+        elseif stratagem == 'power' then        send_command('input /ja Rapture <me>')
+        elseif stratagem == 'specialty' then    send_command('input /ja Perpetuance <me>')
+        elseif stratagem == 'accuracy' then     send_command('input /ja Altruism <me>')
+        elseif stratagem == 'enmity' then       send_command('input /ja Tranquility <me>')
+        elseif stratagem == 'addendum' then     send_command('input /ja "Addendum: White" <me>')
+        else add_to_chat(123,'Error: Unknown stratagem ['..stratagem..']') end
+    elseif buffactive['Dark Arts'] or buffactive['Addendum: Black'] then
+        if stratagem == 'cost' then             send_command('input /ja Parsimony <me>')
+        elseif stratagem == 'speed' then        send_command('input /ja Alacrity <me>')
+        elseif stratagem == 'aoe' then          send_command('input /ja Manifestation <me>')
+        elseif stratagem == 'power' then        send_command('input /ja Ebullience <me>')
+        elseif stratagem == 'specialty' then    send_command('input /ja Immanence <me>')
+        elseif stratagem == 'accuracy' then     send_command('input /ja Focalization <me>')
+        elseif stratagem == 'enmity' then       send_command('input /ja Equanimity <me>')
+        elseif stratagem == 'addendum' then     send_command('input /ja "Addendum: Black" <me>')
+        else add_to_chat(123,'Error: Unknown stratagem ['..stratagem..']') end
+    else add_to_chat(123,'Error: No Grimoire Active.') end
+end
+
 -- make simple objects from lists of bind commands, for easier handling
 -- no error checking is done
 function make_keybind_list(binds, weapon_types)
@@ -51,8 +89,8 @@ function make_keybind_list(binds, weapon_types)
         function keybind_list:print(header)
             if header then add_to_chat(122, header) end
             for bind_cmd in self.list:it() do
-                local _, _, bind, cmd = bind_cmd:find('bind +([^ ]+) +input +(.*)')
-                add_to_chat(122, '%4s : %s':format(bind, cmd))
+                local _, _, bind, cmd = bind_cmd:find('bind +([^ ]+) +(.*)')
+                add_to_chat(122, '%4s : %s':format(bind, cmd:gsub('^input +','')))
             end
         end
         return keybind_list
@@ -131,14 +169,37 @@ function report_ja_recasts(recast_ids, n)
     local all_ja_recasts = windower.ffxi.get_ability_recasts()
     local available_list = L{}
     local unavailable_list = L{}
+    local stratagems_id = 231
     n = n or 6
 
     for ability in recast_ids:it() do
         local r = all_ja_recasts[ability.id]
-        if r > 0 then
-            unavailable_list:append({text="[%s](%d:%02d)":format(ability.name, math.floor(r/60), r%60), r=r})
+
+        if ability.id == stratagems_id then
+            local max_strats, charge_time
+            if player.sub_job == 'SCH' then
+                max_strats = 2
+                charge_time = 120
+            elseif player.main_job == 'SCH' then
+                max_strats = 5
+                charge_time = (windower.ffxi.get_player().job_points.sch.jp_spent >= 550) and 33 or 48
+            else break end
+
+            local num_strats = math.floor(max_strats - r/charge_time)
+            r = r%charge_time
+            if num_strats == 0 then
+                unavailable_list:append({text="[%s][%d](%d:%02d)":format(ability.name, num_strats, math.floor(r/60), r%60), r=0})
+            elseif num_strats < max_strats then
+                available_list:insert(1, "[%s][%d](%d:%02d)":format(ability.name, num_strats, math.floor(r/60), r%60))
+            else
+                available_list:insert(1, "[%s][%d]":format(ability.name, num_strats))
+            end
         else
-            available_list:append("[%s]":format(ability.name))
+            if r > 0 then
+                unavailable_list:append({text="[%s](%d:%02d)":format(ability.name, math.floor(r/60), r%60), r=r})
+            else
+                available_list:append("[%s]":format(ability.name))
+            end
         end
     end
 
@@ -202,6 +263,8 @@ function custom_auto_change_target(spell, action, spellMap, eventArgs)
                     or player.target.type == 'NPC' and npcs.Trust:contains(player.target.name) then
                         change_target('<t>')
                         eventArgs.handled = true
+                    else
+                        add_to_chat(121, '%s %s':format(spell.english, spell.target.raw))
                     end
                 end
             else
@@ -219,6 +282,8 @@ function custom_auto_change_target(spell, action, spellMap, eventArgs)
                         change_target('<me>')
                         eventArgs.handled = true
                     end
+                else
+                    add_to_chat(121, '%s %s':format(spell.english, spell.target.raw))
                 end
             else
                 change_target('<me>')
@@ -233,11 +298,15 @@ function custom_auto_change_target(spell, action, spellMap, eventArgs)
                 eventArgs.handled = true
             end
         end
-    elseif spell.target.raw == '<stnpc>' and player.status ~= 'Engaged' then
-        if 'MONSTER' == player.target.type
-        or 'PLAYER'  == player.target.type and windower.ffxi.get_mob_by_index(player.target.index).charmed then
-            change_target('<t>')
-            eventArgs.handled = true
+    elseif spell.target.raw == '<stnpc>' then
+        if player.status ~= 'Engaged' then
+            if 'MONSTER' == player.target.type
+            or 'PLAYER'  == player.target.type and windower.ffxi.get_mob_by_index(player.target.index).charmed then
+                change_target('<t>')
+                eventArgs.handled = true
+            else
+                add_to_chat(121, '%s %s':format(spell.english, spell.target.raw))
+            end
         end
     elseif spell.target.raw == '<t>' and spell.targets.Enemy and player.target.type ~= 'MONSTER' then
         if not player.target.name
@@ -252,11 +321,5 @@ function custom_auto_change_target(spell, action, spellMap, eventArgs)
         elseif 'NPC' == player.target.type then
             add_to_chat(122,'Is this a trust? ['..player.target.name..']')
         end
-    --elseif spell.target.raw == ('<t>') and spell.english == 'Goddess\'s Hymnus' then TODO re-test pian hymnus
-    --    -- Hymnus seems to not target correctly under pianissimo, unlike other songs.
-    --    if not (player.target and player.target.name and state.Buff.Pianissimo and 'PLAYER' == player.target.type) then
-    --        change_target('<me>')
-    --        eventArgs.handled = true
-    --    end
     end
 end
