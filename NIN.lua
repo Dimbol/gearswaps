@@ -72,7 +72,7 @@ function user_setup()
     state.WeaponskillMode:options('Normal','NoDmg')             -- Cycle with @F9
     state.CastingMode:options('Enmity','Normal')                -- Cycle with F10
     state.IdleMode:options('Normal','PDT','Rf','EvaPDT','STP')  -- Cycle with F11, reset with !F11
-    state.PhysicalDefenseMode:options('PDT','EvaPDT')           -- Cycle with !z
+    state.PhysicalDefenseMode:options('EvaPDT','PDT')           -- Cycle with !z
     state.MagicalDefenseMode:options('MEVA')                    -- Cycle with @z
     state.CombatWeapon = M{['description']='Combat Weapon'}     -- Set with !^q through !^r and others
     state.CombatWeapon:options('Heishi','HeiTern','HeishiTP','HeiChi',
@@ -277,8 +277,8 @@ function init_gear_sets()
     sets.Enmity = {main=gear.fudoC,sub="Shuhansadamune",ammo="Date Shuriken",
         head="Genmei Kabuto",neck="Moonlight Necklace",ear1="Cryptic Earring",ear2="Trux Earring",
         body="Emet Harness +1",hands="Kurys Gloves",ring1="Eihwaz Ring",ring2="Supershear Ring",
-        back=gear.EnmCape,waist="Goading Belt",legs="Zoar Subligar +1",feet="Ahosi Leggings"}
-    -- enm+84~94, pdt-27, dt-2, meva+398
+        back=gear.EnmCape,waist="Kasiri Belt",legs="Zoar Subligar +1",feet="Ahosi Leggings"}
+    -- enm+84~164, pdt-27, dt-2, meva+398
     sets.nagi = {main="Nagi"}   -- applied in job_post_precast and job_post_midcast for enmity with few shadows
     sets.precast.JA.Yonin          = set_combine(sets.Enmity, {})
     sets.precast.JA.Provoke        = set_combine(sets.Enmity, {})
@@ -303,7 +303,7 @@ function init_gear_sets()
     sets.precast.WS['Blade: Ten'] = {ammo="Voluspa Tathlum",
         head="Hachiya Hatsuburi +3",neck="Ninja Nodowa +2",ear1="Lugra Earring +1",ear2="Moonshade Earring",
         body=gear.herc_body_wsd,hands=gear.herc_hands_wsd,ring1="Gere Ring",ring2="Regal Ring",
-        back=gear.TenCape,waist="Grunfeld Rope",legs="Mochizuki Hakama +3",feet="Mochizuki Kyahan +3"}
+        back=gear.TenCape,waist="Sailfi Belt +1",legs="Mochizuki Hakama +3",feet="Mochizuki Kyahan +3"}
     sets.precast.WS['Blade: Metsu'] = {ammo="Voluspa Tathlum",
         head="Hachiya Hatsuburi +3",neck="Ninja Nodowa +2",ear1="Lugra Earring +1",ear2="Odr Earring",
         body=gear.herc_body_wsd,hands=gear.herc_hands_wsd,ring1="Ilabrat Ring",ring2="Regal Ring",
@@ -386,17 +386,19 @@ function init_gear_sets()
     sets.midcast['Migawari: Ichi'] = set_combine(sets.midcast.Ninjutsu, {back=gear.FCCape})
 
     sets.midcast.Utsusemi = set_combine(sets.midcast.Ninjutsu, {feet="Hattori Kyahan +1"})
-    -- enm+14~21, pdt-50, dt-44, eva~1115, meva+611
+    -- pdt-50, dt-44
     sets.midcast.Utsusemi.Enmity = {main=gear.fudoC,sub="Shuhansadamune",ammo="Date Shuriken",
         head="Genmei Kabuto",neck="Moonlight Necklace",ear1="Cryptic Earring",ear2="Trux Earring",
         body="Emet Harness +1",hands="Kurys Gloves",ring1="Eihwaz Ring",ring2="Defending Ring",
-        back=gear.EnmCape,waist="Goading Belt",legs="Malignance Tights",feet="Hattori Kyahan +1"}
-    -- enm+65~115, pdt-40, dt-19, eva~937 meva+447
+        back=gear.EnmCape,waist="Kasiri Belt",legs="Malignance Tights",feet="Hattori Kyahan +1"}
+    -- enm+65~145, pdt-40, dt-19
+    sets.midcast.Utsusemi.Enmity.NoCancel = set_combine(sets.midcast.Utsusemi.Enmity, {legs="Zoar Subligar +1",feet="Ahosi Leggings"})
+    -- more enmity but less defense, used when ichi or ni will be cast with no effect
     sets.midcast.Utsusemi.SIRD = {main="Tancho +1",sub="Tancho",ammo="Staunch Tathlum +1",
         head="Genmei Kabuto",neck="Moonlight Necklace",ear1="Genmei Earring",ear2="Trux Earring",
         body="Emet Harness +1",hands="Rawhide Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.EnmCape,waist="Goading Belt",legs="Malignance Tights",feet="Hattori Kyahan +1"}
-    -- enm+45, pdt-50, dt-28, eva~978, meva+419, sird+106
+        back=gear.EnmCape,waist="Kasiri Belt",legs="Malignance Tights",feet="Hattori Kyahan +1"}
+    -- enm+45, pdt-50, dt-28, sird+106
 
     sets.midcast.ElementalNinjutsu = {main="Gokotai",sub="Tauret",ammo="Pemphredo Tathlum",
         head="Mochizuki Hatsuburi +3",neck="Sanctity Necklace",ear1="Hecate's Earring",ear2="Friomisi Earring",
@@ -607,7 +609,8 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
             equip(sets.kajabow)
         end
     elseif spellMap == 'Utsusemi' then
-        if not state.Buff.Yonin and state.CastingMode.value == 'Enmity' then
+        local enmity_utsu = state.Buff.Yonin and state.CastingMode.value == 'Enmity'
+        if not enmity_utsu then
             equip(sets.midcast.FastRecast, sets.midcast.Utsusemi)
         end
 
@@ -618,10 +621,12 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
                 if state.LastUtsu.value > 1 then
                     send_command('cancel copy image,copy image (2),copy image (3)')
                 end
-                if not has_any_buff_of(S{'weakness','slow','Elegy'}) then
+                if enmity_utsu and not has_any_buff_of(S{'weakness','slow','Elegy'}) then
                     equip(sets.nagi)
                 end
                 state.LastUtsu:set(1)
+            elseif enmity_utsu and state.LastUtsu.value > 1 then
+                equip(sets.midcast.Utsusemi.Enmity.NoCancel)
             end
         elseif spell.english:endswith('Ni') then
             if not buffactive['Copy Image (4+)'] then
@@ -629,15 +634,17 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
                     send_command('cancel copy image,copy image (2),copy image (3)')
                     state.LastUtsu:set(2)
                 end
-                if not has_any_buff_of(S{'weakness','slow','Elegy'}) then
+                if enmity_utsu and not has_any_buff_of(S{'weakness','slow','Elegy'}) then
                     equip(sets.nagi)
                 end
+            elseif enmity_utsu and state.LastUtsu.value == 3 then
+                equip(sets.midcast.Utsusemi.Enmity.NoCancel)
             end
             if state.LastUtsu.value < 3 then
                 state.LastUtsu:set(2)
             end
         else
-            if not buffactive['Copy Image (4+)'] and not has_any_buff_of(S{'weakness','slow','Elegy'}) then
+            if enmity_utsu and not buffactive['Copy Image (4+)'] and not has_any_buff_of(S{'weakness','slow','Elegy'}) then
                 equip(sets.nagi)
             end
             state.LastUtsu:set(3)
@@ -1065,6 +1072,7 @@ function job_keybinds()
     local bind_command_list = L{
         'bind %`|F12 gs c update user',
         'bind F9   gs c cycle OffenseMode',
+        'bind @F9  gs c cycle WeaponskillMode',
         'bind !F9  gs c cycle RangedMode',
         'bind F10  gs c cycle CastingMode',
         'bind !F10 gs c reset CastingMode',

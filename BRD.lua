@@ -191,11 +191,11 @@ function init_gear_sets()
     sets.precast.WS['Savage Blade'] = {range="Linos",
         head="Bihu Roundlet +3",neck="Bard's Charm +2",ear1="Regal Earring",ear2="Moonshade Earring",
         body="Bihu Justaucorps +3",hands="Ayanmo Manopolas +2",ring1=gear.Lstikini,ring2="Rufescent Ring",
-        back=gear.RudraCape,waist="Grunfeld Rope",legs="Bihu Cannions +3",feet="Ayanmo Gambieras +2"}
+        back=gear.RudraCape,waist="Sailfi Belt +1",legs="Bihu Cannions +3",feet="Ayanmo Gambieras +2"}
     sets.precast.WS['Mordant Rime'] = {range="Linos",
         head="Bihu Roundlet +3",neck="Bard's Charm +2",ear1="Telos Earring",ear2="Regal Earring",
         body="Bihu Justaucorps +3",hands="Bihu Cuffs +3",ring1="Metamorph Ring +1",ring2="Ilabrat Ring",
-        back=gear.RimeCape,waist="Grunfeld Rope",legs="Bihu Cannions +3",feet="Bihu Slippers +3"}
+        back=gear.RimeCape,waist="Sailfi Belt +1",legs="Bihu Cannions +3",feet="Bihu Slippers +3"}
     sets.precast.WS['Aeolian Edge'] = set_combine(sets.precast.WS, {
         head="Chironic Hat",neck="Fotia Gorget",ear1="Friomisi Earring",ear2="Hecate's Earring",
         body="Chironic Doublet",hands="Chironic Gloves",ring1="Metamorph Ring +1",ring2="Ilabrat Ring",

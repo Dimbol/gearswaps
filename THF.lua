@@ -186,10 +186,10 @@ function init_gear_sets()
     sets.buff.Feint = {legs="Plunderer's Culottes +3"}
 
     -- Precast Sets
-    sets.Enmity = {ammo="Aqreaqa Bomblet",
+    sets.Enmity = {ammo="Aqreqaq Bomblet",
         head="Halitus Helm",neck="Unmoving Collar +1",ear1="Cryptic Earring",ear2="Trux Earring",
         body="Plunderer's Vest +3",hands="Kurys Gloves",ring1="Supershear Ring",ring2="Eihwaz Ring",
-        back=gear.IdleCape,waist="Goading Belt",legs="Zoar Subligar +1",feet="Ahosi Leggings"}
+        back=gear.IdleCape,waist="Kasiri Belt",legs="Zoar Subligar +1",feet="Ahosi Leggings"}
     -- enm+94
     sets.precast.JA.Provoke              = set_combine(sets.Enmity, {})
     sets.precast.JA['Animated Flourish'] = set_combine(sets.Enmity, {})
@@ -258,7 +258,7 @@ function init_gear_sets()
     sets.precast.WS['Shark Bite'].TA       = set_combine(sets.precast.WS.Rudras.TA,   {ear2="Sherida Earring"})
     sets.precast.WS['Shark Bite'].SATA     = set_combine(sets.precast.WS.Rudras.SATA, {ear2="Sherida Earring"})
     sets.precast.WS['Savage Blade']        = set_combine(sets.precast.WS.Rudras, {
-        neck="Caro Necklace",ear2="Sherida Earring",ring2="Gere Ring"})
+        neck="Caro Necklace",ear2="Sherida Earring",ring2="Gere Ring",waist="Sailfi Belt +1"})
     sets.precast.WS['Savage Blade'].PDT    = set_combine(sets.precast.WS.Rudras.PDT, {ear2="Sherida Earring"})
     sets.precast.WS['Savage Blade'].SA     = set_combine(sets.precast.WS['Savage Blade'], {ammo="Yetshila +1",head="Pillager's Bonnet +3"})
     sets.precast.WS['Savage Blade'].TA     = set_combine(sets.precast.WS['Savage Blade'].SA, {body="Plunderer's Vest +3"})
@@ -335,7 +335,7 @@ function init_gear_sets()
     sets.idle.STP = {main="Gandring",sub="Ternion Dagger +1",ammo="Yamarang",
         head="Turms Cap +1",neck="Anu Torque",ear1="Dedition Earring",ear2="Sherida Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1="Moonlight Ring",ring2="Ilabrat Ring",
-        back=gear.TPCape,waist="Goading Belt",legs="Malignance Tights",feet="Malignance Boots"}
+        back=gear.TPCape,waist="Reiki Yotai",legs="Malignance Tights",feet="Malignance Boots"}
 
     sets.defense.EvaPDT = set_combine(sets.idle.Eva, {ammo="Staunch Tathlum +1",waist="Flume Belt +1"})
     -- pdt-50, mdt-37, rg+19, eva~1290, meva+674

@@ -52,10 +52,10 @@ function user_setup()
     state.CombatWeapon = M{['description']='Combat Weapon'}
     if S{'DNC','NIN'}:contains(player.sub_job) then
         state.CombatWeapon:options('ClubDW','Staff','Dagger')
-		state.CombatForm:set('DW')
+        state.CombatForm:set('DW')
     else
         state.CombatWeapon:options('Club','Staff','Dagger')
-		state.CombatForm:reset()
+        state.CombatForm:reset()
     end
 
     state.Seidr          = M(false, 'Seidr Nukes')                      -- Toggle with !@z
@@ -76,7 +76,7 @@ function user_setup()
 
     -- Augmented items get variables for convenience and specificity
     gear.MACape   = {name="Nantosuelta's Cape",
-		augments={'MND+20','Mag. Acc+20 /Mag. Dmg.+20','Mag. Acc.+10','"Fast Cast"+10','Phys. dmg. taken-10%'}}
+        augments={'MND+20','Mag. Acc+20 /Mag. Dmg.+20','Mag. Acc.+10','"Fast Cast"+10','Phys. dmg. taken-10%'}}
     gear.PetCape  = {name="Nantosuelta's Cape",
         augments={'HP+60','Eva.+20 /Mag. Eva.+20','Mag. Evasion+10','Pet: "Regen"+10','Pet: Damage taken -5%'}}
     gear.NukeCape = {name="Nantosuelta's Cape",
@@ -89,6 +89,11 @@ function user_setup()
         augments={'MND+20','Accuracy+20 Attack+20','MND+10','Weapon skill damage +10%','Phys. dmg. taken-10%'}}
 
     gear.mer_head_rf   = {name="Merlinic Hood", augments={'INT+9','Pet: INT+2','"Refresh"+1'}}
+    gear.mer_head_fc   = {name="Merlinic Hood", augments={'Mag. Acc.+19 "Mag.Atk.Bns."+19','"Fast Cast"+6','MND+3'}}
+    gear.mer_head_mb   = {name="Merlinic Hood", augments={'"Mag.Atk.Bns."+27','Magic burst dmg.+10%','Mag. Acc.+15'}}
+    gear.mer_body_mb9  = {name="Merlinic Jubbah", augments={'Mag. Acc.+21 "Mag.Atk.Bns."+21','Magic burst dmg.+9%'}}
+    gear.mer_body_mb5  = {name="Merlinic Jubbah",
+        augments={'Mag. Acc.+23 "Mag.Atk.Bns."+23','Magic burst dmg.+5%','CHR+10','Mag. Acc.+10','"Mag.Atk.Bns."+11'}}
     gear.mer_hand_phlx = {name="Merlinic Dastanas",
         augments={'AGI+8','Pet: Attack+17 Pet: Rng.Atk.+17','Phalanx +3','Accuracy+14 Attack+14'}}
     gear.mer_legs_th   = {name="Merlinic Shalwar",
@@ -244,7 +249,7 @@ function init_gear_sets()
         body="Zendik Robe",hands=gear.tel_hand_enh,ring2="Kishar Ring",
         back=gear.MACape,waist="Shinjutsu-no-Obi +1",legs="Geomancy Pants +3",feet=gear.mer_feet_fc}
     sets.precast.FC['Elemental Magic'] = set_combine(sets.precast.FC, {ear2="Barkarole Earring",hands="Bagua Mitaines +1"})
-    sets.precast.FC.Cure = set_combine(sets.precast.FC, {ear2="Mendicant's Earring",legs="Doyen Pants",feet="Vanya Clogs"})
+    sets.precast.FC.Cure = set_combine(sets.precast.FC, {ear2="Mendicant's Earring",feet="Vanya Clogs"})
     sets.precast.FC.Curaga = sets.precast.FC.Cure
     sets.precast.FC.CureCheat = set_combine(sets.precast.FC.Cure, {body="Jhakri Robe +2",ring1="Stikini Ring +1"})
     sets.impact = {head=empty,body="Twilight Cloak"}
@@ -302,7 +307,7 @@ function init_gear_sets()
         body=gear.tel_body_enh,hands=gear.tel_hand_enh,ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.PetCape,waist="Embla Sash",legs=gear.tel_legs_enh,feet=gear.tel_feet_enh}
     sets.midcast['Enhancing Magic'] = set_combine(sets.midcast.EnhancingDuration, {
-        head="Befouled Crown",neck="Incanter's Torque",ear2="Mimir Earring",
+        head="Befouled Crown",neck="Incanter's Torque",ear1="Mimir Earring",ear2="Andoaa Earring",
         body=gear.tel_body_enh,hands="Ayao's Gages",ring1="Stikini Ring +1",
         back="Fi Follet Cape",waist="Olympus Sash",legs="Shedir Seraweels",feet="Regal Pumps +1"})
     sets.midcast.Phalanx = set_combine(sets.midcast['Enhancing Magic'], {hands=gear.mer_hand_phlx})
@@ -336,8 +341,8 @@ function init_gear_sets()
         body="Cohort Cloak +1",hands="Geomancy Mitaines +3",ring1="Stikini Ring +1",ring2="Metamorph Ring +1",
         back=gear.MACape,waist="Acuity Belt +1",legs="Geomancy Pants +3",feet="Geomancy Sandals +3"}
     sets.midcast['Enfeebling Magic'].MAcc = set_combine(sets.midcast['Enfeebling Magic'], {main="Marin Staff +1",sub="Khonsu"})
-	sets.midcast.Silence  = set_combine(sets.midcast['Enfeebling Magic'], {waist="Luminary Sash"})
-	sets.midcast.Slow     = set_combine(sets.midcast['Enfeebling Magic'], {waist="Luminary Sash"})
+    sets.midcast.Silence  = set_combine(sets.midcast['Enfeebling Magic'], {waist="Luminary Sash"})
+    sets.midcast.Slow     = set_combine(sets.midcast['Enfeebling Magic'], {waist="Luminary Sash"})
     sets.midcast.Paralyze = set_combine(sets.midcast.Slow, {})
     --sets.midcast.Dispelga = set_combine(sets.midcast['Enfeebling Magic'], sets.dispelga)
 
@@ -367,12 +372,12 @@ function init_gear_sets()
     sets.idle.Pet = {main="Sucellus",sub="Genmei Shield",
         head="Hike Khat +1",neck="Bagua Charm +2",ear1="Rimeice Earring",ear2="Lugalbanda Earring",
         body="Geomancy Tunic +3",hands="Geomancy Mitaines +3",ring1="Stikini Ring +1",ring2="Defending Ring",
-		back=gear.PetCape,waist="Isa Belt",legs="Psycloth Lappas",feet="Bagua Sandals +1"}
+        back=gear.PetCape,waist="Isa Belt",legs="Psycloth Lappas",feet="Bagua Sandals +1"}
     sets.idle.PDT = set_combine(sets.idle, {head="Hike Khat +1",ring1="Vocane Ring +1"})
     sets.idle.PDT.Pet = {main="Sucellus",sub="Genmei Shield",
         head="Hike Khat +1",neck="Bagua Charm +2",ear1="Rimeice Earring",ear2="Lugalbanda Earring",
         body="Mallquis Saio +2",hands="Geomancy Mitaines +3",ring1="Vocane Ring +1",ring2="Defending Ring",
-		back=gear.PetCape,waist="Isa Belt",legs="Psycloth Lappas",feet="Bagua Sandals +1"}
+        back=gear.PetCape,waist="Isa Belt",legs="Psycloth Lappas",feet="Bagua Sandals +1"}
     sets.idle.MEVA = {main="Mafic Cudgel",sub="Genmei Shield",range="Dunna",
         head="Ea Hat +1",neck="Loricate Torque +1",ear1="Eabani Earring",ear2="Lugalbanda Earring",
         body="Ea Houppelande +1",hands="Geomancy Mitaines +3",ring1="Vocane Ring +1",ring2="Defending Ring",
@@ -889,12 +894,13 @@ function job_keybinds()
         'bind  ^9 input /ma "Blizzara III"',
         'bind  ^0 input /ma "Thundara III"',
 
-        'bind !f  input /ma Haste     <me>',
-        'bind !g  input /ma Phalanx   <me>',
-        'bind !@g input /ma Stoneskin <me>',
-        'bind !b  input /ma Refresh   <me>',
-        'bind @c  input /ma Blink     <me>',
-        'bind @v  input /ma Aquaveil  <me>',
+        'bind !f  input /ma Haste        <me>',
+        'bind !g  input /ma Phalanx      <me>',
+        'bind @g  input /ma "Ice Spikes" <me>',
+        'bind !@g input /ma Stoneskin    <me>',
+        'bind !b  input /ma Refresh      <me>',
+        'bind @c  input /ma Blink        <me>',
+        'bind @v  input /ma Aquaveil     <me>',
 
         'bind ^q  input /ma Dispelga',
         'bind @d input /ma "Aspir II"',
@@ -1170,8 +1176,8 @@ function init_state_text()
 
                 if player.indi then
                     local indi_time_remaining = math.max(0, state.indi.started and state.indi.started - now + state.indi.duration or 0)
-					local min, sec = math.floor(indi_time_remaining / 60), indi_time_remaining % 60
-					local green    = math.min(math.max(0, math.floor(255 * indi_time_remaining / (state.indi.duration or 1))), 255)
+                    local min, sec = math.floor(indi_time_remaining / 60), indi_time_remaining % 60
+                    local green    = math.min(math.max(0, math.floor(255 * indi_time_remaining / (state.indi.duration or 1))), 255)
                     local text     = 'Indi-%s : %d:%02d':format((state.indi.last_colure and state.indi.last_colure or '?'), min, sec)
                     if state.Buff.Bolster then text = '[BOLSTER]'..text end
                     state.geo_indi_text:text(text)

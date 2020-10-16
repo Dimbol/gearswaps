@@ -250,7 +250,7 @@ function init_gear_sets()
     sets.midcast.Cure.Enmity = {main="Mafic Cudgel",sub="Genmei Shield",ammo="Staunch Tathlum +1",
         head="Ebers Cap +1",neck="Unmoving Collar +1",ear1="Cryptic Earring",ear2="Trux Earring",
         body="Chironic Doublet",hands="Telchine Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Goading Belt",legs="Ebers Pantaloons +1",feet="Inyanga Crackows +2"}
+        back=gear.MEVACape,waist="Kasiri Belt",legs="Ebers Pantaloons +1",feet="Inyanga Crackows +2"}
     sets.midcast.Curaga.Enmity = set_combine(sets.midcast.Cure.Enmity, {})
     sets.midcast.CureSolace.Enmity = set_combine(sets.midcast.Cure.Enmity, {})
     -- cure+50%, solace+10%, enm+38 (and -25 from tranquil heart), pdt-50, mdt-21
@@ -260,7 +260,7 @@ function init_gear_sets()
         back="Moonbeam Cape",waist="Gishdubar Sash",legs="Ebers Pantaloons +1",feet="Skaoi Boots"}
     sets.midcast.CureCheat.Enmity = set_combine(sets.midcast.CureCheat, {main="Asclepius",sub="Genmei Shield",
         head="Ebers Cap +1",neck="Unmoving Collar +1",ear1="Cryptic Earring",
-        waist="Goading Belt",feet="Theophany Duckbills +3"})
+        waist="Kasiri Belt",feet="Theophany Duckbills +3"})
     sets.cmp_belt  = {waist="Shinjutsu-no-Obi +1"}
     sets.gishdubar = {waist="Gishdubar Sash"}
 
@@ -269,14 +269,14 @@ function init_gear_sets()
     sets.midcast.Raise = {main="Asclepius",sub="Genmei Shield",ammo="Pemphredo Tathlum",
         head="Vanya Hood",neck="Loricate Torque +1",ear1="Malignance Earring",ear2="Mendicant's Earring",
         body="Witching Robe",hands="Fanatic Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Goading Belt",legs="Lengo Pants",feet="Medium's Sabots"}
+        back=gear.MEVACape,waist="Shinjutsu-no-Obi +1",legs="Lengo Pants",feet="Medium's Sabots"}
     sets.midcast.Reraise = set_combine(sets.midcast.Raise, {})
     sets.midcast.Esuna   = set_combine(sets.midcast.Raise, {})
     sets.buff['Divine Caress'] = {hands="Ebers Mitts +1",back="Mending Cape"}
     sets.midcast.Cursna = {main="Yagrush",sub="Genmei Shield",ammo="Staunch Tathlum +1",
         head="Nahtirah Hat",neck="Debilis Medallion",ear1="Glorious Earring",ear2="Novia Earring",
         body="Ebers Bliaud +1",hands="Fanatic Gloves",ring1="Haoma's Ring",ring2="Haoma's Ring",
-        back=gear.FCCape,waist="Goading Belt",legs="Theophany Pantaloons +3",feet="Vanya Clogs"}
+        back=gear.FCCape,waist="Kasiri Belt",legs="Theophany Pantaloons +3",feet="Vanya Clogs"}
     -- heal.skill=566, cursna+106 (est. 58% success)
 
     sets.midcast.EnhancingDuration = {main="Gada",sub="Ammurapi Shield",ammo="Staunch Tathlum +1",
@@ -322,7 +322,7 @@ function init_gear_sets()
     sets.midcast.Flash = {main="Mafic Cudgel",sub="Genmei Shield",ammo="Staunch Tathlum +1",
         head="Inyanga Tiara +2",neck="Unmoving Collar +1",ear1="Cryptic Earring",ear2="Trux Earring",
         body="Inyanga Jubbah +2",hands="Inyanga Dastanas +2",ring1="Supershear Ring",ring2="Eihwaz Ring",
-        back=gear.MEVACape,waist="Goading Belt",legs="Inyanga Shalwar +2",feet="Inyanga Crackows +2"}
+        back=gear.MEVACape,waist="Kasiri Belt",legs="Inyanga Shalwar +2",feet="Inyanga Crackows +2"}
 
     sets.midcast.Drain = set_combine(sets.midcast.Repose, {main="Rubicundity",sub="Ammurapi Shield",
         head="Pixie Hairpin +1",ring1="Archon Ring",ring2="Evanescence Ring"})
@@ -345,7 +345,7 @@ function init_gear_sets()
         neck="Cleric's Torque +2",ring1="Metamorph Ring +1",waist="Luminary Sash"})
     sets.midcast.IntEnfeebles = set_combine(sets.midcast.MndEnfeebles, {main="Maxentius",sub="Ammurapi Shield"})
 
-    sets.midcast.Utsusemi = {waist="Goading Belt"}
+    sets.midcast.Utsusemi = {waist="Kasiri Belt"}
 
     -- Sets to return to when not performing an action.
 
@@ -376,11 +376,8 @@ function init_gear_sets()
     sets.engaged.Acc.PDef = set_combine(sets.engaged.Acc, {ring1="Vocane Ring +1",ring2="Defending Ring"})
     sets.dualwield = {back=gear.TPCapeDW} -- applied inside customize_melee_set
 
-    -- Resting set
-    sets.resting = set_combine(sets.idle, {main="Boonwell Staff",sub="Niobid Strap",waist="Shinjutsu-no-obi +1"})
-
     -- Sets that depend upon idle sets
-    sets.midcast.FastRecast = set_combine(sets.idle.PDT, {main="Asclepius",sub="Genmei Shield",waist="Goading Belt"})
+    sets.midcast.FastRecast = set_combine(sets.idle.PDT, {main="Asclepius",sub="Genmei Shield",waist="Kasiri Belt"})
     sets.midcast.Dia     = set_combine(sets.idle, sets.TreasureHunter)
     sets.midcast.Bio     = set_combine(sets.idle, sets.TreasureHunter)
     sets.midcast.Stone   = set_combine(sets.idle, sets.TreasureHunter)

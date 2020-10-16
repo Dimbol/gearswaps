@@ -1,5 +1,8 @@
 -- Modified from 'https://github.com/Kinematics/GearSwap-Jobs/blob/master/COR.lua'
 -- For Luzaf's Ring toggle, hit the keybind !z.
+-- TODO enmity toggle for double up
+-- TODO recast messages
+-- TODO better dual wield sets
 -- TODO new TH+4 actions
 
 -- /nin dual wield cheatsheet
@@ -46,7 +49,8 @@ function user_setup()
     state.MagicalDefenseMode:options('MEVA')
     state.CombatWeapon = M{['description']='Combat Weapon'}
     if S{'DNC','NIN'}:contains(player.sub_job) then
-        state.CombatWeapon:options('NaegBlur','NaegTaur','RosBlur','RosTaur','TaurBlur','Aeolian','AeolianDP')
+        state.CombatWeapon:options('NaegBlur','NaegTaur','RosBlur','RosTaur','TaurBlur','Rostam',
+                                   'Aeolian','AeolianDP','OmenSword','OmenDagger')
 		state.CombatForm:set('DW')
     else
         state.CombatWeapon:options('Rostam','Naegling','Tauret')
@@ -124,8 +128,19 @@ function user_setup()
             'bind !^5|%5 input /ws Exenterator',
             'bind !^6|%6 input /ws "Aeolian Edge"',
             'bind !^7|%7 input /ws Cyclone',
+            'bind !^d    input /ws Shadowstitch'},
+        ['OmenSword']=L{
+            'bind !^1|%1 input /ws Wildfire',
+            'bind !^2|%2 input /ws "Leaden Salute"',
+            'bind !^3|%3 input /ws "Burning Blade"',
+            'bind !^d|%4 input /ws "Flat Blade"'},
+        ['OmenDagger']=L{
+            'bind !^1|%1 input /ws Wildfire',
+            'bind !^2|%2 input /ws "Leaden Salute"',
+            'bind !^3|%3 input /ws "Gust Slash"',
+            'bind !^4|%4 input /ws "Wasp Sting"',
             'bind !^d    input /ws Shadowstitch'}},
-        {['Naegling']='Sword',['NaegBlur']='Sword',['NaegTaur']='Sword',
+        {['Naegling']='Sword',['NaegBlur']='Sword',['NaegTaur']='Sword',['JoyMerc']='OmenSword',['MercJoy']='OmenDagger',
          ['Rostam']='Dagger',['RosBlur']='Dagger',['Tauret']='Dagger',['TaurBlur']='Dagger',['Aeolian']='Dagger',['AeolianDP']='Dagger'})
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
@@ -186,8 +201,8 @@ function init_gear_sets()
     sets.weapons.Aeolian   = {main="Tauret",sub="Naegling",range="Ataktos"}
     sets.weapons.AeolianDP = {main="Tauret",sub="Naegling",range="Death Penalty"}
     sets.weapons.TaurBlur  = {main="Tauret",sub="Blurred Knife +1",range="Fomalhaut"}
-    --sets.weapons.JoyMerc   = {main="Joyeuse",sub="Mercurial Kris",range="Fomalhaut"}    -- omen objs
-    --sets.weapons.MercJoy   = {main="Mercurial Kris",sub="Joyeuse",range="Fomalhaut"}    -- omen objs
+    sets.weapons.JoyMerc   = {main="Joyeuse",sub="Mercurial Kris",range="Fomalhaut"}    -- omen objs
+    sets.weapons.MercJoy   = {main="Mercurial Kris",sub="Joyeuse",range="Fomalhaut"}    -- omen objs
 
     sets.TreasureHunter = {head="Volte Cap",waist="Chaac Belt",legs=gear.herc_legs_th}
 
@@ -255,7 +270,7 @@ function init_gear_sets()
     sets.precast.WS['Savage Blade'] = {
         head=gear.herc_head_wsd,neck="Caro Necklace",ear1="Ishvara Earring",ear2="Moonshade Earring",
         body="Laksamana's Frac +3",hands="Meghanada Gloves +2",ring1="Rufescent Ring",ring2="Regal Ring",
-        back=gear.MEWSCape,waist="Grunfeld Rope",legs="Meghanada Chausses +2",feet="Lanun Bottes +3"}
+        back=gear.MEWSCape,waist="Sailfi Belt +1",legs="Meghanada Chausses +2",feet="Lanun Bottes +3"}
     sets.precast.WS['Savage Blade'].Acc = set_combine(sets.precast.WS['Savage Blade'], {neck="Fotia Gorget",ear1="Telos Earring",
         head="Meghanada Visor +2",body="Meghanada Cuirie +2"})
     sets.precast.WS.Requiescat = {
@@ -292,10 +307,9 @@ function init_gear_sets()
         back=gear.METPCape,waist="Eschan Stone",legs="Malignance Tights",feet="Malignance Boots"}
 
     -- Midcast Sets
-    sets.midcast.Cure = {main="Chatoyant Staff",sub="Niobid Strap",
-        neck="Incanter's Torque",ear1="Novia Earring",ear2="Mendicant's Earring",back="Solemnity Cape"}
+    sets.midcast.Cure = {main="Chatoyant Staff",sub="Niobid Strap",neck="Incanter's Torque",ear1="Novia Earring",ear2="Mendicant's Earring"}
     sets.midcast.Curaga = set_combine(sets.midcast.Cure, {})
-    sets.midcast.Cursna = {neck="Debilis Medallion",ring1="Haoma's Ring",ring2="Haoma's Ring",waist="Goading Belt"}
+    sets.midcast.Cursna = {neck="Debilis Medallion",ring1="Haoma's Ring",ring2="Haoma's Ring",waist="Kasiri Belt"}
     sets.gishdubar = {waist="Gishdubar Sash"}
     sets.midcast['Enfeebling Magic'] = {main="Naegling",range="Fomalhaut",ammo="Living Bullet",
         head="Malignance Chapeau",neck="Sanctity Necklace",ear1="Gwati Earring",ear2="Dignitary's Earring",
@@ -315,7 +329,7 @@ function init_gear_sets()
     sets.midcast.CorsairShot.STP = {ammo="Living Bullet",
         head="Blood Mask",neck="Iskur Gorget",ear1="Telos Earring",ear2="Dedition Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1="Petrov Ring",ring2="Ilabrat Ring",
-        back=gear.RATPCape,waist="Goading Belt",legs="Malignance Tights",feet="Chasseur's Bottes +1"}
+        back=gear.RATPCape,waist="Kasiri Belt",legs="Malignance Tights",feet="Chasseur's Bottes +1"}
     sets.midcast.CorsairShot.Acc = set_combine(sets.midcast.CorsairShot, {
         head="Malignance Chapeau",neck="Sanctity Necklace",ear1="Gwati Earring",ear2="Dignitary's Earring",
         ring2="Stikini Ring +1",waist="Kwahu Kachina Belt"})
@@ -711,27 +725,34 @@ end
 -- returns a list for use with make_keybind_list
 function job_keybinds()
     local bind_command_list = L{
-        'bind %`|F10 gs c update user',
+        'bind %`|F12 gs c update user',
+        'bind F9   gs c cycle OffenseMode',
+        'bind @F9  gs c cycle WeaponskillMode',
+        'bind !F9  gs c cycle RangedMode',
         'bind F10  gs c cycle CastingMode',
         'bind !F10 gs c reset CastingMode',
         'bind F11  gs c cycle IdleMode',
         'bind !F11 gs c reset IdleMode',
         'bind @F11 gs c toggle Kiting',
         'bind !F12 gs c cycle TreasureMode',
-        -- TODO FIXME CombatWeapon
+        'bind  !^q gs c weap Taur',
+        'bind ~!^q gs c weap Aeolian',
+        'bind  !^w gs c weap Rostam',
+        'bind ~!^w gs c weap Ros Taur',
+        'bind  !^e gs c weap Naeg',
         'bind ^space gs c cycle HybridMode',
         'bind ^@space gs c reset HybridMode',
         'bind !space gs c set DefenseMode Physical',
         'bind @space gs c set DefenseMode Magical',
         'bind !@space gs c reset DefenseMode',
 
-        'bind ^` input /ja "Crooked Cards" <me>',
-        'bind ^@` input /ja "Random Deal" <me>',
+        'bind ^`    input /ja "Crooked Cards" <me>',
+        'bind ^@`   input /ja "Random Deal" <me>',
         'bind ^@tab input /ja Fold <me>',
-        'bind !^` input /ja "Wild Card" <me>',
-        'bind ^tab input /ja "Snake Eye" <me>',
-        'bind @tab input /ja "Dark Shot"',
-        'bind !@` input /ja "Cutting Cards" <t>',
+        'bind !^`   input /ja "Wild Card" <me>',
+        'bind ^tab  input /ja "Snake Eye" <me>',
+        'bind @tab  input /ja "Dark Shot"',
+        'bind !@`   input /ja "Cutting Cards" <t>',
 
         'bind !1 input /ra <t>',
         'bind @1 input /ra <stnpc>',

@@ -8,6 +8,7 @@
 -- notes:
 -- shattersoul has mdef-10 like vidohunir
 -- aeolian edge can be used /rdm, or cataclysm /whm
+-- maxentius has 4 mb bonus for a two step skillchain
 
 -- skillchains
 -- wind    > dark    = gravitation      (earth/dark)
@@ -89,9 +90,9 @@ function user_setup()
     state.HybridMode:options('Normal','PDef')                               -- Cycle with ^space
     state.CastingMode:options('Normal','MAcc','LowMP','OA')                 -- Cycle with F10, set with !@z, ~^z
     state.IdleMode:options('Subl','PDT','MEVA')                             -- Cycle with F11
-    state.MagicalDefenseMode:options('MEVA')
+    state.MagicalDefenseMode:options('MEVA','MRf')                          -- Cycle with @z
     state.CombatWeapon = M{['description']='Combat Weapon'}
-    state.CombatWeapon:options('Akademos','Marin','Pole','Dagger')          -- Cycle with @F9
+    state.CombatWeapon:options('Marin','Akademos','Pole','Khat','Dagger')   -- Cycle with @F9
 
     state.AutoSeidr  = M(true,  'Seidr Sometimes')      -- Toggle with ~!@z
     state.AutoSeidr.low_mp = 750
@@ -101,7 +102,7 @@ function user_setup()
     state.CP         = M(false, 'CP Mode')
     state.DiaMsg     = M(false, 'Dia Message')          -- Toggle with ^\
 
-    state.SCMode     = M('Auto','Manual')               -- Set with !c or !^c
+    state.SCMode     = M('Manual','Auto')               -- Set with !c or !^c
     state.SCDmg      = M(true, 'Damaging Skillchains')  -- Toggle with !\
     state.SCHUD      = M(true, 'Skillchain HUD')        -- Toggle with !^\
     info.skillchains = T{
@@ -136,7 +137,7 @@ function user_setup()
                                                        {action='Starburst'}}}}
     info.sc_step_waits = T{} -- TODO test for and place exceptions to default wait times here
     skillchain_state_updates(nil, 'init')
-    init_state_text()
+    if not hud then init_state_text() end
 
     info.addendum_spells = T{'Poisona','Paralyna','Blindna','Silena','Stona','Viruna','Cursna','Erase',
                              'Raise II','Raise III','Reraise','Reraise II','Reraise III',
@@ -148,12 +149,15 @@ function user_setup()
     gear.MACape   = {name="Lugh's Cape", augments={'MND+20','Mag. Acc+20 /Mag. Dmg.+20','"Fast Cast"+10','Phys. dmg. taken-10%'}}
     gear.NukeCape = {name="Lugh's Cape",
         augments={'INT+20','Mag. Acc+20 /Mag. Dmg.+20','Magic Damage +10','"Mag.Atk.Bns."+10','Phys. dmg. taken-10%'}}
-    --gear.IdleCape = 
+    gear.IdleCape = {name="Lugh's Cape", augments={'MND+20','Eva.+20 /Mag. Eva.+20','Mag. Evasion+10','Enmity-10','Phys. dmg. taken-10%'}}
     gear.TPCape   = {name="Lugh's Cape", augments={'DEX+20','Accuracy+20 Attack+20','"Dbl.Atk."+10','Phys. dmg. taken-10%'}}
 
     gear.mer_head_rf   = {name="Merlinic Hood", augments={'INT+9','Pet: INT+2','"Refresh"+1'}}
-    gear.mer_body_mb   = {name="Merlinic Jubbah",
-		augments={'Mag. Acc.+23 "Mag.Atk.Bns."+23','Magic burst dmg.+5%','CHR+10','Mag. Acc.+10','"Mag.Atk.Bns."+11'}}
+    gear.mer_head_fc   = {name="Merlinic Hood", augments={'Mag. Acc.+19 "Mag.Atk.Bns."+19','"Fast Cast"+6','MND+3'}}
+    gear.mer_head_mb   = {name="Merlinic Hood", augments={'"Mag.Atk.Bns."+27','Magic burst dmg.+10%','Mag. Acc.+15'}}
+    gear.mer_body_mb9  = {name="Merlinic Jubbah", augments={'Mag. Acc.+21 "Mag.Atk.Bns."+21','Magic burst dmg.+9%'}}
+    gear.mer_body_mb5  = {name="Merlinic Jubbah",
+        augments={'Mag. Acc.+23 "Mag.Atk.Bns."+23','Magic burst dmg.+5%','CHR+10','Mag. Acc.+10','"Mag.Atk.Bns."+11'}}
     gear.mer_hand_phlx = {name="Merlinic Dastanas",
         augments={'AGI+8','Pet: Attack+17 Pet: Rng.Atk.+17','Phalanx +3','Accuracy+14 Attack+14'}}
     gear.mer_legs_th   = {name="Merlinic Shalwar",
@@ -208,7 +212,7 @@ function user_setup()
             'bind !^3 input /ws "Gust Slash"',
             'bind !^4 input /ws "Shadowstitch"',
             'bind !^6 input /ws "Aeolian Edge"'}},
-        {['Akademos']='Staff',['Marin']='Staff',['Pole']='Staff',['Dagger']='Dagger'})
+        {['Akademos']='Staff',['Marin']='Staff',['Pole']='Staff',['Khat']='Staff',['Dagger']='Dagger'})
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
 
@@ -257,6 +261,7 @@ function init_gear_sets()
     sets.weapons.Akademos = {main="Akademos",sub="Enki Strap"}
     sets.weapons.Marin    = {main="Marin Staff +1",sub="Enki Strap"}
     sets.weapons.Pole     = {main="Malignance Pole",sub="Khonsu"}
+    sets.weapons.Khat     = {main="Khatvanga",sub="Khonsu"}
     sets.weapons.Dagger   = {main="Malevolence",sub="Ammurapi Shield"}
 
     sets.TreasureHunter = {head="White Rarab Cap +1",waist="Chaac Belt",legs=gear.mer_legs_th,feet=gear.mer_feet_th}
@@ -273,8 +278,8 @@ function init_gear_sets()
     sets.precast.JA['Tabula Rasa'] = {legs="Pedagogy Pants +1"}
 
     sets.precast.FC = {main="Oranyan",sub="Umbra Strap",ammo="Sapience Orb",
-        head="Amalric Coif +1",neck="Voltsurge Torque",ear1="Malignance Earring",ear2="Etiolation Earring",
-        body="Zendik Robe",hands=gear.tel_hand_enh,ring1="Etana Ring",ring2="Kishar Ring",
+        head=gear.mer_head_fc,neck="Voltsurge Torque",ear1="Malignance Earring",ear2="Etiolation Earring",
+        body="Zendik Robe",hands="Academic's Bracers +3",ring1="Etana Ring",ring2="Kishar Ring",
         back=gear.MACape,waist="Shinjutsu-no-Obi +1",legs="Psycloth Lappas",feet=gear.mer_feet_fc}
     sets.precast.FC['Elemental Magic'] = set_combine(sets.precast.FC, {ear2="Barkarole Earring"})
     sets.precast.FC.Cure = set_combine(sets.precast.FC, {ear2="Mendicant's Earring",feet="Vanya Clogs"})
@@ -292,7 +297,7 @@ function init_gear_sets()
         body="Jhakri Robe +2",hands="Gazu Bracelet +1",ring1="Chirich Ring +1",ring2="Rufescent Ring",
         back=gear.TPCape,waist="Fotia Belt",legs="Jhakri Slops +2",feet="Jhakri Pigaches +2"}
 
-    sets.precast.WS['Rock Crusher'] = {ammo="Pemphredo Tathlum",
+    sets.precast.WS['Rock Crusher'] = {ammo="Ghastly Tathlum +1",
         head=empty,neck="Sanctity Necklace",ear1="Malignance Earring",ear2="Barkarole Earring",
         body="Cohort Cloak +1",hands="Amalric Gages +1",ring1="Metamorph Ring +1",ring2="Freke Ring",
         back=gear.NukeCape,waist="Orpheus's Sash",legs="Jhakri Slops +2",feet="Jhakri Pigaches +2"}
@@ -317,7 +322,7 @@ function init_gear_sets()
     ---- Midcast Sets ----
     sets.midcast.Cure = {main="Malignance Pole",sub="Khonsu",ammo="Pemphredo Tathlum",
         head="Vanya Hood",neck="Incanter's Torque",ear1="Calamitous Earring",ear2="Mendicant's Earring",
-        body="Zendik Robe",hands="Academic's Bracers +2",ring1="Vocane Ring +1",ring2="Defending Ring",
+        body="Zendik Robe",hands="Academic's Bracers +3",ring1="Vocane Ring +1",ring2="Defending Ring",
         back="Solemnity Cape",waist="Shinjutsu-no-Obi +1",legs="Academic's Pants +2",feet="Vanya Clogs"}
     sets.midcast.Curaga = sets.midcast.Cure
     sets.midcast.Cure.Chatoyant = {main="Chatoyant Staff",sub="Khonsu",ammo="Pemphredo Tathlum",
@@ -333,7 +338,7 @@ function init_gear_sets()
 
     sets.midcast.Raise = {main="Malignance Pole",sub="Khonsu",ammo="Pemphredo Tathlum",
         head=gear.tel_head_enh,neck="Incanter's Torque",ear1="Calamitous Earring",ear2="Gifted Earring",
-        body="Zendik Robe",hands="Academic's Bracers +2",ring1="Vocane Ring +1",ring2="Defending Ring",
+        body="Zendik Robe",hands="Academic's Bracers +3",ring1="Vocane Ring +1",ring2="Defending Ring",
         back="Solemnity Cape",waist="Shinjutsu-no-Obi +1",legs="Gyve Trousers",feet=gear.mer_feet_fc}
     sets.midcast.StatusRemoval = set_combine(sets.midcast.Raise, {})
     sets.midcast.Erase         = set_combine(sets.midcast.StatusRemoval, {waist="Goading Belt"})
@@ -347,7 +352,7 @@ function init_gear_sets()
         body=gear.tel_body_enh,hands=gear.tel_hand_enh,ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.MACape,waist="Embla Sash",legs=gear.tel_legs_enh,feet=gear.tel_feet_enh}
     sets.midcast['Enhancing Magic'] = {main="Gada",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
-        head="Befouled Crown",neck="Incanter's Torque",ear1="Calamitous Earring",ear2="Mimir Earring",
+        head="Befouled Crown",neck="Incanter's Torque",ear1="Andoaa Earring",ear2="Mimir Earring",
         body=gear.tel_body_enh,hands="Chironic Gloves",ring1="Stikini Ring +1",ring2="Defending Ring",
         back="Fi Follet Cape",waist="Olympus Sash",legs="Shedir Seraweels",feet="Regal Pumps +1"}
     sets.midcast.Phalanx = {main="Gada",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
@@ -369,20 +374,20 @@ function init_gear_sets()
     sets.midcast.FixedPotencyEnhancing = sets.midcast.EnhancingDuration
     sets.midcast.Klimaform = set_combine(sets.midcast.Raise, {})
 
-    sets.midcast['Elemental Magic'] = {main="Marin Staff +1",sub="Enki Strap",ammo="Pemphredo Tathlum",
+    sets.midcast['Elemental Magic'] = {main="Marin Staff +1",sub="Enki Strap",ammo="Ghastly Tathlum +1",
         head=empty,neck="Sanctity Necklace",ear1="Malignance Earring",ear2="Barkarole Earring",
         body="Cohort Cloak +1",hands="Amalric Gages +1",ring1="Metamorph Ring +1",ring2="Freke Ring",
         back=gear.NukeCape,waist="Refoccilation Stone",legs="Jhakri Slops +2",feet="Jhakri Pigaches +2"}
     sets.midcast['Elemental Magic'].MAcc  = set_combine(sets.midcast['Elemental Magic'], {sub="Khonsu",
-        ring1="Stikini Ring +1",ring2="Metamorph Ring +1"})
+        neck="Argute Stole +2",ring1="Stikini Ring +1",ring2="Metamorph Ring +1"})
     sets.midcast['Elemental Magic'].LowMP = set_combine(sets.midcast['Elemental Magic'], {head="Jhakri Coronal +2",body="Seidr Cotehardie"})
     sets.midcast['Elemental Magic'].OA = {ammo="Seraphic Ampulla",
         head="Mallquis Chapeau +2",neck="Sanctity Necklace",ear1="Malignance Earring",ear2="Telos Earring",
         body="Seidr Cotehardie",hands="Amalric Gages +1",ring1="Chirich Ring +1",ring2="Freke Ring",
         back=gear.NukeCape,waist="Oneiros Rope",legs="Perdition Slops",feet="Jhakri Pigaches +2"}
-    sets.midcast['Elemental Magic'].MB = {main="Akademos",sub="Enki Strap",ammo="Pemphredo Tathlum",
-        head="Jhakri Coronal +2",neck="Mizukage-no-Kubikazari",ear1="Malignance Earring",ear2="Static Earring",
-        body=gear.mer_body_mb,hands="Amalric Gages +1",ring1="Mujin Band",ring2="Locus Ring",
+    sets.midcast['Elemental Magic'].MB = {main="Marin Staff +1",sub="Enki Strap",ammo="Ghastly Tathlum +1",
+        head=gear.mer_head_mb,neck="Argute Stole +2",ear1="Malignance Earring",ear2="Static Earring",
+        body=gear.mer_body_mb5,hands="Amalric Gages +1",ring1="Mujin Band",ring2="Locus Ring",
         back=gear.NukeCape,waist="Refoccilation Stone",legs="Jhakri Slops +2",feet="Jhakri Pigaches +2"}
     sets.midcast['Elemental Magic'].MAcc.MB        = set_combine(sets.midcast['Elemental Magic'].MB, {sub="Khonsu"})
     sets.midcast['Elemental Magic'].LowMP.MB       = set_combine(sets.midcast['Elemental Magic'].MB, {body="Seidr Cotehardie"})
@@ -392,27 +397,28 @@ function init_gear_sets()
     sets.midcast['Elemental Magic'].LowMP.MB.Marin = set_combine(sets.midcast['Elemental Magic'].LowMP.MB, {main="Marin Staff +1"})
 
     sets.midcast.Helix = {main="Maxentius",sub="Culminus",ammo="Ghastly Tathlum +1",
-        head=empty,neck="Sanctity Necklace",ear1="Malignance Earring",ear2="Barkarole Earring",
+        head=empty,neck="Argute Stole +2",ear1="Malignance Earring",ear2="Barkarole Earring",
         body="Cohort Cloak +1",hands="Mallquis Cuffs +2",ring1="Mallquis Ring",ring2="Freke Ring",
         back=gear.NukeCape,waist="Refoccilation Stone",legs="Mallquis Trews +2",feet="Mallquis Clogs +2"}
-    sets.midcast.Helix.MAcc = set_combine(sets.midcast.Helix, {})
+    sets.midcast.Helix.MAcc = set_combine(sets.midcast.Helix, {main="Marin Staff +1",sub="Khonsu"})
     sets.midcast.Helix.MB   = set_combine(sets.midcast.Helix, {
-        head="Mallquis Chapeau +2",neck="Mizukage-no-Kubikazari",ear2="Static Earring",
-        body=gear.mer_body_mb,hands="Amalric Gages +1",ring1="Mujin Band",ring2="Locus Ring",feet="Jhakri Pigaches +2"})
-    sets.midcast.Helix.MAcc.MB       = set_combine(sets.midcast.Helix.MB, {})
-    sets.midcast.Helix.MB.Marin      = set_combine(sets.midcast.Helix.MB,      {main="Marin Staff +1",sub="Alber Strap"})
+        head="Mallquis Chapeau +2",ear2="Static Earring",
+        body=gear.mer_body_mb5,hands="Amalric Gages +1",ring1="Mujin Band",ring2="Locus Ring",feet="Jhakri Pigaches +2"})
+    sets.midcast.Helix.MAcc.MB       = set_combine(sets.midcast.Helix.MB,      {main="Marin Staff +1",sub="Khonsu"})
+    sets.midcast.Helix.MB.Marin      = set_combine(sets.midcast.Helix.MB,      {main="Marin Staff +1",sub="Alber Strap",
+        head=gear.mer_head_mb,ear2="Barkarole Earring"})
     sets.midcast.Helix.MAcc.MB.Marin = set_combine(sets.midcast.Helix.MAcc.MB, {main="Marin Staff +1",sub="Khonsu"})
-    sets.midcast.Helix.NoDmg = set_combine(sets.naked, {main="Mafic Cudgel",sub="Genmei Shield",ammo="Sapience Orb",
-        head="Nahtirah Hat",neck="Voltsurge Torque",ear2="Etiolation Earring",
-        ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MACape,hands="Gazu Bracelet +1",waist="Goading Belt"})
+    sets.midcast.Helix.NoDmg = set_combine(sets.naked, {main="Malignance Pole",sub="Khonsu",ammo="Sapience Orb",
+        neck="Voltsurge Torque",ear2="Etiolation Earring",ring1="Vocane Ring +1",ring2="Defending Ring",
+        hands="Gazu Bracelet +1",back=gear.MACape,waist="Goading Belt"})
 
-    sets.midcast.LowTierNuke               = set_combine(sets.midcast.Helix,         {})
-    sets.midcast.LowTierNuke.MAcc          = set_combine(sets.midcast.Helix.MAcc,    {})
-    sets.midcast.LowTierNuke.MB            = set_combine(sets.midcast.Helix.MB,      {})
-    sets.midcast.LowTierNuke.MAcc.MB       = set_combine(sets.midcast.Helix.MAcc.MB, {})
-    sets.midcast.LowTierNuke.MB.Marin      = set_combine(sets.midcast.Helix.MB,      {})
-    sets.midcast.LowTierNuke.MAcc.MB.Marin = set_combine(sets.midcast.Helix.MAcc.MB, {})
+    sets.midcast.LowTierNuke = sets.midcast.Helix
+
+    sets.midcast['Anemohelix']         = set_combine(sets.midcast.Helix,      {main="Marin Staff +1",sub="Alber Strap"})
+    sets.midcast['Anemohelix'].MAcc    = set_combine(sets.midcast.Helix.MAcc, {main="Marin Staff +1",sub="Khonsu"})
+    sets.midcast['Anemohelix'].MB      = sets.midcast.Helix.MB.Marin
+    sets.midcast['Anemohelix'].MAcc.MB = sets.midcast.Helix.MAcc.MB.Marin
+    sets.midcast['Anemohelix II'] = sets.midcast['Anemohelix']
 
     sets.midcast['Luminohelix']         = set_combine(sets.midcast.Helix,         {})
     sets.midcast['Luminohelix'].MAcc    = set_combine(sets.midcast.Helix.MAcc,    {})
@@ -420,17 +426,17 @@ function init_gear_sets()
     sets.midcast['Luminohelix'].MAcc.MB = set_combine(sets.midcast.Helix.MAcc.MB, {})
     sets.midcast['Luminohelix II'] = sets.midcast['Luminohelix']
 
-    sets.darkdmg = {head="Pixie Hairpin +1",body="Jhakri Robe +2",ring1="Archon Ring"}
-    sets.midcast['Noctohelix']         = set_combine(sets.midcast.Helix,         sets.darkdmg)
-    sets.midcast['Noctohelix'].MAcc    = set_combine(sets.midcast.Helix.MAcc,    sets.darkdmg)
-    sets.midcast['Noctohelix'].MB      = set_combine(sets.midcast.Helix.MB,      sets.darkdmg)
-    sets.midcast['Noctohelix'].MAcc.MB = set_combine(sets.midcast.Helix.MAcc.MB, sets.darkdmg)
+    sets.darkdmg = {head="Pixie Hairpin +1",ring1="Archon Ring"}
+    sets.midcast['Noctohelix']         = set_combine(sets.midcast.Helix,         sets.darkdmg, {body="Jhakri Robe +2"})
+    sets.midcast['Noctohelix'].MAcc    = set_combine(sets.midcast.Helix.MAcc,    sets.darkdmg, {body="Jhakri Robe +2"})
+    sets.midcast['Noctohelix'].MB      = set_combine(sets.midcast.Helix.MB,      sets.darkdmg, {body=gear.mer_body_mb9})
+    sets.midcast['Noctohelix'].MAcc.MB = set_combine(sets.midcast.Helix.MAcc.MB, sets.darkdmg, {body=gear.mer_body_mb9})
     sets.midcast['Noctohelix II'] = sets.midcast['Noctohelix']
 
-    sets.midcast.Kaustra         = set_combine(sets.midcast['Elemental Magic'],         sets.darkdmg)
-    sets.midcast.Kaustra.MAcc    = set_combine(sets.midcast['Elemental Magic'],         sets.darkdmg)
-    sets.midcast.Kaustra.MB      = set_combine(sets.midcast['Elemental Magic'].MB,      sets.darkdmg)
-    sets.midcast.Kaustra.MAcc.MB = set_combine(sets.midcast['Elemental Magic'].MAcc.MB, sets.darkdmg)
+    sets.midcast.Kaustra         = set_combine(sets.midcast['Elemental Magic'],  sets.darkdmg, {body="Jhakri Robe +2"})
+    sets.midcast.Kaustra.MAcc    = set_combine(sets.midcast.Kaustra, {sub="Khonsu"})
+    sets.midcast.Kaustra.MB      = sets.midcast['Noctohelix'].MB
+    sets.midcast.Kaustra.MAcc.MB = sets.midcast['Noctohelix'].MAcc.MB
 
     sets.midcast.Impact    = set_combine(sets.midcast['Elemental Magic'].MAcc, {ring1="Archon Ring"}, sets.impact)
     sets.midcast.Impact.OA = set_combine(sets.midcast['Elemental Magic'].OA,   {ring2="Archon Ring"}, sets.impact)
@@ -449,14 +455,14 @@ function init_gear_sets()
     sets.drain_belt = {waist="Fucho-no-Obi"}
 
     sets.midcast['Enfeebling Magic'] = {main="Maxentius",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
-        head=empty,neck="Erra Pendant",ear1="Malignance Earring",ear2="Dignitary's Earring",
-        body="Cohort Cloak +1",hands="Academic's Bracers +2",ring1="Metamorph Ring +1",ring2="Stikini Ring +1",
+        head=empty,neck="Argute Stole +2",ear1="Malignance Earring",ear2="Dignitary's Earring",
+        body="Cohort Cloak +1",hands="Academic's Bracers +3",ring1="Metamorph Ring +1",ring2="Stikini Ring +1",
         back=gear.MACape,waist="Acuity Belt +1",legs="Academic's Pants +2",feet="Academic's Loafers +2"}
     sets.midcast.Dispel      = set_combine(sets.midcast['Enfeebling Magic'], {hands="Gazu Bracelet +1",waist="Shinjutsu-no-Obi +1"})
     sets.midcast.Dispel.MAcc = set_combine(sets.midcast['Enfeebling Magic'], {})
     --sets.midcast.Dispelga = set_combine(sets.midcast.Dispel, sets.dispelga)
-	sets.midcast.Silence  = set_combine(sets.midcast['Enfeebling Magic'], {waist="Luminary Sash"})
-	sets.midcast.Slow     = set_combine(sets.midcast['Enfeebling Magic'], {waist="Luminary Sash"})
+    sets.midcast.Silence  = set_combine(sets.midcast['Enfeebling Magic'], {waist="Luminary Sash"})
+    sets.midcast.Slow     = set_combine(sets.midcast['Enfeebling Magic'], {waist="Luminary Sash"})
     sets.midcast.Paralyze = set_combine(sets.midcast.Slow, {})
 
     sets.midcast.Sleep    = set_combine(sets.midcast['Enfeebling Magic'], {ring2="Kishar Ring"})
@@ -475,18 +481,19 @@ function init_gear_sets()
     ---- Sets to return to when not performing an action ----
     sets.idle = {main="Malignance Pole",sub="Khonsu",ammo="Homiliary",
         head=gear.mer_head_rf,neck="Loricate Torque +1",ear1="Eabani Earring",ear2="Lugalbanda Earring",
-        body="Jhakri Robe +2",hands="Mallquis Cuffs +2",ring1="Stikini Ring +1",ring2="Defending Ring",
-        back=gear.NukeCape,waist="Porous Rope",legs="Assiduity Pants +1",feet="Herald's Gaiters"}
-    sets.idle.Sublimation = set_combine(sets.idle, {head="Academic's Mortarboard +2",waist="Embla Sash"})
+        body="Jhakri Robe +2",hands="Academic's Bracers +3",ring1="Stikini Ring +1",ring2="Defending Ring",
+        back=gear.IdleCape,waist="Porous Rope",legs="Assiduity Pants +1",feet="Herald's Gaiters"}
     sets.idle.PDT = set_combine(sets.idle, {main="Malignance Pole",sub="Oneiros Grip",
         head="Hike Khat +1",body="Mallquis Saio +2",ring1="Vocane Ring +1",feet="Mallquis Clogs +2"})
     sets.idle.MEVA = set_combine(sets.idle.PDT, {}) -- TODO
-    sets.latent_refresh = {waist="Fucho-no-obi"}
-    sets.zendik         = {body="Zendik Robe"}
-    sets.buff.doom      = {neck="Nicander's Necklace",ring1="Saida Ring",ring2="Defending Ring",waist="Gishdubar Sash"}
+    sets.zendik           = {body="Zendik Robe"}
+    sets.latent_refresh   = {waist="Fucho-no-obi"}
+    sets.buff.Sublimation = {head="Academic's Mortarboard +2",waist="Embla Sash"}
+    sets.buff.doom        = {neck="Nicander's Necklace",ring1="Saida Ring",ring2="Defending Ring",waist="Gishdubar Sash"}
 
     sets.defense.PDT  = sets.idle.PDT
     sets.defense.MEVA = sets.idle.MEVA
+    sets.defense.MRf  = set_combine(sets.idle, {feet="Mallquis Clogs +2"})
     sets.Kiting = {feet="Herald's Gaiters"}
 
     sets.engaged = {main="Malignance Pole",sub="Khonsu",ammo="Amar Cluster",
@@ -528,6 +535,7 @@ function job_precast(spell, action, spellMap, eventArgs)
                 -- make it free
                 state.CastingMode:set('LowMP')
             end
+            hud.state_change_update('Casting Mode')
         end
     end
 
@@ -594,11 +602,11 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
                 end
             elseif spellMap == 'Helix' or spellMap == 'LowTierNuke' then
                 if state.MagicBurst.value and not state.Buff.Immanence then
-                    if     spell.element == 'Light' or spell.element == 'Dark' then
+                    if spell.element == 'Light' or spell.element == 'Dark' then
                         if state.CastingMode.value == 'MAcc' then
                             equip(sets.midcast[spell.english].MAcc.MB)
                         else
-                            equip(sets.midcast[spell.english].MAcc.MB)
+                            equip(sets.midcast[spell.english].MB)
                         end
                     elseif spell.element == 'Wind' or state.OffenseMode.value ~= 'None' and state.CombatWeapon.value ~= 'Akademos' then
                         if state.CastingMode.value == 'MAcc' then
@@ -763,6 +771,10 @@ function job_state_change(stateField, newValue, oldValue)
         else             info.ally_keybinds:unbind()
         end
     end
+
+    if hud and hud.state_change_update then
+        hud.state_change_update(stateField)
+    end
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -786,7 +798,7 @@ end
 -- Modify the default idle set after it was constructed.
 function customize_idle_set(idleSet)
     if state.Buff['Sublimation: Activated'] and state.IdleMode.value == 'Subl' and state.DefenseMode.value == 'None' then
-        idleSet = sets.idle.Sublimation
+        idleSet = set_combine(idleSet, sets.buff.Sublimation)
     elseif player.mpp < 51 then
         idleSet = set_combine(idleSet, sets.latent_refresh)
     end
@@ -814,6 +826,13 @@ end
 
 -- Modify the default defense set after it was constructed.
 function customize_defense_set(defenseSet)
+    if state.DefenseMode.value == 'Magical' and state.MagicalDefenseMode.value == 'MRf' then
+        if state.Buff['Sublimation: Activated'] then
+            defenseSet = set_combine(defenseSet, sets.buff.Sublimation)
+        elseif player.mpp < 51 then
+            defenseSet = set_combine(defenseSet, sets.latent_refresh)
+        end
+    end
     if state.CP.value then
         defenseSet = set_combine(defenseSet, sets.cp)
     end
@@ -961,6 +980,7 @@ function job_keybinds()
         'bind !space  gs c set DefenseMode Physical',
         'bind @space  gs c set DefenseMode Magical',
         'bind !@space gs c reset DefenseMode',
+        'bind @z      gs c cycle MagicalDefenseMode',
         'bind !w   gs c set OffenseMode Normal',
         'bind !@w  gs c set OffenseMode None',
         'bind ~!^q gs c set CombatWeapon Dagger',
@@ -977,7 +997,8 @@ function job_keybinds()
         'bind ~!^z gs c unset AutoSeidr',
         'bind !^c  gs c set SCMode Auto',
         'bind ~!^c gs c set SCMode Manual',
-        'bind !@c  gs c sc reset',
+        'bind ^@c  gs c sc reset',
+        'bind !@c  gs c sc restart',
         'bind !c|%c gs c sc next', -- also sets SCMode to Manual
         'bind ^\\\\  gs c toggle DiaMsg',
         'bind !\\\\  gs c toggle SCDmg',
@@ -997,15 +1018,16 @@ function job_keybinds()
         'bind ~^q   gs c scholar dark',
 
         'bind ^1  input /ma "Dia II"',
-        'bind ~^1 input /ma Break <stnpc>',
         'bind ^2  input /ma Slow',
-        'bind ~^2 input /ma Sleep <stnpc>',
         'bind ^3  input /ma Paralyze',
-        'bind ~^3 input /ma "Sleep II" <stnpc>',
         'bind ^4  input /ma Silence',
+        'bind ~^1 input /ma Break      <stnpc>',
+        'bind ~^2 input /ma Sleep      <stnpc>',
+        'bind ~^3 input /ma "Sleep II" <stnpc>',
+        'bind ~^4 input /ma Silence    <stnpc>',
 
         'bind !1 input /ma "Cure III" <stpc>',
-        'bind !2 input /ma "Cure IV" <stpc>',
+        'bind !2 input /ma "Cure IV"  <stpc>',
         'bind !3 input /ma "Regen V"',
         'bind !4 input /ma Adloquium',
         'bind ~!^2 gs c CureCheat',
@@ -1107,26 +1129,26 @@ function job_keybinds()
         bind_command_list:extend(L{
             'bind !@3 input /ma Distract',
             'bind !@4 input /ma Frazzle',
-            'bind !5  input /ma Haste',
+            'bind !5  input /ma Haste   <stpc>',
             'bind !6  input /ma Refresh <stpc>',
             'bind !7  input /ma Flurry  <stpc>',
             'bind !g  input /ma Phalanx',
-            'bind !^d  input /ma Bind',
-            'bind ~!^d input /ma Gravity'})
+            'bind !^d  input /ma Bind    <stnpc>',
+            'bind ~!^d input /ma Gravity <stnpc>'})
     elseif player.sub_job == 'WHM' then
         bind_command_list:extend(L{
             'bind ^`  input /ja "Divine Seal" <me>',
             'bind !@1 input /ma Curaga',
             'bind !@2 input /ma "Curaga II"',
-            'bind !5  input /ma Haste',
+            'bind !5  input /ma Haste <stpc>',
             'bind !d  input /ma Flash',
-            'bind !^d input /ma Repose'})
+            'bind !^d input /ma Repose <stnpc>'})
     elseif player.sub_job == 'BLM' then
         bind_command_list:extend(L{
-            'bind ^`  input /ja "Elemental Seal" <me>',
-            'bind !d  input /ma Stun',
-            'bind !^d  input /ma Bind',
-            'bind ~!^d input /ma Sleepga'})
+            'bind ^`   input /ja "Elemental Seal" <me>',
+            'bind !d   input /ma Stun',
+            'bind !^d  input /ma Bind    <stnpc>',
+            'bind ~!^d input /ma Sleepga <stnpc>'})
     elseif player.sub_job == 'DRK' then
         bind_command_list:extend(L{
             'bind !d  input /ma Stun',
@@ -1271,19 +1293,22 @@ end
 -- called from job_self_command, eg, by //gs c sc autonext
 function skillchain_handle_command(cmd)
     if cmd == 'next' then
-        if not state.skillchain.name then
-            add_to_chat(123,'No skillchain queued.')
-        elseif state.skillchain.trying == 'DONE' then
-            add_to_chat(123,'Skillchain has completed.')
-        elseif state.Buff['Dark Arts'] or state.Buff['Addendum: Black'] then
-            state.SCMode:set('Manual')
-            if state.skillchain.window_timer and state.skillchain.window_timer + 5 < os.time() then
-                add_to_chat(123,'Skillchain window expired.')
+        if state.SCMode.value == 'Manual' then
+            if not state.skillchain.name then
+                add_to_chat(123,'No skillchain queued.')
+            elseif state.skillchain.trying == 'DONE' then
+                add_to_chat(123,'Skillchain has completed.')
+            elseif state.Buff['Dark Arts'] or state.Buff['Addendum: Black'] then
+                if state.skillchain.window_timer and state.skillchain.window_timer + 5 < os.time() then
+                    add_to_chat(123,'Skillchain window expired.')
+                else
+                    skillchain_step()
+                end
             else
-                skillchain_step()
+                add_to_chat(123,'Dark Arts not active.')
             end
         else
-            add_to_chat(123,'Dark Arts not active.')
+            state.SCMode:set('Manual')
         end
     elseif cmd == 'autonext' then
         if state.Buff['Dark Arts'] or state.Buff['Addendum: Black'] then
@@ -1291,6 +1316,7 @@ function skillchain_handle_command(cmd)
                 skillchain_step()
             end
         else
+            state.SCMode:set('Manual')
             add_to_chat(123,'Dark Arts not active.')
         end
     elseif cmd == 'list' then
@@ -1302,6 +1328,12 @@ function skillchain_handle_command(cmd)
     elseif cmd == 'reset' then
         add_to_chat(121,'skillchain reset')
         skillchain_state_updates(nil, 'reset')
+    elseif cmd == 'restart' then
+        if state.skillchain.name then
+            skillchain_handle_command(state.skillchain.name)
+        else
+            add_to_chat(123,'no skillchain to restart')
+        end
     elseif info.skillchains[cmd] then
         if state.Buff['Dark Arts'] or state.Buff['Addendum: Black'] then
             if cmd == '6step' then
@@ -1312,6 +1344,7 @@ function skillchain_handle_command(cmd)
                 end
             end
             state.MagicBurst:set()
+            hud.state_change_update('Magic Burst')
             skillchain_state_updates(cmd, 'start')
             add_to_chat(121,'queuing [%s]: %s':format(cmd, state.skillchain.list:map(skillchain_step_to_string):concat(' ')))
 
@@ -1367,7 +1400,6 @@ function skillchain_step_to_string(step)
 end
 
 function init_state_text()
-    destroy_state_text()
     local mb_text_settings    = {flags={draggable=false,bold=true},bg={red=250,green=200,blue=0,alpha=150},
                                  text={stroke={width=2}}}
     local cmode_text_settings = {pos={y=18},flags={draggable=false,bold=true},bg={red=0,green=220,blue=220,alpha=150},
@@ -1377,39 +1409,53 @@ function init_state_text()
     local off_text_settings   = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local sc_text_settings    = {pos={x=1000,y=697},flags={draggable=false,bold=true},
                                  bg={alpha=150},padding=1,text={font='Courier New',size=10,stroke={width=2}}}
-    state.mb_text    = texts.new('MBurst',         mb_text_settings)
-    state.cmode_text = texts.new('initializing..', cmode_text_settings)
-    state.hyb_text   = texts.new('initializing..', hyb_text_settings)
-    state.def_text   = texts.new('initializing..', def_text_settings)
-    state.off_text   = texts.new('initializing..', off_text_settings)
-    state.sc_text    = texts.new('initializing..', sc_text_settings)
 
+    hud = {texts=T{}}
+    hud.texts.mb_text    = texts.new('MBurst',         mb_text_settings)
+    hud.texts.cmode_text = texts.new('initializing..', cmode_text_settings)
+    hud.texts.hyb_text   = texts.new('initializing..', hyb_text_settings)
+    hud.texts.def_text   = texts.new('initializing..', def_text_settings)
+    hud.texts.off_text   = texts.new('initializing..', off_text_settings)
+    hud.texts.sc_text    = texts.new('initializing..', sc_text_settings)
+
+    -- update infrequently changing text boxes in job_state_change or where they are changed
+    hud.state_change_update = function(stateField)
+        if not stateField or stateField == 'Magic Burst' then
+            hud.texts.mb_text:visible(state.MagicBurst.value)
+        end
+
+        if not stateField or stateField == 'Casting Mode' then
+            if state.CastingMode.value ~= 'Normal' then
+                hud.texts.cmode_text:text(state.CastingMode.value)
+                hud.texts.cmode_text:show()
+            else hud.texts.cmode_text:hide() end
+        end
+
+        if not stateField or stateField == 'Hybrid Mode' then
+            if state.HybridMode.value ~= 'Normal' then
+                hud.texts.hyb_text:text('/%s':format(state.HybridMode.value))
+                hud.texts.hyb_text:show()
+            else hud.texts.hyb_text:hide() end
+        end
+
+        if not stateField or stateField:endswith('Defense Mode') then
+            if state.DefenseMode.value ~= 'None' then
+                hud.texts.def_text:text('(%s)':format(state[state.DefenseMode.value..'DefenseMode'].current))
+                hud.texts.def_text:show()
+            else hud.texts.def_text:hide() end
+        end
+
+        if not stateField or stateField == 'Offense Mode' then
+            if state.OffenseMode.value ~= 'None' then
+                hud.texts.off_text:text(state.CombatWeapon.value)
+                hud.texts.off_text:show()
+            else hud.texts.off_text:hide() end
+        end
+    end
+
+    -- update continuously changing text boxes with a prerender event
     local counter, interval = 0, 15 -- only update skillchain text every <interval> frames
-
-    windower.register_event('logout', destroy_state_text)
-    state.texts_event_id = windower.register_event('prerender', function()
-        state.mb_text:visible(state.MagicBurst.value)
-
-        if state.CastingMode.value ~= 'Normal' then
-            state.cmode_text:text(state.CastingMode.value)
-            state.cmode_text:show()
-        else state.cmode_text:hide() end
-
-        if state.HybridMode.value ~= 'Normal' then
-            state.hyb_text:text('/%s':format(state.HybridMode.value))
-            state.hyb_text:show()
-        else state.hyb_text:hide() end
-
-        if state.DefenseMode.value ~= 'None' then
-            state.def_text:text('(%s)':format(state[state.DefenseMode.value..'DefenseMode'].current))
-            state.def_text:show()
-        else state.def_text:hide() end
-
-        if state.OffenseMode.value ~= 'None' then
-            state.off_text:text(state.CombatWeapon.value)
-            state.off_text:show()
-        else state.off_text:hide() end
-
+    hud.prerender_event_update = function()
         counter = counter + 1
         if counter >= interval and state.SCHUD.value then
             counter = 0
@@ -1430,19 +1476,19 @@ function init_state_text()
                 end
 
                 if not open then
-                    state.sc_text:bg_color(0,0,0)
+                    hud.texts.sc_text:bg_color(0,0,0)
                 else
                     local time_str = ""
                     local try_str = ""
 
                     if state.skillchain.trying == 'DONE' then
-                        state.sc_text:bg_color(0,0,150)
+                        hud.texts.sc_text:bg_color(0,0,150)
                         try_str = "MB!"
                     else
                         if state.SCMode.value == 'Auto'   then
-                            state.sc_text:bg_color(0,200,0)
+                            hud.texts.sc_text:bg_color(0,200,0)
                         elseif state.SCMode.value == 'Manual' then
-                            state.sc_text:bg_color(200,200,0)
+                            hud.texts.sc_text:bg_color(200,200,0)
                         end
 
                         if state.skillchain.trying then
@@ -1456,6 +1502,9 @@ function init_state_text()
 
                             try_str = "try: %s [%d/%d]%s":format(
                                 state.skillchain.trying, state.skillchain.cur_step, state.skillchain.list:length(), next_str)
+                        elseif state.skillchain.cur_step == 1 then
+                            try_str = "first: %s [1/%d] (next: %s)":format(
+                                state.skillchain.list[1].action, state.skillchain.list:length(), state.skillchain.list[2].action)
                         end
                     end
 
@@ -1464,31 +1513,42 @@ function init_state_text()
                             time_str = "[0:%02d]":format(time_remaining)
                         else
                             time_str = "[closed]"
-                            state.sc_text:bg_color(255,0,0)
+                            hud.texts.sc_text:bg_color(255,0,0)
                         end
                     end
 
                     text = "[%s] %s\n%-8s %s":format(state.skillchain.name, text, time_str, try_str)
                 end
 
-                state.sc_text:text(text)
-                state.sc_text:show()
+                hud.texts.sc_text:text(text)
+                hud.texts.sc_text:show()
             else
-                state.sc_text:hide()
+                hud.texts.sc_text:hide()
             end
         elseif not state.SCHUD.value then
-            state.sc_text:hide()
+            hud.texts.sc_text:hide()
         end
-    end)
+    end
+
+    hud.state_change_update()
+    hud.prerender_event_id = windower.register_event('prerender', hud.prerender_event_update)
+    hud.logout_event_id    = windower.register_event('logout',    destroy_state_text)
 end
 
 function destroy_state_text()
-    if state.texts_event_id then
-        windower.unregister_event(state.texts_event_id)
-        for text in S{state.mb_text, state.cmode_text, state.hyb_text, state.def_text, state.off_text, state.sc_text}:it() do
+    if hud and hud.texts then
+        if hud.prerender_event_id then
+            windower.unregister_event(hud.prerender_event_id)
+            hud.prerender_event_id = nil
+        end
+        if hud.logout_event_id then
+            windower.unregister_event(hud.logout_event_id)
+            hud.logout_event_id = nil
+        end
+        for text in hud.texts:it() do
             text:hide()
             text:destroy()
         end
+        hud.texts:clear()
     end
-    state.texts_event_id = nil
 end

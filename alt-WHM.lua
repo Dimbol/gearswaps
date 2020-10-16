@@ -177,13 +177,12 @@ function init_gear_sets()
     sets.precast.FC = {main="Sucellus",sub="Chanter's Shield",ammo="Sapience Orb",
         head="Nahtirah Hat",neck="Voltsurge Torque",ear1="Malignance Earring",ear2="Etiolation Earring",
         body="Inyanga Jubbah +2",hands=gear.tel_hand_enh,ring2="Kishar Ring",
-        back=gear.MACape,waist="Shinjutsu-no-Obi +1",legs="Gyve Trousers",feet="Regal Pumps +1"}
-    sets.precast.FC.Stoneskin = set_combine(sets.precast.FC, {legs="Doyen Pants"})
-    sets.precast.FC['Healing Magic'] = set_combine(sets.precast.FC, {legs="Ebers Pantaloons +1"})
+        back=gear.MACape,waist="Shinjutsu-no-Obi +1",legs="Pinga Pants +1",feet="Regal Pumps +1"}
+    sets.precast.FC.StatusRemoval = set_combine(sets.precast.FC, {legs="Ebers Pantaloons +1"})
     sets.precast.FC.Cure = set_combine(sets.precast.FC, {main="Ababinili +1",sub="Umbra Strap",
-        head="Theophany Cap +2",ear2="Nourishing Earring +1",legs="Doyen Pants",feet="Vanya Clogs"})
-    sets.precast.FC.CureSolace = set_combine(sets.precast.FC.Cure, {})
-    sets.precast.FC.Curaga = set_combine(sets.precast.FC.Cure, {})
+        head="Theophany Cap +2",ear2="Nourishing Earring +1",feet="Vanya Clogs"})
+    sets.precast.FC.CureSolace = sets.precast.FC.Cure
+    sets.precast.FC.Curaga     = sets.precast.FC.Cure
     sets.precast.FC.CureCheat = {main="Ababinili +1",sub="Clemency Grip",ammo="Sapience Orb",
         head=empty,neck="Voltsurge Torque",ear1="Malignance Earring",ear2="Nourishing Earring +1",
         body=empty,hands=empty,ring1="Vocane Ring +1",ring2="Kishar Ring",
@@ -245,7 +244,7 @@ function init_gear_sets()
         head=gear.tel_head_enh,body=gear.tel_body_enh,hands=gear.tel_hand_enh,
         waist="Embla Sash",legs=gear.tel_legs_enh,feet=gear.tel_feet_enh}
     sets.midcast['Enhancing Magic'] = set_combine(sets.midcast.EnhancingDuration, {
-        head="Befouled Crown",neck="Incanter's Torque",ear1="Mimir Earring",
+        head="Befouled Crown",neck="Incanter's Torque",ear1="Mimir Earring",ear2="Andoaa Earring",
         body=gear.tel_body_enh,hands="Inyanga Dastanas +2",ring1="Stikini Ring +1",ring2="Defending Ring",
         back="Fi Follet Cape",waist="Olympus Sash",feet="Theophany Duckbills +2"})
     sets.midcast.Auspice   = set_combine(sets.midcast.EnhancingDuration, {feet="Ebers Duckbills +1"})

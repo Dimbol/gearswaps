@@ -136,10 +136,6 @@ function user_setup()
     info.sird_spells = S{'Aquaveil','Crusade','Foil','Stoneskin',
         'Cocoon','Healing Breeze','Wild Carrot','Sheep Song','Stinking Gas','Geist Wall'}
 
-    -- Mote-libs handle obis, gorgets, and other elemental things.
-    -- These are default fallbacks if situationally appropriate gear is not available.
-    gear.default.obi_waist = "Eschan Stone"                 -- used in sets.precast.WS.Magical
-
     -- Augmented items get variables for convenience and specificity
     gear.TPCape   = {name="Ogma's cape", augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','"Dbl.Atk."+10','Phys. dmg. taken-10%'}}
     gear.ResoCape = {name="Ogma's cape", augments={'STR+20','Accuracy+20 Attack+20','STR+10','"Dbl.Atk."+10','Phys. dmg. taken-10%'}}
@@ -178,7 +174,7 @@ function user_setup()
     hpgear["Hepatizon Axe +1"]        = {name="Hepatizon Axe +1",priority=900}
     hpgear["Kaja Chopper"]            = {name="Kaja Chopper",priority=900}
     hpgear["Adhemar Jacket"]          = {name="Adhemar Jacket",priority=143}
-    hpgear["Aqreaqa Bomblet"]         = {name="Aqreaqa Bomblet",priority=20}
+    hpgear["Aqreqaq Bomblet"]         = {name="Aqreqaq Bomblet",priority=20}
     hpgear["Ashera Harness"]          = {name="Ashera Harness",priority=182}
     hpgear["Balarama Grip"]           = {name="Balarama Grip",priority=50}
     hpgear["Carmine Cuisses +1"]      = {name="Carmine Cuisses +1",priority=130}
@@ -304,7 +300,7 @@ function init_gear_sets()
     end
 
     -- Precast Sets
-    sets.Enmity = {main=hpgear["Epeolatry"],sub=hpgear["Balarama Grip"],ammo=hpgear["Aqreaqa Bomblet"],
+    sets.Enmity = {main=hpgear["Epeolatry"],sub=hpgear["Balarama Grip"],ammo=hpgear["Aqreqaq Bomblet"],
         head=hpgear["Halitus Helm"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Cryptic Earring"],ear2="Trux Earring",
         body=hpgear["Emet Harness +1"],hands="Kurys Gloves",ring1=hpgear["Eihwaz Ring"],ring2=hpgear["Supershear Ring"],
         back=gear.MEVACape,waist=hpgear["Oneiros Belt"],legs=hpgear["Erilaz Leg Guards +1"],feet="Erilaz Greaves +1"}
@@ -338,7 +334,7 @@ function init_gear_sets()
     -- pdt-50, mdt-42, bdt-39, 2654 hp /drk
 
     sets.precast.JA.Lunge = {main=hpgear["Epeolatry"],sub="Niobid Strap",ammo="Seething Bomblet +1",
-        head=gear.herc_head_ma,neck=hpgear["Sanctity Necklace"],ear1="Friomisi Earring",ear2="Hecate's Earring",
+        head=gear.herc_head_ma,neck="Warder's Charm +1",ear1="Friomisi Earring",ear2="Hecate's Earring",
         body="Samnuha Coat",hands="Carmine Finger Gauntlets +1",ring1="Mujin Band",ring2="Locus Ring",
         back="Izdubar Mantle",waist="Orpheus's Sash",legs=gear.herc_legs_ma,feet=gear.herc_feet_ma}
     sets.precast.JA.Swipe = sets.precast.JA.Lunge
@@ -361,7 +357,7 @@ function init_gear_sets()
         head="Adhemar Bonnet +1",neck="Fotia Gorget",ear1="Sherida Earring",ear2="Moonshade Earring",
         body="Ayanmo Corazza +2",hands="Adhemar Wristbands +1",ring1=hpgear["Regal Ring"],ring2="Niqmaddu Ring",
         back=gear.ResoCape,waist="Fotia Belt",legs="Meghanada Chausses +2",feet=gear.herc_feet_ta}
-    sets.precast.WS.Acc = set_combine(sets.precast.WS, {ammo="Yamarang",back=gear.TPCape})
+    sets.precast.WS.Acc  = set_combine(sets.precast.WS, {ammo="Yamarang",back=gear.TPCape})
     sets.precast.WS.Tank = set_combine(sets.precast.WS, {ammo="Yamarang",
         head=hpgear["Runeist's Bandeau +3"],neck=hpgear["Futhark Torque +2"],
         body=hpgear["Ashera Harness"],ring1=hpgear["Moonlight Ring"],ring2="Defending Ring"})
@@ -369,28 +365,29 @@ function init_gear_sets()
     sets.precast.WS.Resolution.Tank = set_combine(sets.precast.WS.Resolution, {
         head=hpgear["Runeist's Bandeau +3"],ring1=hpgear["Moonlight Ring"],ring2=hpgear["Regal Ring"]})
     sets.precast.WS.Resolution.Acc = set_combine(sets.precast.WS.Acc, {})
-    sets.precast.WS.Decimation = set_combine(sets.precast.WS.Resolution, {})
-    sets.precast.WS.Ruinator = set_combine(sets.precast.WS.Resolution, {})
+    sets.precast.WS.Decimation     = set_combine(sets.precast.WS.Resolution, {ear2="Brutal Earring"})
+    sets.precast.WS.Ruinator       = set_combine(sets.precast.WS.Resolution, {ear2="Brutal Earring"})
 
-    sets.precast.WS.OneHit = set_combine(sets.precast.WS, {
-        head=gear.herc_head_wsd,hands="Meghanada Gloves +2",ring1=hpgear["Regal Ring"],ring2="Niqmaddu Ring",
-        back=gear.DimiCape,feet="Meghanada Jambeaux +2"})
-    sets.precast.WS.Dimidiation = set_combine(sets.precast.WS.OneHit, {legs="Lustratio Subligar +1",feet="Lustratio Leggings +1"})
+    sets.precast.WS.OneHit = {ammo="Knobkierrie",
+        head=gear.herc_head_wsd,neck=hpgear["Futhark Torque +2"],ear1="Sherida Earring",ear2="Moonshade Earring",
+        body="Ayanmo Corazza +2",hands="Meghanada Gloves +2",ring1=hpgear["Regal Ring"],ring2="Niqmaddu Ring",
+        back=gear.DimiCape,waist="Sailfi Belt +1",legs="Meghanada Chausses +2",feet="Meghanada Jambeaux +2"}
+    sets.precast.WS.Dimidiation = set_combine(sets.precast.WS.OneHit, {
+        neck="Fotia Gorget",waist="Fotia Belt",legs="Lustratio Subligar +1",feet="Lustratio Leggings +1"})
     sets.precast.WS.Dimidiation.Tank = set_combine(sets.precast.WS.Dimidiation, {
         body=hpgear["Ashera Harness"],ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",waist="Flume Belt +1"})
-    sets.precast.WS.Dimidiation.Acc = set_combine(sets.precast.WS.Dimidiation, {head="Meghanada Visor +2",feet="Meghanada Jambeaux +2"})
+    sets.precast.WS.Dimidiation.Acc  = set_combine(sets.precast.WS.Dimidiation, {head="Meghanada Visor +2",feet="Meghanada Jambeaux +2"})
     sets.precast.WS['Steel Cyclone'] = set_combine(sets.precast.WS.OneHit, {})
     sets.precast.WS['Fell Cleave']   = set_combine(sets.precast.WS.OneHit, {ring1="Vocane Ring +1",ring2="Defending Ring"})
     sets.precast.WS['Ground Strike'] = set_combine(sets.precast.WS.OneHit, {})
-    sets.precast.WS['Savage Blade']  = set_combine(sets.precast.WS.OneHit, {neck=hpgear["Futhark Torque +2"],waist="Grunfeld Rope"})
-    sets.precast.WS['Bora Axe'] = set_combine(sets.precast.WS.Dimidiation, {})
+    sets.precast.WS['Savage Blade']  = set_combine(sets.precast.WS.OneHit, {})
+    sets.precast.WS['Bora Axe']      = set_combine(sets.precast.WS.Dimidiation, {waist="Grunfeld Rope"})
 
     sets.precast.WS.Crit = set_combine(sets.precast.WS, {ammo="Yetshila +1",ear2="Odr Earring",feet="Ayanmo Gambieras +2"})
     sets.precast.WS['Vorpal Blade'] = set_combine(sets.precast.WS.Crit, {})
     sets.precast.WS.Rampage = set_combine(sets.precast.WS.Crit, {})
 
-    sets.precast.WS.Magical = set_combine(sets.precast.JA.Lunge, {ear2="Hermetic Earring",
-        ring1=hpgear["Regal Ring"],ring2="Metamorph Ring +1",waist=gear.ElementalObi})
+    sets.precast.WS.Magical = set_combine(sets.precast.JA.Lunge, {ring1=hpgear["Regal Ring"],ring2="Metamorph Ring +1"})
     sets.precast.WS['Sanguine Blade'] = set_combine(sets.precast.WS.Magical, sets.dark_dmg)
 
     sets.precast.WS.AddEffect = {ammo="Yamarang",

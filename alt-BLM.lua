@@ -50,12 +50,15 @@ function user_setup()
     -- Augmented items get variables for convenience and specificity
     gear.MACape   = {name="Taranus's Cape", augments={'INT+20','Mag. Acc+20 /Mag. Dmg.+20','"Fast Cast"+10','Phys. dmg. taken-10%'}}
     gear.NukeCape = {name="Taranus's Cape",
-		augments={'INT+20','Mag. Acc+20 /Mag. Dmg.+20','INT+10','"Mag.Atk.Bns."+10','Phys. dmg. taken-10%'}}
+        augments={'INT+20','Mag. Acc+20 /Mag. Dmg.+20','INT+10','"Mag.Atk.Bns."+10','Phys. dmg. taken-10%'}}
     --gear.IdleCape = 
 
     gear.mer_head_rf   = {name="Merlinic Hood", augments={'INT+9','Pet: INT+2','"Refresh"+1'}}
-    gear.mer_body_mb   = {name="Merlinic Jubbah",
-		augments={'Mag. Acc.+23 "Mag.Atk.Bns."+23','Magic burst dmg.+5%','CHR+10','Mag. Acc.+10','"Mag.Atk.Bns."+11'}}
+    gear.mer_head_fc   = {name="Merlinic Hood", augments={'Mag. Acc.+19 "Mag.Atk.Bns."+19','"Fast Cast"+6','MND+3'}}
+    gear.mer_head_mb   = {name="Merlinic Hood", augments={'"Mag.Atk.Bns."+27','Magic burst dmg.+10%','Mag. Acc.+15'}}
+    gear.mer_body_mb9  = {name="Merlinic Jubbah", augments={'Mag. Acc.+21 "Mag.Atk.Bns."+21','Magic burst dmg.+9%'}}
+    gear.mer_body_mb5  = {name="Merlinic Jubbah",
+        augments={'Mag. Acc.+23 "Mag.Atk.Bns."+23','Magic burst dmg.+5%','CHR+10','Mag. Acc.+10','"Mag.Atk.Bns."+11'}}
     gear.mer_hand_phlx = {name="Merlinic Dastanas",
         augments={'AGI+8','Pet: Attack+17 Pet: Rng.Atk.+17','Phalanx +3','Accuracy+14 Attack+14'}}
     gear.mer_legs_th   = {name="Merlinic Shalwar",
@@ -189,7 +192,7 @@ function init_gear_sets()
         body=gear.tel_body_enh,hands=gear.tel_hand_enh,ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.MACape,waist="Embla Sash",legs=gear.tel_legs_enh,feet=gear.tel_feet_enh}
     sets.midcast['Enhancing Magic'] = set_combine(sets.midcast.EnhancingDuration, {
-        head="Befouled Crown",neck="Incanter's Torque",ear2="Mimir Earring",
+        head="Befouled Crown",neck="Incanter's Torque",ear1="Mimir Earring",ear2="Andoaa Earring",
         body=gear.tel_body_enh,hands="Ayao's Gages",ring1="Stikini Ring +1",
         back="Fi Follet Cape",waist="Olympus Sash",legs="Shedir Seraweels",feet="Regal Pumps +1"})
     sets.midcast.Phalanx = set_combine(sets.midcast['Enhancing Magic'], {hands=gear.mer_hand_phlx})
@@ -209,17 +212,17 @@ function init_gear_sets()
     sets.midcast['Elemental Magic'].MAcc  = set_combine(sets.midcast['Elemental Magic'], {sub="Khonsu",
         ring1="Stikini Ring +1",ring2="Metamorph Ring +1"})
     sets.midcast['Elemental Magic'].LowMP = set_combine(sets.midcast['Elemental Magic'], {
-        head="Jhakri Coronal +2",body="Spaekona's Coat +2"})
+        head="Jhakri Coronal +2",body="Spaekona's Coat +3"})
     sets.midcast['Elemental Magic'].OA = {ammo="Seraphic Ampulla",
         head="Mallquis Chapeau +2",neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Telos Earring",
-        body="Spaekona's Coat +2",hands="Amalric Gages +1",ring1="Chirich Ring +1",ring2="Freke Ring",
+        body="Spaekona's Coat +3",hands="Amalric Gages +1",ring1="Chirich Ring +1",ring2="Freke Ring",
         back=gear.NukeCape,waist="Oneiros Rope",legs="Perdition Slops",feet="Jhakri Pigaches +2"}
     sets.midcast['Elemental Magic'].MB = {main="Marin Staff +1",sub="Enki Strap",ammo="Pemphredo Tathlum",
         head="Jhakri Coronal +2",neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Static Earring",
-        body=gear.mer_body_mb,hands="Amalric Gages +1",ring1="Mujin Band",ring2="Locus Ring",
+        body=gear.mer_body_mb5,hands="Amalric Gages +1",ring1="Mujin Band",ring2="Locus Ring",
         back=gear.NukeCape,waist="Refoccilation Stone",legs="Jhakri Slops +2",feet="Jhakri Pigaches +2"}
     sets.midcast['Elemental Magic'].MAcc.MB  = set_combine(sets.midcast['Elemental Magic'].MB, {sub="Khonsu"})
-    sets.midcast['Elemental Magic'].LowMP.MB = set_combine(sets.midcast['Elemental Magic'].MB, {body="Spaekona's Coat +2"})
+    sets.midcast['Elemental Magic'].LowMP.MB = set_combine(sets.midcast['Elemental Magic'].MB, {body="Spaekona's Coat +3"})
 
     sets.midcast.LowTierNuke               = set_combine(sets.midcast['Elemental Magic'],    {ammo="Ghastly Tathlum +1"})
     sets.midcast.LowTierNuke.MAcc          = set_combine(sets.midcast.LowTierNuke,    {sub="Khonsu",
@@ -256,18 +259,17 @@ function init_gear_sets()
         body="Zendik Robe",hands="Mallquis Cuffs +2",ring1="Archon Ring",ring2="Evanescence Ring",
         back=gear.MACape,waist="Fucho-no-Obi",legs="Spaekona's Tonban +2",feet=gear.mer_feet_dr}
     sets.midcast.Aspir = sets.midcast.Drain
-    sets.midcast.Drain.MAcc = set_combine(sets.midcast.Drain, {head="Amalric Coif +1",ring1="Stikini Ring +1"})
-    sets.midcast.Aspir.MAcc = set_combine(sets.midcast.Drain.MAcc, {})
-    sets.midcast.Aspir.MP = set_combine(sets.midcast.Aspir, {ear2="Etiolation Earring"}) -- TODO
+    sets.midcast.Aspir.MAcc = set_combine(sets.midcast.Aspir, {head="Amalric Coif +1",ring1="Stikini Ring +1"})
+    sets.midcast.Aspir.MP   = set_combine(sets.midcast.Aspir, {ear2="Etiolation Earring"}) -- TODO
     sets.drain_belt = {waist="Fucho-no-Obi"}
 
     sets.midcast['Enfeebling Magic'] = {main="Maxentius",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
         head="Amalric Coif +1",neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Dignitary's Earring",
-        body="Spaekona's Coat +2",hands="Mallquis Cuffs +2",ring1="Metamorph Ring +1",ring2="Stikini Ring +1",
+        body="Spaekona's Coat +3",hands="Mallquis Cuffs +2",ring1="Metamorph Ring +1",ring2="Stikini Ring +1",
         back=gear.MACape,waist="Acuity Belt +1",legs="Spaekona's Tonban +2",feet="Mallquis Clogs +2"}
     --sets.midcast.Dispelga = set_combine(sets.midcast['Enfeebling Magic'], sets.dispelga)
-	sets.midcast.Silence  = set_combine(sets.midcast['Enfeebling Magic'], {waist="Luminary Sash"})
-	sets.midcast.Slow     = set_combine(sets.midcast['Enfeebling Magic'], {waist="Luminary Sash"})
+    sets.midcast.Silence  = set_combine(sets.midcast['Enfeebling Magic'], {waist="Luminary Sash"})
+    sets.midcast.Slow     = set_combine(sets.midcast['Enfeebling Magic'], {waist="Luminary Sash"})
     sets.midcast.Paralyze = set_combine(sets.midcast.Slow, {})
 
     sets.midcast.Sleep    = set_combine(sets.midcast['Enfeebling Magic'], {ring2="Kishar Ring"})
@@ -276,7 +278,7 @@ function init_gear_sets()
     sets.midcast.Bind     = sets.midcast.Sleep
     sets.midcast.Gravity  = sets.midcast.Sleep
 
-    sets.midcast.Stun = set_combine(sets.midcast['Enfeebling Magic'], {waist="Goading Belt"})
+    sets.midcast.Stun = set_combine(sets.midcast['Enfeebling Magic'], {body="Zendik Robe",waist="Goading Belt"})
     sets.midcast.ElementalEnfeeble = set_combine(sets.midcast['Enfeebling Magic'], {})  -- TODO
     sets.midcast['Dark Magic'] = set_combine(sets.midcast['Enfeebling Magic'], {}) -- TODO
     sets.midcast['Divine Magic'] = set_combine(sets.midcast['Enfeebling Magic'], {}) -- TODO
@@ -303,7 +305,7 @@ function init_gear_sets()
     sets.engaged = {main="Malignance Pole",sub="Khonsu",ammo="Amar Cluster",
         head="Blistering Sallet +1",neck="Sanctity Necklace",ear1="Telos Earring",ear2="Dignitary's Earring",
         body="Jhakri Robe +2",hands="Gazu Bracelet +1",ring1="Chirich Ring +1",ring2="Pernicious Ring",
-        back=gear.MACape,waist="Goading Belt",legs="Jhakri Slops +2",feet="Jhakri Pigaches +2"}
+        back="Aurist's Cape +1",waist="Goading Belt",legs="Jhakri Slops +2",feet="Jhakri Pigaches +2"}
     sets.engaged.PDef = set_combine(sets.engaged, {body="Mallquis Saio +2",ring1="Vocane Ring +1",ring2="Defending Ring"})
 
     sets.cp = {back="Mecistopins Mantle"}
