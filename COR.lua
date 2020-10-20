@@ -30,8 +30,9 @@ function job_setup()
     state.Buff['Triple Shot'] = buffactive['Triple Shot'] or false
     state.Buff.doom = buffactive.doom or false
 
-    include('Mote-TreasureHunter')
     define_roll_values()
+
+    windower.raw_register_event('logout', destroy_state_text)
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -61,6 +62,7 @@ function user_setup()
     state.NoFlurry = M(false, 'no flurry plz')                              -- anti-koru-moru
 
     init_state_text()
+    hud_update_on_state_change()
 
     info.magic_ws = S{'Hot Shot','Wildfire','Leaden Salute','Gust Slash','Cyclone','Aeolian Edge',
                       'Burning Blade','Red Lotus Blade','Shining Blade','Seraph Blade','Sanguine Blade'}
@@ -557,6 +559,10 @@ function job_state_change(stateField, newValue, oldValue)
             handle_equipping_gear(player.status)
         end
     end
+
+    if hud_update_on_state_change then
+        hud_update_on_state_change(stateField)
+    end
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -618,7 +624,7 @@ function display_current_job_state(eventArgs)
         local defMode = state[state.DefenseMode.value ..'DefenseMode'].current
         msg = msg .. ' Def[' .. state.DefenseMode.value .. ':' .. defMode .. ']'
     end
-    if state.TreasureMode.value ~= 'None' then
+    if state.TreasureMode and state.TreasureMode.value ~= 'None' then
         msg = msg .. ' TH+4'
     end
     if state.WSMsg.value then
@@ -867,44 +873,46 @@ function report_ammo_and_tools()
 end
 
 function init_state_text()
-    destroy_state_text()
+    if hud then return end
+
     local luzafs_text_settings = {pos={y=0},flags={draggable=false},bg={alpha=150}}
     local hyb_text_settings    = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local def_text_settings    = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local off_text_settings    = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    state.luzafs_text = texts.new('NoLuzaf', luzafs_text_settings)
-    state.hyb_text    = texts.new('/${hybrid}', hyb_text_settings)
-    state.def_text    = texts.new('(${defense})', def_text_settings)
-    state.off_text    = texts.new('${offense}', off_text_settings)
 
-    windower.register_event('logout', destroy_state_text)
-    state.texts_event_id = windower.register_event('prerender', function()
-        state.luzafs_text:visible((not state.LuzafRing.value))
+    hud = {texts=T{}}
+    hud.texts.luzafs_text = texts.new('NoLuzaf',        luzafs_text_settings)
+    hud.texts.hyb_text    = texts.new('initializing..', hyb_text_settings)
+    hud.texts.def_text    = texts.new('initializing..', def_text_settings)
+    hud.texts.off_text    = texts.new('initializing..', off_text_settings)
 
-        if state.HybridMode.value ~= 'Normal' then
-            state.hyb_text:show()
-            state.hyb_text:update({hybrid=state.HybridMode.value})
-        else state.hyb_text:hide() end
+    -- update infrequently changing text boxes in job_state_change or where they are changed
+    function hud_update_on_state_change(stateField)
+        if not hud then init_state_text() end
 
-        if state.DefenseMode.value ~= 'None' then
-            state.def_text:show()
-            state.def_text:update({defense=state[state.DefenseMode.value..'DefenseMode'].current})
-        else state.def_text:hide() end
+        if not stateField or stateField == 'Luzaf\'s Ring' then
+            hud.texts.luzafs_text:visible((not state.LuzafRing.value))
+        end
 
-        if state.OffenseMode.value ~= 'Normal' then
-            state.off_text:show()
-            state.off_text:update({offense=state.OffenseMode.value})
-        else state.off_text:hide() end
-    end)
-end
+        if not stateField or stateField == 'Hybrid Mode' then
+            if state.HybridMode.value ~= 'Normal' then
+                hud.texts.hyb_text:text('/%s':format(state.HybridMode.value))
+                hud.texts.hyb_text:show()
+            else hud.texts.hyb_text:hide() end
+        end
 
-function destroy_state_text()
-    if state.texts_event_id then
-        windower.unregister_event(state.texts_event_id)
-        for text in S{state.luzafs_text, state.hyb_text, state.def_text, state.off_text}:it() do
-            text:hide()
-            text:destroy()
+        if not stateField or stateField:endswith('Defense Mode') then
+            if state.DefenseMode.value ~= 'None' then
+                hud.texts.def_text:text('(%s)':format(state[state.DefenseMode.value..'DefenseMode'].current))
+                hud.texts.def_text:show()
+            else hud.texts.def_text:hide() end
+        end
+
+        if not stateField or stateField == 'Offense Mode' then
+            if state.OffenseMode.value ~= 'Normal' then
+                hud.texts.off_text:text(state.OffenseMode.value)
+                hud.texts.off_text:show()
+            else hud.texts.off_text:hide() end
         end
     end
-    state.texts_event_id = nil
 end

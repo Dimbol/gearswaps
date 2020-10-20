@@ -24,6 +24,8 @@ function job_setup()
     state.Buff['Manafont'] = buffactive['Manafont'] or false
     state.Buff['Elemental Seal'] = buffactive['Elemental Seal'] or false
     state.Buff.doom = buffactive.doom or false
+
+    windower.raw_register_event('logout', destroy_state_text)
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -46,6 +48,7 @@ function user_setup()
     state.ZendikIdle = M(false, 'Zendik Sphere')        -- Toggle with ^z
     state.CP         = M(false, 'CP Mode')
     init_state_text()
+    hud_update_on_state_change()
 
     -- Augmented items get variables for convenience and specificity
     gear.MACape   = {name="Taranus's Cape", augments={'INT+20','Mag. Acc+20 /Mag. Dmg.+20','"Fast Cast"+10','Phys. dmg. taken-10%'}}
@@ -334,14 +337,7 @@ function job_precast(spell, action, spellMap, eventArgs)
         else
             state.CastingMode:set('Normal')
         end
-    end
-
-    if spell.english == "Light Arts" and buffactive['Light Arts'] then
-        send_command('input /ja "Addendum: White" <me>')
-        eventArgs.cancel = true
-    elseif spell.english == "Dark Arts" and buffactive['Dark Arts'] then
-        send_command('input /ja "Addendum: Black" <me>')
-        eventArgs.cancel = true
+        hud_update_on_state_change('Casting Mode')
     elseif classes.CustomClass == 'CureCheat' then
         if not (spell.target.type == 'SELF' and spell.english == 'Cure IV') then
             classes.CustomClass = nil
@@ -477,6 +473,10 @@ function job_state_change(stateField, newValue, oldValue)
         if newValue ~= 'None' then
             handle_equipping_gear(player.status)
         end
+    end
+
+    if hud_update_on_state_change then
+        hud_update_on_state_change(stateField)
     end
 end
 
@@ -624,7 +624,7 @@ function display_current_job_state(eventArgs)
     end
 
     add_to_chat(122, msg)
-    report_ja_recasts(info.recast_ids)
+    report_ja_recasts(info.recast_ids, false)
     eventArgs.handled = true
 end
 
@@ -835,53 +835,56 @@ function job_keybinds()
 end
 
 function init_state_text()
-    destroy_state_text()
-    local mb_text_settings    = {flags={draggable=false,bold=true},bg={red=250,green=200,blue=0,alpha=150},
-                                 text={stroke={width=2}}}
+    if hud then return end
+
+    local mb_text_settings    = {flags={draggable=false,bold=true},bg={red=250,green=200,blue=0,alpha=150},text={stroke={width=2}}}
     local cmode_text_settings = {pos={y=18},flags={draggable=false,bold=true},bg={red=0,green=220,blue=220,alpha=150},
                                  text={stroke={width=2}}}
     local hyb_text_settings   = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local def_text_settings   = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local off_text_settings   = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    state.mb_text    = texts.new('MBurst',         mb_text_settings)
-    state.cmode_text = texts.new('initializing..', cmode_text_settings)
-    state.hyb_text   = texts.new('initializing..', hyb_text_settings)
-    state.def_text   = texts.new('initializing..', def_text_settings)
-    state.off_text   = texts.new('initializing..', off_text_settings)
 
-    windower.register_event('logout', destroy_state_text)
-    state.texts_event_id = windower.register_event('prerender', function()
-        state.mb_text:visible(state.MagicBurst.value)
+    hud = {texts=T{}}
+    hud.texts.mb_text    = texts.new('MBurst',         mb_text_settings)
+    hud.texts.cmode_text = texts.new('initializing..', cmode_text_settings)
+    hud.texts.hyb_text   = texts.new('initializing..', hyb_text_settings)
+    hud.texts.def_text   = texts.new('initializing..', def_text_settings)
+    hud.texts.off_text   = texts.new('initializing..', off_text_settings)
 
-        if state.CastingMode.value ~= 'Normal' then
-            state.cmode_text:text(state.CastingMode.value)
-            state.cmode_text:show()
-        else state.cmode_text:hide() end
+    -- update infrequently changing text boxes in job_state_change or where they are changed
+    function hud_update_on_state_change(stateField)
+        if not hud then init_state_text() end
 
-        if state.HybridMode.value ~= 'Normal' then
-            state.hyb_text:text('/%s':format(state.HybridMode.value))
-            state.hyb_text:show()
-        else state.hyb_text:hide() end
+        if not stateField or stateField == 'Magic Burst' then
+            hud.texts.mb_text:visible(state.MagicBurst.value)
+        end
 
-        if state.DefenseMode.value ~= 'None' then
-            state.def_text:text('(%s)':format(state[state.DefenseMode.value..'DefenseMode'].current))
-            state.def_text:show()
-        else state.def_text:hide() end
+        if not stateField or stateField == 'Casting Mode' then
+            if state.CastingMode.value ~= 'Normal' then
+                hud.texts.cmode_text:text(state.CastingMode.value)
+                hud.texts.cmode_text:show()
+            else hud.texts.cmode_text:hide() end
+        end
 
-        if state.OffenseMode.value ~= 'None' then
-            state.off_text:text(state.CombatWeapon.value)
-            state.off_text:show()
-        else state.off_text:hide() end
-    end)
-end
+        if not stateField or stateField == 'Hybrid Mode' then
+            if state.HybridMode.value ~= 'Normal' then
+                hud.texts.hyb_text:text('/%s':format(state.HybridMode.value))
+                hud.texts.hyb_text:show()
+            else hud.texts.hyb_text:hide() end
+        end
 
-function destroy_state_text()
-    if state.texts_event_id then
-        windower.unregister_event(state.texts_event_id)
-        for text in S{state.mb_text, state.cmode_text, state.hyb_text, state.def_text, state.off_text}:it() do
-            text:hide()
-            text:destroy()
+        if not stateField or stateField:endswith('Defense Mode') then
+            if state.DefenseMode.value ~= 'None' then
+                hud.texts.def_text:text('(%s)':format(state[state.DefenseMode.value..'DefenseMode'].current))
+                hud.texts.def_text:show()
+            else hud.texts.def_text:hide() end
+        end
+
+        if not stateField or stateField == 'Offense Mode' or stateField == 'Combat Weapon' then
+            if state.OffenseMode.value ~= 'None' then
+                hud.texts.off_text:text(state.CombatWeapon.value)
+                hud.texts.off_text:show()
+            else hud.texts.off_text:hide() end
         end
     end
-    state.texts_event_id = nil
 end

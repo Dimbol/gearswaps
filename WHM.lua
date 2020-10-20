@@ -21,6 +21,8 @@ function job_setup()
     state.Buff['Afflatus Misery'] = buffactive['Afflatus Misery'] or false
     state.Buff['Divine Caress']   = buffactive['Divine Caress'] or false
     state.Buff.doom = buffactive.doom or false
+
+    windower.raw_register_event('logout', destroy_state_text)
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -50,6 +52,7 @@ function user_setup()
     state.AllyBinds = M(false, 'Ally Cure Keybinds')                    -- Toggle with !^numpad0
     state.MagicBurst = M(false, 'Magic Burst')                          -- Toggle with !z
     init_state_text()
+    hud_update_on_state_change()
 
     info.magic_ws = S{'Shining Strike','Seraph Strike','Flash Nova','Rock Crusher','Earth Crusher','Starburst','Sunburst','Cataclysm'}
 
@@ -414,22 +417,6 @@ function job_post_precast(spell, action, spellMap, eventArgs)
     end
 end
 
--- Set eventArgs.handled to true if we don't want any automatic gear equipping to be done.
-function job_midcast(spell, action, spellMap, eventArgs)
-    -- Let these spells skip midcast sets by replacing it with the default idle set.
-    -- This should make the character only blink once (for precast) rather than twice.
-    if S{'Warp','Warp II','Escape'}:contains(spell.english)
-    or npcs.Trust:contains(spell.english)
-    or spellMap == 'Teleport' then
-        if sets.idle[state.IdleMode.value] then
-            equip(sets.idle[state.IdleMode.value])
-        else
-            equip(sets.idle)
-        end
-        eventArgs.handled = true
-    end
-end
-
 function job_post_midcast(spell, action, spellMap, eventArgs)
     -- Apply Divine Caress boosting items as highest priority over other gear, if applicable.
     if state.Buff['Divine Caress'] and spellMap == 'StatusRemoval' and spell.english ~= 'Erase' then
@@ -437,26 +424,29 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
         if spell.english == 'Cursna' then
             equip({back=gear.MEVACape})
         end
-    elseif S{'Cure','CureSolace','Curaga'}:contains(spellMap) and state.CastingMode.value ~= 'Enmity' then
-        if gear.ElementalObi.name == gear.default.obi_waist then
-            if spell.target.type == 'SELF' and S{'Cure','CureSolace'}:contains(spellMap) then
-                equip(sets.gishdubar)
-            else
-                equip(sets.cmp_belt)
-            end
-        end
     elseif S{'Drain','Aspir'}:contains(spellMap) then
         equip(resolve_ele_belt(spell, sets.ele_obi, sets.drain_belt, 5))
-    elseif spell.english == 'Refresh' and spell.target.type == 'SELF' then
-        equip(sets.gishdubar)
     elseif S{'StatBoost','BarElement'}:contains(spellMap) and not buffactive['Light Arts'] then
         equip(sets.midcast[spellMap].NoGrimoire)
     elseif S{'Banish','Holy'}:contains(spellMap) or spell.skill == 'Elemental Magic' then
         if state.MagicBurst.value then equip(sets.midcast['Divine Magic'].MB) end
         equip(resolve_ele_belt(spell, sets.ele_obi, sets.nuke_belt, 3))
-    end
-    if spell.target.type == 'SELF' and spell.english == 'Cursna' and state.Buff.doom then
-        equip(sets.buff.doom)
+    elseif classes.CustomClass ~= 'CureCheat' and (spell.english:startswith('Cure') or spell.english:startswith('Curaga')) then
+        if spell.target.type == 'SELF' then
+            equip(resolve_ele_belt(spell, sets.ele_obi, sets.gishdubar, 9))
+        elseif spell.target.type == 'MONSTER' then
+            equip(resolve_ele_belt(spell, sets.ele_obi, sets.nuke_belt, 3))
+        else
+            equip(resolve_ele_belt(spell, sets.ele_obi, sets.cmp_belt, 2))
+        end
+    elseif spell.target.type == 'SELF' then
+        if spell.english == 'Refresh' then
+            equip(sets.gishdubar)
+        elseif spell.english == 'Cursna' then
+            if state.Buff.doom then
+                equip(sets.buff.doom)
+            end
+        end
     end
 end
 
@@ -469,7 +459,7 @@ function job_aftercast(spell, action, spellMap, eventArgs)
             eventArgs.handled = true
         elseif spell.english == 'Dia II' and state.DiaMsg.value then
             if spell.target.name and spell.target.type == 'MONSTER' then
-                send_command('@input /p '..spell.english..' /')
+                send_command('@input /p Dia II /')
             end
         elseif spell.type == 'WeaponSkill' and state.WSMsg.value then
             if state.WSMsg.value then
@@ -537,6 +527,10 @@ function job_state_change(stateField, newValue, oldValue)
         else             info.ally_keybinds:unbind()
         end
     end
+
+    if hud_update_on_state_change then
+        hud_update_on_state_change(stateField)
+    end
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -551,7 +545,7 @@ function job_get_spell_map(spell, default_spell_map)
         elseif spell.skill == 'Enfeebling Magic' then
             -- Spells with variable potencies, divided into dINT and dMND spells.
             -- These spells also benefit from RDM gear and WKR shoes.
-            if S{'Slow','Paralyze','Addle','Distract','Frazzle'}:contains(spell.english) then
+            if S{'Slow','Paralyze','Addle'}:contains(spell.english) then
                 return "MndEnfeebles"
             elseif S{'Blind','Gravity'}:contains(spell.english) then
                 return "IntEnfeebles"
@@ -653,7 +647,7 @@ function display_current_job_state(eventArgs)
     end
 
     add_to_chat(122, msg)
-    report_ja_recasts(info.recast_ids)
+    report_ja_recasts(info.recast_ids, false)
     eventArgs.handled = true
 end
 
@@ -872,37 +866,52 @@ function job_keybinds()
 end
 
 function init_state_text()
-    destroy_state_text()
-    local mb_text_settings  = {flags={draggable=false},bg={alpha=150}}
-    local hyb_text_settings = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    local def_text_settings = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    state.mb_text  = texts.new('MBurst',         mb_text_settings)
-    state.hyb_text = texts.new('initializing..', hyb_text_settings)
-    state.def_text = texts.new('initializing..', def_text_settings)
+    if hud then return end
 
-    windower.register_event('logout', destroy_state_text)
-    state.texts_event_id = windower.register_event('prerender', function()
-        state.mb_text:visible(state.MagicBurst.value)
+    local mb_text_settings    = {flags={draggable=false,bold=true},bg={red=250,green=200,blue=0,alpha=150},text={stroke={width=2}}}
+    local ally_text_settings  = {pos={x=-178},flags={draggable=false,right=true},bg={alpha=150},text={font='Courier New',size=10}}
+    local hyb_text_settings   = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    local def_text_settings   = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    local off_text_settings   = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
 
-        if state.HybridMode.value ~= 'Normal' then
-            state.hyb_text:text('/%s':format(state.HybridMode.value))
-            state.hyb_text:show()
-        else state.hyb_text:hide() end
+    hud = {texts=T{}}
+    hud.texts.mb_text   = texts.new('MBurst',         mb_text_settings)
+    hud.texts.ally_text = texts.new('AllyCure',       ally_text_settings)
+    hud.texts.hyb_text  = texts.new('initializing..', hyb_text_settings)
+    hud.texts.def_text  = texts.new('initializing..', def_text_settings)
+    hud.texts.off_text  = texts.new('initializing..', off_text_settings)
 
-        if state.DefenseMode.value ~= 'None' then
-            state.def_text:text('(%s)':format(state[state.DefenseMode.value..'DefenseMode'].current))
-            state.def_text:show()
-        else state.def_text:hide() end
-    end)
-end
+    -- update infrequently changing text boxes in job_state_change or where they are changed
+    function hud_update_on_state_change(stateField)
+        if not hud then init_state_text() end
 
-function destroy_state_text()
-    if state.texts_event_id then
-        windower.unregister_event(state.texts_event_id)
-        for text in S{state.mb_text, state.hyb_text, state.def_text}:it() do
-            text:hide()
-            text:destroy()
+        if not stateField or stateField == 'Magic Burst' then
+            hud.texts.mb_text:visible(state.MagicBurst.value)
+        end
+
+        if not stateField or stateField == 'Ally Cure Keybinds' then
+            hud.texts.ally_text:visible(state.AllyBinds.value)
+        end
+
+        if not stateField or stateField == 'Hybrid Mode' then
+            if state.HybridMode.value ~= 'Normal' then
+                hud.texts.hyb_text:text('/%s':format(state.HybridMode.value))
+                hud.texts.hyb_text:show()
+            else hud.texts.hyb_text:hide() end
+        end
+
+        if not stateField or stateField:endswith('Defense Mode') then
+            if state.DefenseMode.value ~= 'None' then
+                hud.texts.def_text:text('(%s)':format(state[state.DefenseMode.value..'DefenseMode'].current))
+                hud.texts.def_text:show()
+            else hud.texts.def_text:hide() end
+        end
+
+        if not stateField or stateField == 'Offense Mode' or stateField == 'Combat Weapon' then
+            if state.OffenseMode.value ~= 'None' then
+                hud.texts.off_text:text(state.CombatWeapon.value)
+                hud.texts.off_text:show()
+            else hud.texts.off_text:hide() end
         end
     end
-    state.texts_event_id = nil
 end

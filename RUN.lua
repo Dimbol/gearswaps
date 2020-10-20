@@ -109,6 +109,8 @@ function job_setup()
     state.Buff.Embolden = buffactive.Embolden or false
     state.Buff.sleep = buffactive.sleep or false
     state.Buff.doom  = buffactive.doom or false
+
+    windower.raw_register_event('logout', destroy_state_text)
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -120,18 +122,23 @@ function user_setup()
     state.OffenseMode:options('Normal','None')                      -- Cycle with F9, set with !w, !@w
     state.HybridMode:options('Normal','PDef','PDef2')               -- Cycle with ^space
     state.WeaponskillMode:options('Normal','Tank','Acc')            -- Cycle with @F9
-    state.CastingMode:options('Tank','Paranoid','MAcc')             -- Cycle with F10, reset with !F10, set with ^c, !@c
+    state.CastingMode:options('Tank','MAcc')                        -- Cycle with F10, reset with !F10, set with ^c, !@c
     state.IdleMode:options('Normal','Refresh','Kite')               -- Cycle with F11, reset with !F11
     state.PhysicalDefenseMode:options('Parry','ParryRf','Kite')     -- Cycle with !z
     state.MagicalDefenseMode:options('MEVA','MDT50')                -- Cycle with @z, set to MDT50 with !@z
-    state.StatusDefenseMode = M{['description']='Status Defense'}
+    state.StatusDefenseMode = M{['description']='Status Defense Mode'}
     state.StatusDefenseMode:options('None','Knockback','Charm','Death')  -- Set with !7..!0
-    state.CombatWeapon = M{['description']='Combat Weapon'}         -- Cycle with !-, !=, set with @F1..@F4
-    state.CombatWeapon:options('Epeo','EpeoRef','Lionheart','GreatAxe','Sword','Axe')
+    state.CombatWeapon = M{['description']='Combat Weapon'}
+    if S{'DNC','NIN'}:contains(player.sub_job) then
+        state.CombatWeapon:options('Epeo','EpeoRef','Lionheart','GreatAxe','Hepatizon','SwordDW','AxeDW')
+    else
+        state.CombatWeapon:options('Epeo','EpeoRef','Lionheart','GreatAxe','Hepatizon','Sword','Axe')
+    end
 
     state.WSMsg = M(false, 'WS Message')                        -- Toggle with ^\ (also chat for JAs)
     state.SIRD  = M(false, 'SIRD Casting')                      -- Toggle with !c
     init_state_text()
+    hud_update_on_state_change()
 
     info.sird_spells = S{'Aquaveil','Crusade','Foil','Stoneskin',
         'Cocoon','Healing Breeze','Wild Carrot','Sheep Song','Stinking Gas','Geist Wall'}
@@ -253,7 +260,7 @@ function user_setup()
             'bind !^4|%4 input /ws "Smash Axe"  <stnpc>',
             'bind !^5|%5 input /ws "Rampage"    <stnpc>'}},
         {['Epeo']='Great Sword',['EpeoRef']='Great Sword',['Lionheart']='Great Sword',
-         ['Sword']='Sword',['Axe']='Axe',['GreatAxe']='Great Axe',['Hepatizon']='Great Axe'})
+         ['Axe']='Axe',['AxeDW']='Axe',['Sword']='Sword',['SwordDW']='Sword',['GreatAxe']='Great Axe',['Hepatizon']='Great Axe'})
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
 
@@ -282,22 +289,15 @@ end
 function init_gear_sets()
 
     sets.weapons = {}
-    sets.weapons.Epeo        = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"]}
-    sets.weapons.EpeoRef     = {main=hpgear["Epeolatry"],sub="Refined Grip +1"}
-    sets.weapons.Lionheart   = {main=hpgear["Lionheart"],sub=hpgear["Utu Grip"]}
-    sets.weapons.Hepatizon   = {main=hpgear["Hepatizon Axe +1"],sub=hpgear["Utu Grip"]}
-    sets.weapons.GreatAxe    = {main=hpgear["Kaja Chopper"],sub=hpgear["Utu Grip"]}
-    sets.weapons.DualSword   = {main="Naegling",sub="Reikiko"}
-    sets.weapons.DualAxe     = {main="Kaja Axe",sub="Reikiko"}
-    sets.weapons.SingleSword = {main="Naegling",sub=empty}
-    sets.weapons.SingleAxe   = {main="Kaja Axe",sub=empty}
-    if S{'DNC','NIN'}:contains(player.sub_job) then
-        sets.weapons.Sword = set_combine(sets.weapons.DualSword, {})
-        sets.weapons.Axe   = set_combine(sets.weapons.DualAxe, {})
-    else
-        sets.weapons.Sword = set_combine(sets.weapons.SingleSword, {})
-        sets.weapons.Axe   = set_combine(sets.weapons.SingleAxe, {})
-    end
+    sets.weapons.Epeo      = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"]}
+    sets.weapons.EpeoRef   = {main=hpgear["Epeolatry"],sub="Refined Grip +1"}
+    sets.weapons.Lionheart = {main=hpgear["Lionheart"],sub=hpgear["Utu Grip"]}
+    sets.weapons.Hepatizon = {main=hpgear["Hepatizon Axe +1"],sub=hpgear["Utu Grip"]}
+    sets.weapons.GreatAxe  = {main=hpgear["Kaja Chopper"],sub=hpgear["Utu Grip"]}
+    sets.weapons.Axe       = {main="Kaja Axe",sub=empty}
+    sets.weapons.AxeDW     = {main="Kaja Axe",sub="Reikiko"}
+    sets.weapons.Sword     = {main="Naegling",sub=empty}
+    sets.weapons.SwordDW   = {main="Naegling",sub="Reikiko"}
 
     -- Precast Sets
     sets.Enmity = {main=hpgear["Epeolatry"],sub=hpgear["Balarama Grip"],ammo=hpgear["Aqreqaq Bomblet"],
@@ -307,8 +307,6 @@ function init_gear_sets()
     -- enm+85, pdt-37, inqu+5, mdt-9,  mdb+20, bdt-9,  meva+463, 2696 hp /drk
     sets.Enmity.Tank = set_combine(sets.Enmity, {ring2="Defending Ring"})
     -- enm+80, pdt-47, inqu+5, mdt-19, mdb+20, bdt-19, meva+463, 2666 hp /drk
-    sets.Enmity.Paranoid = set_combine(sets.Enmity, {sub="Refined Grip +1",ammo="Staunch Tathlum +1",ring2="Defending Ring"})
-    -- enm+78, pdt-50, inqu+5, mdt-22, mdb+20, bdt-22, meva+463, 2646 hp /drk
 
     -- combined with and Enmity set in job_precast
     sets.precast.JA.Warcry = {}
@@ -440,17 +438,11 @@ function init_gear_sets()
         body=hpgear["Futhark Coat +3"],hands=hpgear["Runeist's Mitons +3"],ring1=gear.Lstikini,ring2="Defending Ring",
         back=gear.MEVACape,waist="Flume Belt +1",legs=hpgear["Carmine Cuisses +1"],feet="Erilaz Greaves +1"}
     -- skill=500, dur+35, pdt-50, mdt-29, bdt-29, 2652 hp /drk
-    sets.midcast.Temper.Paranoid = set_combine(sets.midcast.Temper.Tank, {})
     sets.midcast.Phalanx = {main="Deacon Sword",sub=empty,ammo="Staunch Tathlum +1",
         head=hpgear["Futhark Bandeau +3"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2="Mimir Earring",
         body=gear.taeon_body_phlx,hands=gear.taeon_hands_phlx,ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
         back=gear.MEVACape,waist="Flume Belt +1",legs=gear.taeon_legs_phlx,feet=gear.taeon_feet_phlx}
     -- phalanx+17~21, skill=450, dur+0, pdt-45, mdt-25, bdt-25, 2629 hp /drk (tiers at 443, 472, 500 skill)
-    sets.midcast.Phalanx.Paranoid = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Staunch Tathlum +1",
-        head=hpgear["Futhark Bandeau +3"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
-        body=hpgear["Futhark Coat +3"],hands=gear.taeon_hands_phlx,ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
-        back=gear.MEVACape,waist="Flume Belt +1",legs=gear.taeon_legs_phlx,feet=gear.taeon_feet_phlx}
-    -- phalanx+16, skill=440, dur+0, pdt-50, mdt-39, bdt-34, 2739 hp /drk
     sets.PhalanxIncoming = {main="Deacon Sword",sub=empty,ammo="Staunch Tathlum +1",
         head=hpgear["Futhark Bandeau +3"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
         body=gear.taeon_body_phlx,hands=gear.taeon_hands_phlx,ring1="Vocane Ring +1",ring2="Defending Ring",
@@ -499,16 +491,6 @@ function init_gear_sets()
     sets.midcast.Soporific.Tank       = set_combine(sets.Enmity.Tank, {})
     sets.midcast.Jettatura.Tank       = set_combine(sets.Enmity.Tank, {})
 
-    sets.midcast.Foil.Paranoid            = set_combine(sets.Enmity.Paranoid, {})
-    sets.midcast.Flash.Paranoid           = set_combine(sets.Enmity.Paranoid, {})
-    sets.midcast.Stun.Paranoid            = set_combine(sets.Enmity.Paranoid, {})
-    sets.midcast['Stinking Gas'].Paranoid = set_combine(sets.Enmity.Paranoid, {})
-    sets.midcast['Sheep Song'].Paranoid   = set_combine(sets.Enmity.Paranoid, {})
-    sets.midcast['Geist Wall'].Paranoid   = set_combine(sets.Enmity.Paranoid, {})
-    sets.midcast['Blank Gaze'].Paranoid   = set_combine(sets.Enmity.Paranoid, {})
-    sets.midcast.Soporific.Paranoid       = set_combine(sets.Enmity.Paranoid, {})
-    sets.midcast.Jettatura.Paranoid       = set_combine(sets.Enmity.Paranoid, {})
-
     sets.midcast.Stun.MAcc          = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast['Sheep Song'].MAcc = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast['Geist Wall'].MAcc = set_combine(sets.midcast['Enfeebling Magic'], {})
@@ -552,8 +534,8 @@ function init_gear_sets()
     sets.defense.ParryAcc = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Staunch Tathlum +1",
         head="Ayanmo Zucchetto +2",neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
         body=hpgear["Ashera Harness"],hands=hpgear["Turms Mittens +1"],ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
-        back=gear.TPCape,waist="Sarissaphoroi Belt",legs=hpgear["Erilaz Leg Guards +1"],feet=hpgear["Turms Leggings +1"]}
-    -- acc~1231, haste+26, stp+21, da+12, ta+2
+        back=gear.TPCape,waist="Sailfi Belt +1",legs=hpgear["Erilaz Leg Guards +1"],feet=hpgear["Turms Leggings +1"]}
+    -- acc~1231, haste+26, stp+21, da+15, ta+2
     -- pdt-50, inqu+10, mdt-40, mdb+26, bdt-35, meva+534, r.st+11, enm+21, 2876 hp /drk
     sets.defense.ParryRf = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Staunch Tathlum +1",
         head=hpgear["Turms Cap +1"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Ethereal Earring"],
@@ -595,18 +577,18 @@ function init_gear_sets()
     -- acc~1235, haste+26, stp+34, da+22, ta+26, qa+5, pdt-12, inqu+3, mdt-0, mdb+21, bdt-0, meva+336, 2265 hp /drk
     sets.engaged.PDef = set_combine(sets.engaged, {
         head="Ayanmo Zucchetto +2",body=hpgear["Ashera Harness"],ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
-        waist="Sarissaphoroi Belt",legs="Meghanada Chausses +2"})
-    -- acc~1270, haste+26, stp+48, da+18, ta+17, pdt-43, inqu+3, mdt-25, mdb+20 bdt-25, meva+351, 2492 hp /drk
+        waist="Sailfi Belt +1",legs="Meghanada Chausses +2"})
+    -- acc~1270, haste+26, stp+48, da+21, ta+17, pdt-43, inqu+3, mdt-25, mdb+20 bdt-25, meva+351, 2492 hp /drk
     sets.engaged.PDef2 = set_combine(sets.engaged.PDef, {ammo="Staunch Tathlum +1",
         head="Ayanmo Zucchetto +2",hands=gear.herc_hands_dt,feet=hpgear["Turms Leggings +1"]})
     -- acc~1251, haste+25, stp+38, da+18, ta+9, pdt-50, inqu+8, mdt-32, mdb+22 bdt-32, meva+408, r.st+11, 2557 hp /drk
 
-    sets.engaged.DualAxe         = set_combine(sets.engaged,       {ear2="Suppanomimi",waist="Reiki Yotai"})
-    sets.engaged.DualSword       = set_combine(sets.engaged,       {ear2="Suppanomimi",waist="Reiki Yotai"})
-    sets.engaged.DualAxe.PDef    = set_combine(sets.engaged.PDef,  {ear2="Suppanomimi",waist="Reiki Yotai"})
-    sets.engaged.DualSword.PDef  = set_combine(sets.engaged.PDef,  {ear2="Suppanomimi",waist="Reiki Yotai"})
-    sets.engaged.DualAxe.PDef2   = set_combine(sets.engaged.PDef2, {ear2="Suppanomimi",waist="Reiki Yotai"})
-    sets.engaged.DualSword.PDef2 = set_combine(sets.engaged.PDef2, {ear2="Suppanomimi",waist="Reiki Yotai"})
+    sets.engaged.AxeDW         = set_combine(sets.engaged,       {ear2="Suppanomimi",waist="Reiki Yotai"})
+    sets.engaged.AxeDW.PDef    = set_combine(sets.engaged.PDef,  {ear2="Suppanomimi",waist="Reiki Yotai",legs="Samnuha Tights"})
+    sets.engaged.AxeDW.PDef2   = set_combine(sets.engaged.PDef2, {ear2="Suppanomimi"})
+    sets.engaged.SwordDW       = set_combine(sets.engaged,       {ear2="Suppanomimi",waist="Reiki Yotai"})
+    sets.engaged.SwordDW.PDef  = set_combine(sets.engaged.PDef,  {ear2="Suppanomimi",waist="Reiki Yotai",legs="Samnuha Tights"})
+    sets.engaged.SwordDW.PDef2 = set_combine(sets.engaged.PDef2, {ear2="Suppanomimi"})
 
     -- Spells default to a midcast of FastRecast, which is altered to match current the DefenseMode in job_precast
     sets.midcast.FastRecast = set_combine(sets.defense.Parry, {})
@@ -626,10 +608,8 @@ function job_precast(spell, action, spellMap, eventArgs)
     if S{'Ward','Effusion','JobAbility'}:contains(spell.type) then
         if sets.precast.JA[spell.english] then
             eventArgs.handled = true
-            if     state.CastingMode.value == 'Tank' then
+            if state.CastingMode.value == 'Tank' then
                 equip(sets.Enmity.Tank,     sets.precast.JA[spell.english])
-            elseif state.CastingMode.value == 'Paranoid' then
-                equip(sets.Enmity.Paranoid, sets.precast.JA[spell.english])
             else
                 equip(sets.Enmity,          sets.precast.JA[spell.english])
             end
@@ -656,16 +636,6 @@ end
 -- Run after the default midcast() is done.
 -- eventArgs is the same one used in job_midcast, in case information needs to be persisted.
 function job_post_midcast(spell, action, spellMap, eventArgs)
-    if spell.action_type == 'Magic' and state.CastingMode.value == 'Paranoid' then
-        if sets.midcast[spell.english] and sets.midcast[spell.english].Paranoid then
-            equip(sets.midcast[spell.english].Paranoid)
-        elseif state.DefenseMode.value ~= 'None' then
-            local defMode = state[state.DefenseMode.value ..'DefenseMode'].current
-            equip(sets.defense[defMode])
-        else
-            equip(sets.defense.Parry)
-        end
-    end
     if state.SIRD.value and info.sird_spells:contains(spell.english) then
         if buffactive['Choral Roll'] then
             equip(sets.SIRD.Choral)
@@ -674,6 +644,7 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
             if spell.english == 'Aquaveil' then
                 -- auto unset SIRD; i forget to do so manually too often
                 state.SIRD:unset()
+                hud_update_on_state_change('SIRD Casting')
             end
         end
     end
@@ -710,9 +681,7 @@ function job_aftercast(spell, action, spellMap, eventArgs)
         end
         if spell.type == 'Rune' or spell.type == 'JobAbility' and not sets.precast.JA[spell.english] then
             -- aftercast can get in the way. skip it when able
-            if not (state.IdleMode.value == 'Kite' and state.DefenseMode.value == 'None' and state.CastingMode.value == 'Paranoid') then
-                eventArgs.handled = true
-            end
+            eventArgs.handled = true
         end
     end
 end
@@ -782,23 +751,16 @@ function job_state_change(stateField, newValue, oldValue)
             state.DefenseMode:set('Magical')
         end
         if state.DefenseMode.value ~= 'None' then
-            local defMode = state[state.DefenseMode.value ..'DefenseMode'].current
+            local defMode = state[state.DefenseMode.value..'DefenseMode'].current
             sets.midcast.FastRecast = set_combine(sets.defense[defMode], {})
             handle_equipping_gear(player.status)
         else
             sets.midcast.FastRecast = set_combine(sets.defense.Parry, {})
         end
     end
-end
 
--- Called when the player's subjob changes.
-function job_sub_job_change(newSubjob, oldSubjob)
-    if S{'DNC','NIN'}:contains(newSubjob) then
-        sets.weapons.Sword.sub = sets.weapons.DualSword.sub
-        sets.weapons.Axe.sub   = sets.weapons.DualAxe.sub
-    else
-        sets.weapons.Sword.sub = sets.weapons.SingleSword.sub
-        sets.weapons.Axe.sub   = sets.weapons.SingleAxe.sub
+    if hud_update_on_state_change then
+        hud_update_on_state_change(stateField)
     end
 end
 
@@ -899,7 +861,7 @@ function display_current_job_state(eventArgs)
     msg = msg .. ' Cast[' .. state.CastingMode.current .. ']'
 
     if state.DefenseMode.value ~= 'None' then
-        local defMode = state[state.DefenseMode.value ..'DefenseMode'].current
+        local defMode = state[state.DefenseMode.value..'DefenseMode'].current
         msg = msg .. ' Def[' .. state.DefenseMode.value .. ':' .. defMode .. ']'
     end
     if state.StatusDefenseMode.value ~= 'None' then
@@ -917,7 +879,7 @@ function display_current_job_state(eventArgs)
     end
 
     add_to_chat(122, msg)
-    report_ja_recasts(info.recast_ids, 5)
+    report_ja_recasts(info.recast_ids, true, 5)
     eventArgs.handled = true
 end
 
@@ -939,6 +901,8 @@ function job_self_command(cmdParams, eventArgs)
     eventArgs.handled = true
     if cmdParams[1] == 'ListWS' then
         info.ws_binds:print('ListWS:')
+    elseif cmdParams[1] == 'weap' then
+        weap_self_command(cmdParams, 'CombatWeapon')
     elseif cmdParams[1] == 'save' then
         save_self_command(cmdParams)
     elseif cmdParams[1] == 'rebind' then
@@ -988,22 +952,19 @@ function job_keybinds()
         'bind !space gs c set DefenseMode Physical',
         'bind @space gs c set DefenseMode Magical',
         'bind !@space gs c reset DefenseMode',
-        'bind !- gs c cycleback CombatWeapon',
-        'bind != gs c cycle     CombatWeapon',
-        'bind @F1 gs c set CombatWeapon Epeo',
-        'bind @F2 gs c set CombatWeapon EpeoRef',
-        'bind @F3 gs c set CombatWeapon Lionheart',
-        'bind @F4 gs c set CombatWeapon GreatAxe',
-        'bind @F5 gs c set CombatWeapon Axe',
-        'bind @F6 gs c set CombatWeapon Sword',
+        'bind  !^w gs c set CombatWeapon Epeo',
+        'bind  ^@w gs c set CombatWeapon EpeoRef',
+        'bind ~!^w gs c set CombatWeapon Lionheart',
+        'bind  !^q gs c set CombatWeapon GreatAxe',
+        'bind ~!^q gs c set CombatWeapon Hepatizon',
+        'bind  !^e gs c weap Axe',
+        'bind ~!^e gs c weap Sword',
         'bind ^z gs c set HybridMode PDef2',
         'bind !z gs c cycle PhysicalDefenseMode',
         'bind @z gs c cycle MagicalDefenseMode',
         'bind !@z gs c set  MagicalDefenseMode MDT50',
         'bind !c  gs c toggle SIRD',
         'bind ^c  gs c set CastingMode Tank',
-        'bind !^c gs c set CastingMode Paranoid',
-        'bind !@c gs c reset CastingMode',
 
         'bind ^@- gs equip defense.HPdown',
         'bind ^@= gs equip defense.HPup',
@@ -1023,7 +984,6 @@ function job_keybinds()
         'bind ^tab input /ja Vallation <me>',          -- (450/900)
         'bind ^` input /ja Valiance <me>',             -- (450/900 per)
         'bind @` input /ja Pflug <me>',                -- (450/900)
-        'bind !^q cancel Foil,Valiance,Vallation,Fast Cast,Liement,Pflug', -- for vinipata
 
         'bind ^4 input /ja Gambit',                    -- (640/1280)
         'bind ^5 input /ja Rayke',                     -- (640/1260)
@@ -1059,8 +1019,8 @@ function job_keybinds()
         'bind !2 input /ma Flash <stnpc>',     -- (180/1280)
         'bind !3 input /ja Swordplay <me>',    -- (160/320)
         'bind !d input /ma Foil <me>',         -- (320/880)
-        'bind !@d input /ma Foil <me>',
         'bind @d cancel Foil',
+        'bind !@d cancel Foil,Valiance,Vallation,Fast Cast,Liement,Pflug', -- for vinipata
 
         'bind !f input /ma Refresh <me>',
         'bind @f input /ma Crusade <me>',      -- enm+30
@@ -1149,54 +1109,63 @@ function triple_rune_string(spell)
 end
 
 function init_state_text()
-    destroy_state_text()
-    local sird_text_settings   = {flags={draggable=false},bg={alpha=150}}
-    local para_text_settings   = {pos={x=42},flags={draggable=false},bg={alpha=150}}
-    local swap_text_settings   = {pos={y=18},flags={draggable=false},bg={alpha=150}}
-    local stnpc_text_settings  = {pos={y=36},flags={draggable=false},bg={alpha=150}}
-    local hyb_text_settings    = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    local def_text_settings    = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    local status_text_settings = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    state.sird_text   = texts.new('SIRD', sird_text_settings)
-    state.para_text   = texts.new('Paranoid', para_text_settings)
-    state.swap_text   = texts.new('No TP', swap_text_settings)
-    state.stnpc_text  = texts.new('<stnpc>', stnpc_text_settings)
-    state.hyb_text    = texts.new('/${hybrid}', hyb_text_settings)
-    state.def_text    = texts.new('(${defense})', def_text_settings)
-    state.status_text = texts.new('{${status}}', status_text_settings)
+    if hud then return end
 
-    windower.register_event('logout', destroy_state_text)
-    state.texts_event_id = windower.register_event('prerender', function()
-        state.sird_text:visible(state.SIRD.value)
-        state.para_text:visible((state.CastingMode.value == 'Paranoid'))
-        state.swap_text:visible((state.OffenseMode.value == 'None'))
-        state.stnpc_text:visible(state.SelectNPCTargets.value)
+    local sird_text_settings  = {flags={draggable=false},bg={blue=150,green=150,alpha=150},text={stroke={width=2}}}
+    local stnpc_text_settings = {pos={y=18},flags={draggable=false},bg={red=200,alpha=150},text={stroke={width=2}}}
+    local hyb_text_settings   = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    local def_text_settings   = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    local off_text_settings   = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
 
-        if state.HybridMode.value ~= 'Normal' then
-            state.hyb_text:show()
-            state.hyb_text:update({hybrid=state.HybridMode.value})
-        else state.hyb_text:hide() end
+    hud = {texts=T{}}
+    hud.texts.sird_text  = texts.new('SIRD',           sird_text_settings)
+    hud.texts.stnpc_text = texts.new('<stnpc>',        stnpc_text_settings)
+    hud.texts.hyb_text   = texts.new('initializing..', hyb_text_settings)
+    hud.texts.def_text   = texts.new('initializing..', def_text_settings)
+    hud.texts.off_text   = texts.new('initializing..', off_text_settings)
 
-        if state.DefenseMode.value ~= 'None' then
-            state.def_text:show()
-            state.def_text:update({defense=state[state.DefenseMode.value..'DefenseMode'].current})
-        else state.def_text:hide() end
+    -- update infrequently changing text boxes in job_state_change or where they are changed
+    function hud_update_on_state_change(stateField)
+        if not hud then init_state_text() end
 
-        if state.StatusDefenseMode.value ~= 'None' then
-            state.status_text:show()
-            state.status_text:update({status=state.StatusDefenseMode.value})
-        else state.status_text:hide() end
-    end)
-end
+        if not stateField or stateField == 'SIRD Casting' then
+            hud.texts.sird_text:visible(state.SIRD.value)
+        end
 
-function destroy_state_text()
-    if state.texts_event_id then
-        windower.unregister_event(state.texts_event_id)
-        for text in S{state.sird_text, state.para_text, state.swap_text, state.stnpc_text,
-                      state.hyb_text, state.def_text, state.status_text}:it() do
-            text:hide()
-            text:destroy()
+        if not stateField or stateField == 'Select NPC Targets' then
+            hud.texts.stnpc_text:visible(state.SelectNPCTargets.value)
+        end
+
+        if not stateField or stateField == 'Hybrid Mode' then
+            if state.HybridMode.value ~= 'Normal' then
+                hud.texts.hyb_text:text('/%s':format(state.HybridMode.value))
+                hud.texts.hyb_text:show()
+            else hud.texts.hyb_text:hide() end
+        end
+
+        if not stateField or stateField:endswith('Defense Mode') then
+            if state.DefenseMode.value ~= 'None' then
+                local defMode = state[state.DefenseMode.value..'DefenseMode'].current
+                if state.StatusDefenseMode.value == 'None' then
+                    hud.texts.def_text:text('(%s)':format(defMode))
+                else
+                    hud.texts.def_text:text('(%s/%s)':format(defMode, state.StatusDefenseMode.value))
+                end
+                hud.texts.def_text:show()
+            elseif state.StatusDefenseMode.value ~= 'None' then
+                hud.texts.def_text:text('(/%s)':format(state.StatusDefenseMode.value))
+                hud.texts.def_text:show()
+            else hud.texts.def_text:hide() end
+        end
+
+        if not stateField or stateField == 'Offense Mode' or stateField == 'Combat Weapon' then
+            if state.OffenseMode.value == 'None' then
+                hud.texts.off_text:text('NoTP')
+                hud.texts.off_text:show()
+            elseif not state.CombatWeapon.value:startswith('Epeo') then
+                hud.texts.off_text:text(state.CombatWeapon.value)
+                hud.texts.off_text:show()
+            else hud.texts.off_text:hide() end
         end
     end
-    state.texts_event_id = nil
 end

@@ -57,7 +57,9 @@ function job_setup()
     state.Buff.Innin = buffactive['innin'] or false
     state.Buff.Migawari = buffactive['migawari'] or false
 
-    include('Mote-TreasureHunter')
+    --include('Mote-TreasureHunter')
+
+    windower.raw_register_event('logout', destroy_state_text)
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -88,6 +90,7 @@ function user_setup()
     state.Cooking    = M(false, 'Cooking Gear')
     state.HELM       = M(false, 'HELM Gear')
     init_state_text()
+    hud_update_on_state_change()
 
     info.magic_ws  = S{'Blade: Ei','Blade: Yu',
                        'Aeolian Edge','Cyclone','Gust Slash','Energy Steal','Energy Drain',
@@ -552,6 +555,7 @@ function job_precast(spell, action, spellMap, eventArgs)
     elseif state.SIRDUtsu.value and spellMap == 'Utsusemi' then
         enable('main','sub')
         state.OffenseMode:set('None')
+        hud_update_on_state_change('Offense Mode')
     elseif spell.english == 'Mijin Gakure' then
         if not buffactive.Reraise then
             enable('main','sub')
@@ -681,16 +685,20 @@ function job_aftercast(spell, action, spellMap, eventArgs)
                 state.HybridMode:set('Normal')
             end
             state.CastingMode:set('Enmity')
+            hud_update_on_state_change()
         end
     elseif spellMap == 'Utsusemi' then
         if     state.AutoHybrid.value == 'Utsu' then
             state.HybridMode:set('Normal')
+            hud_update_on_state_change('Hybrid Mode')
         elseif state.AutoHybrid.value == 'Miga' and state.Buff.Migawari then
             state.HybridMode:set('Normal')
             state.CastingMode:set('Enmity')
+            hud_update_on_state_change()
         end
         if state.SIRDUtsu.value then
             state.SIRDUtsu:unset()
+            hud_update_on_state_change('SIRD Utsu')
         end
     elseif spell.type == 'JobAbility' then
         if not sets.precast.JA[spell.english] then
@@ -731,6 +739,7 @@ function job_buff_change(buff, gain)
                 handle_equipping_gear(player.status)
             end
         end
+        hud_update_on_state_change('Hybrid Mode')
     elseif state.AutoHybrid.value == 'Miga' and lbuff == 'migawari' then
         if gain then
             if player_has_shadows() then
@@ -744,6 +753,7 @@ function job_buff_change(buff, gain)
                 handle_equipping_gear(player.status)
             end
         end
+        hud_update_on_state_change()
     elseif not midaction() then
         if lbuff == 'doom' then
             handle_equipping_gear(player.status)
@@ -809,6 +819,7 @@ function job_state_change(stateField, newValue, oldValue)
                 state.CastingMode:set('Normal')
             end
         end
+        hud_update_on_state_change()
     elseif stateField == 'Ranged Mode' then
         if not midaction() then
             handle_equipping_gear(player.status)
@@ -858,6 +869,10 @@ function job_state_change(stateField, newValue, oldValue)
             send_command('alias pick    input /item "Pickaxe"<t>')
             send_command('alias tpick   input /item "Trbl. Pickaxe"<t>')
         end
+    end
+
+    if hud_update_on_state_change then
+        hud_update_on_state_change(stateField)
     end
 end
 
@@ -991,7 +1006,7 @@ function display_current_job_state(eventArgs)
     if state.SIRDUtsu.value then
         msg = msg .. ' SIRD'
     end
-    if state.TreasureMode.value ~= 'None' then
+    if state.TreasureMode and state.TreasureMode.value ~= 'None' then
         msg = msg .. ' TH+4'
     end
     if state.Fishing.value then
@@ -1009,7 +1024,7 @@ function display_current_job_state(eventArgs)
 
     add_to_chat(122, msg)
     report_ninja_tools()
-    report_ja_recasts(info.recast_ids, 5)
+    report_ja_recasts(info.recast_ids, true, 5)
     eventArgs.handled = true
 end
 
@@ -1315,64 +1330,67 @@ function player_has_shadows()
 end
 
 function init_state_text()
-    destroy_state_text()
-    local mb_text_settings    = {flags={draggable=false},bg={alpha=150}}
-    local nodmg_text_settings = {pos={x=53},flags={draggable=false},bg={alpha=150}}
-    local swap_text_settings  = {pos={y=18},flags={draggable=false},bg={alpha=150}}
-    local sird_text_settings  = {pos={y=36},flags={draggable=false},bg={alpha=150}}
-    local stnpc_text_settings = {pos={y=54},flags={draggable=false},bg={alpha=150}}
+    if hud then return end
+
+    local mb_text_settings    = {flags={draggable=false,bold=true},bg={red=250,green=200,blue=0,alpha=150},text={stroke={width=2}}}
+    local sird_text_settings  = {flags={draggable=false},bg={blue=150,green=150,alpha=150},text={stroke={width=2}}}
+    local stnpc_text_settings = {pos={y=18},flags={draggable=false},bg={red=200,alpha=150},text={stroke={width=2}}}
     local hyb_text_settings   = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local def_text_settings   = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local off_text_settings   = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local dw_text_settings    = {pos={x=130,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    state.mb_text    = texts.new('NonMB', mb_text_settings)
-    state.nodmg_text = texts.new('NoDmg', nodmg_text_settings)
-    state.swap_text  = texts.new('NoTP', swap_text_settings)
-    state.sird_text  = texts.new('SIRD', sird_text_settings)
-    state.stnpc_text = texts.new('<stnpc>', stnpc_text_settings)
-    state.hyb_text   = texts.new('initializing..', hyb_text_settings)
-    state.def_text   = texts.new('initializing..', def_text_settings)
-    state.off_text   = texts.new('initializing..', off_text_settings)
-    state.dw_text    = texts.new('initializing..', dw_text_settings)
 
-    windower.register_event('logout', destroy_state_text)
-    state.texts_event_id = windower.register_event('prerender', function()
-        state.mb_text:visible(not state.MagicBurst.value)
-        state.nodmg_text:visible((state.WeaponskillMode.value == 'NoDmg'))
-        state.swap_text:visible((state.CombatWeapon.value == 'None'))
-        state.sird_text:visible(state.SIRDUtsu.value)
-        state.stnpc_text:visible(state.SelectNPCTargets.value)
+    hud = {texts=T{}}
+    hud.texts.mb_text    = texts.new('NonMB',          mb_text_settings)
+    hud.texts.sird_text  = texts.new('SIRD',           sird_text_settings)
+    hud.texts.stnpc_text = texts.new('<stnpc>',        stnpc_text_settings)
+    hud.texts.hyb_text   = texts.new('initializing..', hyb_text_settings)
+    hud.texts.def_text   = texts.new('initializing..', def_text_settings)
+    hud.texts.off_text   = texts.new('initializing..', off_text_settings)
+    hud.texts.dw_text    = texts.new('initializing..', dw_text_settings)
 
-        if state.HybridMode.value ~= 'Normal' then
-            state.hyb_text:text('/'..state.HybridMode.value)
-            state.hyb_text:show()
-        else state.hyb_text:hide() end
+    -- update infrequently changing text boxes in job_state_change or where they are changed
+    function hud_update_on_state_change(stateField)
+        if not hud then init_state_text() end
 
-        if state.DefenseMode.value ~= 'None' then
-            state.def_text:text('(%s)':format(state[state.DefenseMode.value..'DefenseMode'].value))
-            state.def_text:show()
-        else state.def_text:hide() end
+        if not stateField or stateField == 'Magic Burst' then
+            hud.texts.mb_text:visible((not state.MagicBurst.value))
+        end
 
-        if state.OffenseMode.value ~= 'Normal' then
-            state.off_text:text(state.OffenseMode.value)
-            state.off_text:show()
-        else state.off_text:hide() end
+        if not stateField or stateField == 'SIRD Casting' then
+            hud.texts.sird_text:visible(state.SIRDUtsu.value)
+        end
 
-        if state.CombatForm.has_value then
-            state.dw_text:text(state.CombatForm.value)
-            state.dw_text:show()
-        else state.dw_text:hide() end
-    end)
-end
+        if not stateField or stateField == 'Select NPC Targets' then
+            hud.texts.stnpc_text:visible(state.SelectNPCTargets.value)
+        end
 
-function destroy_state_text()
-    if state.texts_event_id then
-        windower.unregister_event(state.texts_event_id)
-        for text in S{state.mb_text, state.nodmg_text, state.swap_text, state.sird_text, state.stnpc_text,
-                      state.hyb_text, state.def_text, state.off_text, state.dw_text}:it() do
-            text:hide()
-            text:destroy()
+        if not stateField or stateField == 'Hybrid Mode' then
+            if state.HybridMode.value ~= 'Normal' then
+                hud.texts.hyb_text:text('/%s':format(state.HybridMode.value))
+                hud.texts.hyb_text:show()
+            else hud.texts.hyb_text:hide() end
+        end
+
+        if not stateField or stateField:endswith('Defense Mode') then
+            if state.DefenseMode.value ~= 'None' then
+                hud.texts.def_text:text('(%s)':format(state[state.DefenseMode.value..'DefenseMode'].current))
+                hud.texts.def_text:show()
+            else hud.texts.def_text:hide() end
+        end
+
+        if not stateField or stateField == 'Offense Mode' then
+            if state.OffenseMode.value ~= 'Normal' then
+                hud.texts.off_text:text(state.OffenseMode.value)
+                hud.texts.off_text:show()
+            else hud.texts.off_text:hide() end
+        end
+
+        if not stateField or stateField == 'Combat Form' then
+            if state.CombatForm.has_value then
+                hud.texts.dw_text:text(state.CombatForm.value)
+                hud.texts.dw_text:show()
+            else hud.texts.dw_text:hide() end
         end
     end
-    state.texts_event_id = nil
 end

@@ -36,6 +36,8 @@ function job_setup()
     state.Buff.Entrust              = buffactive.entrust or false
     state.Buff['Collimated Fervor'] = buffactive['collimated fervor'] or false
     state.Buff.doom                 = buffactive.doom or false
+
+    windower.raw_register_event('logout', destroy_state_text)
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -51,10 +53,10 @@ function user_setup()
     state.MagicalDefenseMode:options('MEVA')
     state.CombatWeapon = M{['description']='Combat Weapon'}
     if S{'DNC','NIN'}:contains(player.sub_job) then
-        state.CombatWeapon:options('ClubDW','Staff','Dagger')
+        state.CombatWeapon:options('IdrisDW','MaxenDW','Staff','Dagger')
         state.CombatForm:set('DW')
     else
-        state.CombatWeapon:options('Club','Staff','Dagger')
+        state.CombatWeapon:options('Idris','Maxentius','Staff','Dagger')
         state.CombatForm:reset()
     end
 
@@ -73,12 +75,13 @@ function user_setup()
     info.indi_dur_melee = math.floor(1.20 * (180 + 40 + 15 + 20))
     geo_state_updates()
     init_state_text()
+    hud_update_on_state_change()
 
     -- Augmented items get variables for convenience and specificity
     gear.MACape   = {name="Nantosuelta's Cape",
         augments={'MND+20','Mag. Acc+20 /Mag. Dmg.+20','Mag. Acc.+10','"Fast Cast"+10','Phys. dmg. taken-10%'}}
     gear.PetCape  = {name="Nantosuelta's Cape",
-        augments={'HP+60','Eva.+20 /Mag. Eva.+20','Mag. Evasion+10','Pet: "Regen"+10','Pet: Damage taken -5%'}}
+        augments={'HP+60','Eva.+20 /Mag. Eva.+20','Mag. Evasion+10','Pet: "Regen"+10','Phys. dmg. taken-10%'}}
     gear.NukeCape = {name="Nantosuelta's Cape",
         augments={'INT+20','Mag. Acc+20 /Mag. Dmg.+20','INT+10','"Mag.Atk.Bns."+10','Phys. dmg. taken-10%'}}
     gear.TPCape   = {name="Nantosuelta's Cape",
@@ -154,8 +157,8 @@ function user_setup()
 
     info.ws_binds = make_keybind_list(T{
         ['Club']=L{
-            'bind !^1 input /ws "Flash Nova"',
-            'bind !^2 input /ws "Hexa Strike"',
+            'bind !^1 input /ws "Exudation"',
+            'bind !^2 input /ws "Flash Nova"',
             'bind !^3 input /ws "Black Halo"',
             'bind !^4 input /ws "Realmrazer"',
             'bind !^5 input /ws "Judgment"',
@@ -175,7 +178,7 @@ function user_setup()
             'bind !^4 input /ws "Viper Bite"',
             'bind !^6 input /ws "Aeolian Edge"',
             'bind !^d input /ws "Shadowstitch"'}},
-        {['Club']='Club',['ClubDW']='Club',['Dagger']='Dagger',['Staff']='Staff'})
+        {['Idris']='Club',['IdrisDW']='Club',['Maxentius']='Club',['MaxenDW']='Club',['Dagger']='Dagger',['Staff']='Staff'})
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
 
@@ -230,10 +233,12 @@ end
 function init_gear_sets()
 
     sets.weapons = {}
-    sets.weapons.Club   = {main="Maxentius",sub="Genmei Shield",range="Dunna"}
-    sets.weapons.ClubDW = {main="Maxentius",sub="Magesmasher +1",range="Dunna"}
-    sets.weapons.Dagger = {main="Malevolence",sub="Ammurapi Shield",range="Dunna"}
-    sets.weapons.Staff  = {main="Malignance Pole",sub="Khonsu",range="Dunna"}
+    sets.weapons.Idris     = {main="Idris",sub="Genmei Shield",range="Dunna"}
+    sets.weapons.IdrisDW   = {main="Idris",sub="Magesmasher +1",range="Dunna"}
+    sets.weapons.Maxentius = {main="Maxentius",sub="Genmei Shield",range="Dunna"}
+    sets.weapons.MaxenDW   = {main="Maxentius",sub="Magesmasher +1",range="Dunna"}
+    sets.weapons.Dagger    = {main="Malevolence",sub="Ammurapi Shield",range="Dunna"}
+    sets.weapons.Staff     = {main="Malignance Pole",sub="Khonsu",range="Dunna"}
     sets.TreasureHunter = {head="White Rarab Cap +1",waist="Chaac Belt",legs=gear.mer_legs_th,feet=gear.mer_feet_th}
 
     -- Precast Sets
@@ -245,9 +250,10 @@ function init_gear_sets()
     sets.precast.JA['Full Circle']      = {head="Azimuth Hood +1"}
 
     sets.precast.FC = {main="Sucellus",sub="Chanter's Shield",range="Dunna",
-        head="Amalric Coif +1",neck="Voltsurge Torque",ear1="Malignance Earring",ear2="Etiolation Earring",
+        head=gear.mer_head_fc,neck="Voltsurge Torque",ear1="Malignance Earring",ear2="Etiolation Earring",
         body="Zendik Robe",hands=gear.tel_hand_enh,ring2="Kishar Ring",
         back=gear.MACape,waist="Shinjutsu-no-Obi +1",legs="Geomancy Pants +3",feet=gear.mer_feet_fc}
+    sets.precast.FC.Geomancy = set_combine(sets.precast.FC, {main="Idris",sub="Chanter's Shield",range="Dunna"})
     sets.precast.FC['Elemental Magic'] = set_combine(sets.precast.FC, {ear2="Barkarole Earring",hands="Bagua Mitaines +1"})
     sets.precast.FC.Cure = set_combine(sets.precast.FC, {ear2="Mendicant's Earring",feet="Vanya Clogs"})
     sets.precast.FC.Curaga = sets.precast.FC.Cure
@@ -286,7 +292,7 @@ function init_gear_sets()
 
     -- Midcast sets
 
-    sets.midcast.Cure = {main="Mafic Cudgel",sub="Genmei Shield",range="Dunna",
+    sets.midcast.Cure = {main="Idris",sub="Genmei Shield",range="Dunna",
         head="Vanya Hood",neck="Loricate Torque +1",ear1="Calamitous Earring",ear2="Mendicant's Earring",
         body="Mallquis Saio +2",hands=gear.tel_hand_enh,ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.PetCape,waist="Shinjutsu-no-Obi +1",legs="Gyve Trousers",feet="Vanya Clogs"}
@@ -355,12 +361,12 @@ function init_gear_sets()
     sets.midcast.Aspir = sets.midcast.Drain
     sets.drain_belt = {waist="Fucho-no-Obi"}
 
-    sets.midcast.Geomancy = {main="Mafic Cudgel",sub="Genmei Shield",range="Dunna",
-        head="Ea Hat +1",neck="Bagua Charm +2",ear1="Calamitous Earring",ear2="Etiolation Earring",
+    sets.midcast.Geomancy = {main="Idris",sub="Genmei Shield",range="Dunna",
+        head="Hike Khat +1",neck="Bagua Charm +2",ear1="Calamitous Earring",ear2="Gifted Earring",
         body="Mallquis Saio +2",hands="Geomancy Mitaines +3",ring1="Stikini Ring +1",ring2="Defending Ring",
         back="Solemnity Cape",waist="Shinjutsu-no-Obi +1",legs="Vanya Slops",feet="Vanya Clogs"}
-    sets.midcast.Geomancy.Indi = set_combine(sets.midcast.Geomancy, {main="Solstice",sub="Genmei Shield",range="Dunna",
-        back="Lifestream Cape",legs="Bagua Pants +1",feet="Azimuth Gaiters +1"})
+    sets.midcast.Geomancy.Indi = set_combine(sets.midcast.Geomancy, {main="Idris",sub="Genmei Shield",range="Dunna",
+        ring1="Vocane Ring +1",back="Lifestream Cape",legs="Bagua Pants +1",feet="Azimuth Gaiters +1"})
     sets.midcast.Geomancy.Entrust = set_combine(sets.midcast.Geomancy.Indi, {main="Solstice",sub="Genmei Shield"})
 
     -- Idle/resting/defense/etc sets
@@ -369,21 +375,17 @@ function init_gear_sets()
         head=gear.mer_head_rf,neck="Loricate Torque +1",ear1="Eabani Earring",ear2="Lugalbanda Earring",
         body="Geomancy Tunic +3",hands="Bagua Mitaines +1",ring1="Stikini Ring +1",ring2="Defending Ring",
         back=gear.PetCape,waist="Resolute Belt",legs="Assiduity Pants +1",feet="Geomancy Sandals +3"}
-    sets.idle.Pet = {main="Sucellus",sub="Genmei Shield",
-        head="Hike Khat +1",neck="Bagua Charm +2",ear1="Rimeice Earring",ear2="Lugalbanda Earring",
+    sets.idle.Pet = {main="Idris",sub="Genmei Shield",
+        head="Hike Khat +1",neck="Bagua Charm +2",ear1="Eabani Earring",ear2="Lugalbanda Earring",
         body="Geomancy Tunic +3",hands="Geomancy Mitaines +3",ring1="Stikini Ring +1",ring2="Defending Ring",
-        back=gear.PetCape,waist="Isa Belt",legs="Psycloth Lappas",feet="Bagua Sandals +1"}
+        back=gear.PetCape,waist="Isa Belt",legs="Assiduity Pants +1",feet="Bagua Sandals +1"}
     sets.idle.PDT = set_combine(sets.idle, {head="Hike Khat +1",ring1="Vocane Ring +1"})
-    sets.idle.PDT.Pet = {main="Sucellus",sub="Genmei Shield",
-        head="Hike Khat +1",neck="Bagua Charm +2",ear1="Rimeice Earring",ear2="Lugalbanda Earring",
-        body="Mallquis Saio +2",hands="Geomancy Mitaines +3",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.PetCape,waist="Isa Belt",legs="Psycloth Lappas",feet="Bagua Sandals +1"}
+    sets.idle.PDT.Pet = set_combine(sets.idle.Pet, {ring1="Vocane Ring +1"})
     sets.idle.MEVA = {main="Mafic Cudgel",sub="Genmei Shield",range="Dunna",
         head="Ea Hat +1",neck="Loricate Torque +1",ear1="Eabani Earring",ear2="Lugalbanda Earring",
         body="Ea Houppelande +1",hands="Geomancy Mitaines +3",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.PetCape,waist="Resolute Belt",legs="Ea Slops +1",feet="Geomancy Sandals +3"}
-    sets.idle.MEVA.Pet = set_combine(sets.idle.MEVA, {main="Sucellus",sub="Genmei Shield",
-        head=gear.tel_head_pet,neck="Bagua Charm +2",ear1="Rimeice Earring",waist="Isa Belt",legs="Psycloth Lappas"})
+    sets.idle.MEVA.Pet = set_combine(sets.idle.MEVA, {main="Idris",sub="Genmei Shield",neck="Bagua Charm +2",waist="Isa Belt"})
     sets.latent_refresh = {waist="Fucho-no-Obi"}
     sets.zendik         = {body="Zendik Robe"}
     sets.buff.doom      = {neck="Nicander's Necklace",ring1="Saida Ring",ring2="Defending Ring",waist="Gishdubar Sash"}
@@ -583,6 +585,10 @@ function job_state_change(stateField, newValue, oldValue)
         else             info.ally_keybinds:unbind()
         end
     end
+
+    if hud_update_on_state_change then
+        hud_update_on_state_change(stateField)
+    end
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -644,17 +650,16 @@ end
 -- Modify the default melee set after it was constructed.
 function customize_melee_set(meleeSet)
     if state.DefenseMode.value == 'None' then
-        if state.CombatWeapon.value ~= 'None' then
+        if state.OffenseMode.value ~= 'None' then
             meleeSet = set_combine(meleeSet, sets.weapons[state.CombatWeapon.value])
-        end
-        if state.CombatForm.has_value and state.CombatForm.value == 'DW' then
-            meleeSet = set_combine(meleeSet, sets.dualwield)
-        end
-        if buffactive['Reive Mark'] then
-            meleeSet = set_combine(meleeSet, {neck="Arciela's Grace +1"})
-        end
-        if buffactive['elvorseal'] then
-            meleeSet = set_combine(meleeSet, {body="Angantyr Robe",hands="Angantyr Mittens",legs="Angantyr Tights"})
+            if state.CombatForm.has_value and state.CombatForm.value == 'DW' then
+                meleeSet = set_combine(meleeSet, sets.dualwield)
+            end
+            if buffactive['elvorseal'] then
+                meleeSet = set_combine(meleeSet, {body="Angantyr Robe",hands="Angantyr Mittens",legs="Angantyr Tights"})
+            end
+        else
+            meleeSet = sets.idle.PDT.Pet
         end
     end
     if has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
@@ -727,7 +732,7 @@ function display_current_job_state(eventArgs)
     end
 
     add_to_chat(122, msg)
-    report_ja_recasts(info.recast_ids, 6)
+    report_ja_recasts(info.recast_ids, true, 6)
     eventArgs.handled = true
 end
 
@@ -808,8 +813,8 @@ function job_keybinds()
         'bind !@space gs c reset DefenseMode',
         'bind ~!^q gs c set CombatWeapon Dagger',
         'bind !^q  gs c set CombatWeapon Staff',
-        'bind !^w  gs c weap Club',
-        'bind !^e  gs c weap Day',
+        'bind !^w  gs c weap Idris',
+        'bind !^e  gs c weap Maxen',
         'bind !w   gs c set   OffenseMode Normal',
         'bind !@w  gs c reset OffenseMode',
         'bind ^z   gs c toggle ZendikIdle',
@@ -1074,32 +1079,74 @@ function geo_state_updates(spell, action)
 end
 
 function init_state_text()
-    destroy_state_text()
-    local mb_text_settings    = {flags={draggable=false},bg={alpha=150}}
-    local seidr_text_settings = {pos={y=18},flags={draggable=false},bg={alpha=150}}
+    if hud then return end
+
+    local mb_text_settings    = {flags={draggable=false,bold=true},bg={red=250,green=200,blue=0,alpha=150},text={stroke={width=2}}}
+    local seidr_text_settings = {pos={y=18},flags={draggable=false,bold=true},bg={red=0,green=220,blue=220,alpha=150},
+                                 text={stroke={width=2}}}
+    local ally_text_settings  = {pos={x=-178},flags={draggable=false,right=true},bg={alpha=150},text={font='Courier New',size=10}}
     local hyb_text_settings   = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local def_text_settings   = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    local off_text_settings   = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local geo_entrust_text_settings = {pos={x=1000,y=676},flags={draggable=false,bold=true},
                                        bg={alpha=150},padding=1,text={font='Courier New',size=10,stroke={width=1}}}
     local geo_luopan_text_settings  = {pos={x=1000,y=697},flags={draggable=false,bold=true},
                                        bg={alpha=150},padding=1,text={font='Courier New',size=10,stroke={width=1}}}
     local geo_indi_text_settings    = {pos={x=1000,y=718},flags={draggable=false,bold=true},
                                        bg={alpha=150},padding=1,text={font='Courier New',size=10,stroke={width=1}}}
-    state.mb_text          = texts.new('MBurst',         mb_text_settings)
-    state.seidr_text       = texts.new('Seidr',          seidr_text_settings)
-    state.hyb_text         = texts.new('initializing..', hyb_text_settings)
-    state.def_text         = texts.new('initializing..', def_text_settings)
-    state.geo_entrust_text = texts.new('initializing..', geo_entrust_text_settings)
-    state.geo_luopan_text  = texts.new('initializing..', geo_luopan_text_settings)
-    state.geo_indi_text    = texts.new('initializing..', geo_indi_text_settings)
 
-    local counter, interval = 0, 15 -- only update bubble texts every <interval> frames
+    hud = {texts=T{}}
+    hud.texts.mb_text          = texts.new('MBurst',         mb_text_settings)
+    hud.texts.seidr_text       = texts.new('Seidr',          seidr_text_settings)
+    hud.texts.ally_text        = texts.new('AllyCure',       ally_text_settings)
+    hud.texts.hyb_text         = texts.new('initializing..', hyb_text_settings)
+    hud.texts.def_text         = texts.new('initializing..', def_text_settings)
+    hud.texts.off_text         = texts.new('initializing..', off_text_settings)
+    hud.texts.geo_entrust_text = texts.new('initializing..', geo_entrust_text_settings)
+    hud.texts.geo_luopan_text  = texts.new('initializing..', geo_luopan_text_settings)
+    hud.texts.geo_indi_text    = texts.new('initializing..', geo_indi_text_settings)
 
-    windower.register_event('logout', destroy_state_text)
-    state.texts_event_id = windower.register_event('prerender', function()
-        state.mb_text:visible(state.MagicBurst.value)
-        state.seidr_text:visible(state.Seidr.value)
+    -- update infrequently changing text boxes in job_state_change or where they are changed
+    function hud_update_on_state_change(stateField)
+        if not hud then init_state_text() end
 
+        if not stateField or stateField == 'Magic Burst' then
+            hud.texts.mb_text:visible(state.MagicBurst.value)
+        end
+
+        if not stateField or stateField == 'Seidr Nukes' then
+            hud.texts.seidr_text:visible(state.Seidr.value)
+        end
+
+        if not stateField or stateField == 'Ally Cure Keybinds' then
+            hud.texts.ally_text:visible(state.AllyBinds.value)
+        end
+
+        if not stateField or stateField == 'Hybrid Mode' then
+            if state.HybridMode.value ~= 'Normal' then
+                hud.texts.hyb_text:text('/%s':format(state.HybridMode.value))
+                hud.texts.hyb_text:show()
+            else hud.texts.hyb_text:hide() end
+        end
+
+        if not stateField or stateField:endswith('Defense Mode') then
+            if state.DefenseMode.value ~= 'None' then
+                hud.texts.def_text:text('(%s)':format(state[state.DefenseMode.value..'DefenseMode'].current))
+                hud.texts.def_text:show()
+            else hud.texts.def_text:hide() end
+        end
+
+        if not stateField or stateField == 'Offense Mode' or stateField == 'Combat Weapon' then
+            if state.OffenseMode.value ~= 'None' then
+                hud.texts.off_text:text(state.CombatWeapon.value)
+                hud.texts.off_text:show()
+            else hud.texts.off_text:hide() end
+        end
+    end
+
+    -- update continuously changing text boxes with a prerender event
+    local counter, interval = 15, 15 -- only update bubble texts every <interval> frames
+    function hud_update_on_prerender()
         counter = counter + 1
         if counter >= interval and state.GeoHUD.value then
             counter = 0
@@ -1115,22 +1162,22 @@ function init_state_text()
                     local green    = math.min(math.max(0, math.floor(255 * entrust_time_remaining / state.entrust.duration)), 255)
                     local text     = 'Entrust-%s (%.4s): %d:%02d':format(state.entrust.last_colure, state.entrust.target, min, sec)
                     if state.entrust.bolster then text = '[BOLSTER]'..text end
-                    state.geo_entrust_text:text(text)
-                    state.geo_entrust_text:color(255,255,255)
-                    state.geo_entrust_text:bg_color(0,green,0)
+                    hud.texts.geo_entrust_text:text(text)
+                    hud.texts.geo_entrust_text:color(255,255,255)
+                    hud.texts.geo_entrust_text:bg_color(0,green,0)
                 elseif entrust_recast > 0 then
                     local min, sec = math.floor(entrust_recast / 60), entrust_recast % 60
-                    state.geo_entrust_text:text('Entrust : %d:%02d':format(min, sec)
+                    hud.texts.geo_entrust_text:text('Entrust : %d:%02d':format(min, sec)
                         ..(state.entrust.last_colure and     ' (last: '..state.entrust.last_colure..')' or ''))
-                    state.geo_entrust_text:color(255,255,255)
-                    state.geo_entrust_text:bg_color(0,0,0)
+                    hud.texts.geo_entrust_text:color(255,255,255)
+                    hud.texts.geo_entrust_text:bg_color(0,0,0)
                 else
-                    state.geo_entrust_text:text('NO ENTRUST'
+                    hud.texts.geo_entrust_text:text('NO ENTRUST'
                         ..(state.entrust.last_colure and '     (last: '..state.entrust.last_colure..')' or ''))
-                    state.geo_entrust_text:color(0,0,0)
-                    state.geo_entrust_text:bg_color(255,0,0)
+                    hud.texts.geo_entrust_text:color(0,0,0)
+                    hud.texts.geo_entrust_text:bg_color(255,0,0)
                 end
-                state.geo_entrust_text:show()
+                hud.texts.geo_entrust_text:show()
 
                 if pet and pet.isvalid and pet.name == 'Luopan' then
                     local luopan = windower.ffxi.get_mob_by_index(pet.index) or {}
@@ -1163,16 +1210,16 @@ function init_state_text()
                             text = '[DEMAT]'..text
                         end
                     end
-                    state.geo_luopan_text:text(text)
-                    state.geo_luopan_text:color(255,255,255)
-                    state.geo_luopan_text:bg_color(0,green,0)
+                    hud.texts.geo_luopan_text:text(text)
+                    hud.texts.geo_luopan_text:color(255,255,255)
+                    hud.texts.geo_luopan_text:bg_color(0,green,0)
                 else
-                    state.geo_luopan_text:text('NO LUOPAN'
+                    hud.texts.geo_luopan_text:text('NO LUOPAN'
                         ..(state.luopan.last_colure and '      (last: '..state.luopan.last_colure..')' or ''))
-                    state.geo_luopan_text:color(0,0,0)
-                    state.geo_luopan_text:bg_color(255,0,0)
+                    hud.texts.geo_luopan_text:color(0,0,0)
+                    hud.texts.geo_luopan_text:bg_color(255,0,0)
                 end
-                state.geo_luopan_text:show()
+                hud.texts.geo_luopan_text:show()
 
                 if player.indi then
                     local indi_time_remaining = math.max(0, state.indi.started and state.indi.started - now + state.indi.duration or 0)
@@ -1180,47 +1227,27 @@ function init_state_text()
                     local green    = math.min(math.max(0, math.floor(255 * indi_time_remaining / (state.indi.duration or 1))), 255)
                     local text     = 'Indi-%s : %d:%02d':format((state.indi.last_colure and state.indi.last_colure or '?'), min, sec)
                     if state.Buff.Bolster then text = '[BOLSTER]'..text end
-                    state.geo_indi_text:text(text)
-                    state.geo_indi_text:color(255,255,255)
-                    state.geo_indi_text:bg_color(0,green,0)
+                    hud.texts.geo_indi_text:text(text)
+                    hud.texts.geo_indi_text:color(255,255,255)
+                    hud.texts.geo_indi_text:bg_color(0,green,0)
                 else
-                    state.geo_indi_text:text('NO INDICOLURE'
+                    hud.texts.geo_indi_text:text('NO INDICOLURE'
                         ..(state.indi.last_colure and '  (last: '..state.indi.last_colure..')' or ''))
-                    state.geo_indi_text:color(0,0,0)
-                    state.geo_indi_text:bg_color(255,0,0)
+                    hud.texts.geo_indi_text:color(0,0,0)
+                    hud.texts.geo_indi_text:bg_color(255,0,0)
                 end
-                state.geo_indi_text:show()
+                hud.texts.geo_indi_text:show()
             else
-                state.geo_entrust_text:hide()
-                state.geo_luopan_text:hide()
-                state.geo_indi_text:hide()
+                hud.texts.geo_entrust_text:hide()
+                hud.texts.geo_luopan_text:hide()
+                hud.texts.geo_indi_text:hide()
             end
         elseif not state.GeoHUD.value then
-            state.geo_entrust_text:hide()
-            state.geo_luopan_text:hide()
-            state.geo_indi_text:hide()
-        end
-
-        if state.HybridMode.value ~= 'Normal' then
-            state.hyb_text:text('/%s':format(state.HybridMode.value))
-            state.hyb_text:show()
-        else state.hyb_text:hide() end
-
-        if state.DefenseMode.value ~= 'None' then
-            state.def_text:text('(%s)':format(state[state.DefenseMode.value..'DefenseMode'].current))
-            state.def_text:show()
-        else state.def_text:hide() end
-    end)
-end
-
-function destroy_state_text()
-    if state.texts_event_id then
-        windower.unregister_event(state.texts_event_id)
-        for text in S{state.mb_text, state.seidr_text, state.hyb_text, state.def_text,
-                      state.geo_entrust_text, state.geo_luopan_text, state.geo_indi_text}:it() do
-            text:hide()
-            text:destroy()
+            hud.texts.geo_entrust_text:hide()
+            hud.texts.geo_luopan_text:hide()
+            hud.texts.geo_indi_text:hide()
         end
     end
-    state.texts_event_id = nil
+
+    hud.prerender_event_id = windower.raw_register_event('prerender', hud_update_on_prerender)
 end

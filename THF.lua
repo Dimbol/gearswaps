@@ -43,6 +43,8 @@ function job_setup()
     state.Buff.doom = buffactive.doom or false
 
     include('Mote-TreasureHunter')
+
+    windower.raw_register_event('logout', destroy_state_text)
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -64,8 +66,8 @@ function user_setup()
 
     state.WSMsg     = M(false, 'WS Message')                    -- Toggle with ^\
     state.THAeolian = M(false, 'TH Aeolian')                    -- Toggle with ^z
-    state.SATAHUD   = M(false, 'SATA HUD')                      -- Toggle with !^\
     init_state_text()
+    hud_update_on_state_change()
 
     info.magic_ws = S{'Aeolian Edge','Cyclone','Gust Slash','Energy Steal','Energy Drain',
                       'Burning Blade','Red Lotus Blade','Shining Blade','Seraph Blade','Sanguine Blade'}
@@ -470,6 +472,7 @@ function job_aftercast(spell, action, spellMap, eventArgs)
         end
         if spell.english == 'Aeolian Edge' then
             state.THAeolian:unset()
+            hud_update_on_state_change('TH Aeolian')
         end
         -- Weaponskills wipe SATA/Feint.  Turn those state vars off before default gearing is attempted.
         state.Buff['Sneak Attack'] = false
@@ -575,6 +578,10 @@ function job_state_change(stateField, newValue, oldValue)
         if newValue ~= 'None' then
             handle_equipping_gear(player.status)
         end
+    end
+
+    if hud_update_on_state_change then
+        hud_update_on_state_change(stateField)
     end
 end
 
@@ -800,7 +807,6 @@ function job_keybinds()
         'bind !z gs c cycle PhysicalDefenseMode',
         'bind @z gs c cycle MagicalDefenseMode',
         'bind ^\\\\  gs c toggle WSMsg',
-        'bind !^\\\\  gs c toggle SATAHUD',
 
         'bind !^` input /ja "Perfect Dodge" <me>',
         'bind ^@` input /ja Larceny',
@@ -922,169 +928,55 @@ function job_keybinds()
 end
 
 function init_state_text()
-    destroy_state_text()
-    local th_ae_text_settings = {flags={draggable=false},bg={alpha=150}}
-    local nodmg_text_settings = {pos={x=53},flags={draggable=false},bg={alpha=150}}
-    local hyb_text_settings   = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    local def_text_settings   = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    local off_text_settings   = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    local dw_text_settings    = {pos={x=130,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
-    local sa_text_settings    = {pos={x=1000,y=697},flags={draggable=false,bold=true},
-                                 bg={alpha=150},padding=1,text={font='Courier New',size=10,stroke={width=1}}}
-    local ta_text_settings    = {pos={x=1000,y=718},flags={draggable=false,bold=true},
-                                 bg={alpha=150},padding=1,text={font='Courier New',size=10,stroke={width=1}}}
-    state.th_ae_text= texts.new('THAE',           th_ae_text_settings)
-    state.nodmg_text= texts.new('NoDmg',          nodmg_text_settings)
-    state.hyb_text  = texts.new('initializing..', hyb_text_settings)
-    state.def_text  = texts.new('initializing..', def_text_settings)
-    state.off_text  = texts.new('initializing..', off_text_settings)
-    state.dw_text   = texts.new('initializing..', dw_text_settings)
-    state.sa_text   = texts.new('initializing..', sa_text_settings)
-    state.ta_text   = texts.new('initializing..', ta_text_settings)
+    if hud then return end
 
-    local counter, interval = 0, 5 -- only update sata texts every <interval> frames
-    windower.register_event('logout', destroy_state_text)
-    state.texts_event_id = windower.register_event('prerender', function()
-        state.th_ae_text:visible(state.THAeolian.value)
-        state.nodmg_text:visible((state.WeaponskillMode.value == 'NoDmg'))
+    local thae_text_settings = {flags={draggable=false},bg={alpha=150}}
+    local hyb_text_settings  = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    local def_text_settings  = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    local off_text_settings  = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
+    local dw_text_settings   = {pos={x=130,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
 
-        if state.HybridMode.value ~= 'Normal' then
-            state.hyb_text:text('/'..state.HybridMode.value)
-            state.hyb_text:show()
-        else state.hyb_text:hide() end
+    hud = {texts=T{}}
+    hud.texts.thae_text = texts.new('THAE',           thae_text_settings)
+    hud.texts.hyb_text  = texts.new('initializing..', hyb_text_settings)
+    hud.texts.def_text  = texts.new('initializing..', def_text_settings)
+    hud.texts.off_text  = texts.new('initializing..', off_text_settings)
+    hud.texts.dw_text   = texts.new('initializing..', dw_text_settings)
 
-        if state.DefenseMode.value ~= 'None' then
-            state.def_text:text('(%s)':format(state[state.DefenseMode.value..'DefenseMode'].value))
-            state.def_text:show()
-        else state.def_text:hide() end
+    -- update infrequently changing text boxes in job_state_change or where they are changed
+    function hud_update_on_state_change(stateField)
+        if not hud then init_state_text() end
 
-        if state.OffenseMode.value ~= 'Normal' then
-            state.off_text:text(state.OffenseMode.value)
-            state.off_text:show()
-        else state.off_text:hide() end
-
-        if state.CombatForm.has_value then
-            state.dw_text:text(state.CombatForm.value)
-            state.dw_text:show()
-        else state.dw_text:hide() end
-
-        counter = counter + 1
-        if counter >= interval and state.SATAHUD.value
-        and player.target and player.target.type == 'MONSTER' and not areas.Cities:contains(world.area) then
-            counter = 0
-            if state.Buff['Sneak Attack'] then
-                -- mob table position values seem to be much more up-to-date than player and player.target
-                local mob = windower.ffxi.get_mob_by_id(player.target.id)
-                local me = windower.ffxi.get_mob_by_id(player.id)
-                local delta_x = mob.x - me.x
-                local delta_y = mob.y - me.y
-
-                -- mob.facing is from 0 (east) to 2*pi running clockwise
-                -- math.atan2 is from -pi to pi with 0 being mob to your east running counter-clockwise
-                local corrected_mob_facing   -- version of mob.facing which is consistent with math.atan2
-                if mob.facing < math.pi then corrected_mob_facing = -mob.facing
-                else                         corrected_mob_facing = 2*math.pi - mob.facing
-                end
-
-                local atan2 = math.atan2(delta_y, delta_x)
-                local theta = atan2 - corrected_mob_facing
-
-                -- theta should be 0 when directly behind the target, and pi when directly in front of it, and between -pi and pi
-                local corrected_theta = theta
-                if     theta >  math.pi then corrected_theta = theta - 2*math.pi
-                elseif theta < -math.pi then corrected_theta = theta + 2*math.pi
-                end
-
-                -- sneak attack seems to work within 44 degrees of behind the target, or roughly 0.768 radians
-                local degrees = math.deg(corrected_theta)
-                if math.abs(degrees) < 44 then
-                    state.sa_text:text('SA OK (%.1f deg)':format(degrees))
-                    state.sa_text:bg_color(0,180,0)
-                else
-                    state.sa_text:text('SA X (%.1f deg)':format(degrees))
-                    state.sa_text:bg_color(180,0,0)
-                end
-                state.sa_text:show()
-            else state.sa_text:hide() end
-
-            if state.Buff['Trick Attack'] then
-                local mob = windower.ffxi.get_mob_by_id(player.target.id)
-
-                -- first find alliance members roughly within ws range of the target, and closer to it than you
-                -- (distances are left squared)
-                local near_dist = (mob.model_size/2 + 4) ^ 2
-                local near_allies = L{}
-                if mob.distance < near_dist then -- mob roughly within ws range
-                    local party = windower.ffxi.get_party()
-                    for _, member in pairs(party) do
-                        if type(member) == 'table' and member.mob and member.mob.valid_target
-                        and member.name ~= player.name and member.mob.distance < mob.distance then -- ally closer to me than target
-                            local d_x = member.mob.x - mob.x
-                            local d_y = member.mob.y - mob.y
-                            member.mob.distance_to_target_2 = d_x^2 + d_y^2
-                            if member.mob.distance_to_target_2 < mob.distance then -- ally closer to target than i am
-                                near_allies:append(member.mob)
-                            end
-                        end
-                    end
-                end
-
-                -- find closest ally in a TA-able position
-                local valid_ta = false
-                if not near_allies:empty() then
-                    local me = windower.ffxi.get_mob_by_id(player.id)
-
-                    -- check for a line-circle intersection where the line is between you and ally,
-                    -- and the circle is defined by enemy position and model size
-                    -- take my position as coordinate 0,0 for simplicity
-                    -- note that this check is a bit too strict, as it does not account for player model sizes
-                    -- and may not work on small targets such as chiggoes
-                    --
-                    -- a more accurate check may be to see if an ally's circle intersects the area
-                    -- between outer tangents of thf and mob circles
-                    --
-                    -- discriminant = r^2 * (1 + m)^2 - (b - m*a)^2
-                    -- where r is half the enemy model size, (a,b) is the enemy position, and m is the slope of the line
-                    local r2 = (mob.model_size/2) ^ 2
-                    local a = mob.x - me.x
-                    local b = mob.y - me.y
-
-                    near_allies:sort(function(a,b) return a.distance_to_target_2 < b.distance_to_target_2 end)
-                    for ally in near_allies:it() do
-                        local m = (ally.y - me.y) / (ally.x - me.x)
-                        local discriminant = r2 * (1 + m)^2 - (b - m * a)^2
-
-                        if discriminant > 0 then
-                            state.ta_text:text('TA on ' .. ally.name)
-                            state.ta_text:bg_color(0,180,0)
-                            valid_ta = true
-                            break
-                        end
-                    end
-                end
-
-                if not valid_ta then
-                    state.ta_text:text('TA X')
-                    state.ta_text:bg_color(180,0,0)
-                end
-                state.ta_text:show()
-
-            else state.ta_text:hide() end
-        elseif counter >= interval then
-            state.sa_text:hide()
-            state.ta_text:hide()
+        if not stateField or stateField == 'TH Aeolian' then
+            hud.texts.thae_text:visible(state.THAeolian.value)
         end
-    end)
-end
 
-function destroy_state_text()
-    if state.texts_event_id then
-        windower.unregister_event(state.texts_event_id)
-        for text in S{state.th_ae_text, state.nodmg_text, state.hyb_text, state.def_text, state.off_text, state.dw_text,
-                      state.sa_text, state.ta_text}:it() do
-            text:hide()
-            text:destroy()
+        if not stateField or stateField == 'Hybrid Mode' then
+            if state.HybridMode.value ~= 'Normal' then
+                hud.texts.hyb_text:text('/%s':format(state.HybridMode.value))
+                hud.texts.hyb_text:show()
+            else hud.texts.hyb_text:hide() end
+        end
+
+        if not stateField or stateField:endswith('Defense Mode') then
+            if state.DefenseMode.value ~= 'None' then
+                hud.texts.def_text:text('(%s)':format(state[state.DefenseMode.value..'DefenseMode'].current))
+                hud.texts.def_text:show()
+            else hud.texts.def_text:hide() end
+        end
+
+        if not stateField or stateField == 'Offense Mode' then
+            if state.OffenseMode.value ~= 'Normal' then
+                hud.texts.off_text:text(state.OffenseMode.value)
+                hud.texts.off_text:show()
+            else hud.texts.off_text:hide() end
+        end
+
+        if not stateField or stateField == 'Combat Form' then
+            if state.CombatForm.has_value then
+                hud.texts.dw_text:text(state.CombatForm.value)
+                hud.texts.dw_text:show()
+            else hud.texts.dw_text:hide() end
         end
     end
-    state.texts_event_id = nil
 end

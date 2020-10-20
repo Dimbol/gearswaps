@@ -165,11 +165,12 @@ function save_self_command(cmdParams)
     end
 end
 
-function report_ja_recasts(recast_ids, n)
+function report_ja_recasts(recast_ids, show_available, n)
     local all_ja_recasts = windower.ffxi.get_ability_recasts()
     local available_list = L{}
     local unavailable_list = L{}
     local stratagems_id = 231
+    show_available = show_available or true
     n = n or 6
 
     for ability in recast_ids:it() do
@@ -203,7 +204,7 @@ function report_ja_recasts(recast_ids, n)
         end
     end
 
-    if not available_list:empty() then
+    if show_available and not available_list:empty() then
         add_to_chat(121, "OK: " .. available_list:concat(' '))
     end
     if not unavailable_list:empty() then
@@ -321,5 +322,16 @@ function custom_auto_change_target(spell, action, spellMap, eventArgs)
         elseif 'NPC' == player.target.type then
             add_to_chat(122,'Is this a trust? ['..player.target.name..']')
         end
+    end
+end
+
+function destroy_state_text()
+    if hud then
+        if hud.prerender_event_id then windower.unregister_event(hud.prerender_event_id) end
+        for text in hud.texts:it() do
+            text:hide()
+            text:destroy()
+        end
+        hud = nil
     end
 end

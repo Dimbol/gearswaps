@@ -78,6 +78,8 @@ function job_setup()
     state.Buff['Sublimation: Activated'] = buffactive['Sublimation: Activated'] or false
     state.Buff['Elemental Seal']  = buffactive['Elemental Seal'] or false
     state.Buff.doom = buffactive.doom or false
+
+    windower.raw_register_event('logout', destroy_state_text)
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -137,7 +139,8 @@ function user_setup()
                                                        {action='Starburst'}}}}
     info.sc_step_waits = T{} -- TODO test for and place exceptions to default wait times here
     skillchain_state_updates(nil, 'init')
-    if not hud then init_state_text() end
+    init_state_text()
+    hud_update_on_state_change()
 
     info.addendum_spells = T{'Poisona','Paralyna','Blindna','Silena','Stona','Viruna','Cursna','Erase',
                              'Raise II','Raise III','Reraise','Reraise II','Reraise III',
@@ -535,7 +538,7 @@ function job_precast(spell, action, spellMap, eventArgs)
                 -- make it free
                 state.CastingMode:set('LowMP')
             end
-            hud.state_change_update('Casting Mode')
+            hud_update_on_state_change('Casting Mode')
         end
     end
 
@@ -772,8 +775,8 @@ function job_state_change(stateField, newValue, oldValue)
         end
     end
 
-    if hud and hud.state_change_update then
-        hud.state_change_update(stateField)
+    if hud_update_on_state_change then
+        hud_update_on_state_change(stateField)
     end
 end
 
@@ -920,7 +923,7 @@ function display_current_job_state(eventArgs)
     end
 
     add_to_chat(122, msg)
-    report_ja_recasts(info.recast_ids)
+    report_ja_recasts(info.recast_ids, true)
     eventArgs.handled = true
 end
 
@@ -1344,7 +1347,7 @@ function skillchain_handle_command(cmd)
                 end
             end
             state.MagicBurst:set()
-            hud.state_change_update('Magic Burst')
+            hud_update_on_state_change('Magic Burst')
             skillchain_state_updates(cmd, 'start')
             add_to_chat(121,'queuing [%s]: %s':format(cmd, state.skillchain.list:map(skillchain_step_to_string):concat(' ')))
 
@@ -1400,8 +1403,10 @@ function skillchain_step_to_string(step)
 end
 
 function init_state_text()
-    local mb_text_settings    = {flags={draggable=false,bold=true},bg={red=250,green=200,blue=0,alpha=150},
-                                 text={stroke={width=2}}}
+    if hud then return end
+
+    local mb_text_settings    = {flags={draggable=false,bold=true},bg={red=250,green=200,blue=0,alpha=150},text={stroke={width=2}}}
+    local ally_text_settings  = {pos={x=-178},flags={draggable=false,right=true},bg={alpha=150},text={font='Courier New',size=10}}
     local cmode_text_settings = {pos={y=18},flags={draggable=false,bold=true},bg={red=0,green=220,blue=220,alpha=150},
                                  text={stroke={width=2}}}
     local hyb_text_settings   = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
@@ -1412,6 +1417,7 @@ function init_state_text()
 
     hud = {texts=T{}}
     hud.texts.mb_text    = texts.new('MBurst',         mb_text_settings)
+    hud.texts.ally_text  = texts.new('AllyCure',       ally_text_settings)
     hud.texts.cmode_text = texts.new('initializing..', cmode_text_settings)
     hud.texts.hyb_text   = texts.new('initializing..', hyb_text_settings)
     hud.texts.def_text   = texts.new('initializing..', def_text_settings)
@@ -1419,9 +1425,15 @@ function init_state_text()
     hud.texts.sc_text    = texts.new('initializing..', sc_text_settings)
 
     -- update infrequently changing text boxes in job_state_change or where they are changed
-    hud.state_change_update = function(stateField)
+    function hud_update_on_state_change(stateField)
+        if not hud then init_state_text() end
+
         if not stateField or stateField == 'Magic Burst' then
             hud.texts.mb_text:visible(state.MagicBurst.value)
+        end
+
+        if not stateField or stateField == 'Ally Cure Keybinds' then
+            hud.texts.ally_text:visible(state.AllyBinds.value)
         end
 
         if not stateField or stateField == 'Casting Mode' then
@@ -1445,7 +1457,7 @@ function init_state_text()
             else hud.texts.def_text:hide() end
         end
 
-        if not stateField or stateField == 'Offense Mode' then
+        if not stateField or stateField == 'Offense Mode' or stateField == 'Combat Weapon' then
             if state.OffenseMode.value ~= 'None' then
                 hud.texts.off_text:text(state.CombatWeapon.value)
                 hud.texts.off_text:show()
@@ -1454,8 +1466,8 @@ function init_state_text()
     end
 
     -- update continuously changing text boxes with a prerender event
-    local counter, interval = 0, 15 -- only update skillchain text every <interval> frames
-    hud.prerender_event_update = function()
+    local counter, interval = 15, 15 -- only update skillchain text every <interval> frames
+    function hud_update_on_prerender()
         counter = counter + 1
         if counter >= interval and state.SCHUD.value then
             counter = 0
@@ -1530,25 +1542,5 @@ function init_state_text()
         end
     end
 
-    hud.state_change_update()
-    hud.prerender_event_id = windower.register_event('prerender', hud.prerender_event_update)
-    hud.logout_event_id    = windower.register_event('logout',    destroy_state_text)
-end
-
-function destroy_state_text()
-    if hud and hud.texts then
-        if hud.prerender_event_id then
-            windower.unregister_event(hud.prerender_event_id)
-            hud.prerender_event_id = nil
-        end
-        if hud.logout_event_id then
-            windower.unregister_event(hud.logout_event_id)
-            hud.logout_event_id = nil
-        end
-        for text in hud.texts:it() do
-            text:hide()
-            text:destroy()
-        end
-        hud.texts:clear()
-    end
+    hud.prerender_event_id = windower.raw_register_event('prerender', hud_update_on_prerender)
 end
