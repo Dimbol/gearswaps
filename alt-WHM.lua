@@ -64,13 +64,12 @@ function user_setup()
 
     gear.tel_head_enh = {name="Telchine Cap", augments={'Mag. Evasion+22','"Conserve MP"+5','Enh. Mag. eff. dur. +10'}}
     gear.tel_body_enh = {name="Telchine Chas.", augments={'Mag. Evasion+19','"Conserve MP"+5','Enh. Mag. eff. dur. +10'}}
-    gear.tel_hand_enh = {name="Telchine Gloves", augments={'Mag. Evasion+19','"Fast Cast"+5','Enh. Mag. eff. dur. +9'}}
-    gear.tel_legs_enh = {name="Telchine Braconi", augments={'Mag. Evasion+19','"Conserve MP"+3','Enh. Mag. eff. dur. +9'}}
+    gear.tel_hand_enh = {name="Telchine Gloves", augments={'Mag. Evasion+19','"Fast Cast"+5','Enh. Mag. eff. dur. +10'}}
+    gear.tel_legs_enh = {name="Telchine Braconi", augments={'Mag. Evasion+19','"Conserve MP"+3','Enh. Mag. eff. dur. +10'}}
     gear.tel_feet_enh = {name="Telchine Pigaches", augments={'Mag. Evasion+17','"Conserve MP"+5','Enh. Mag. eff. dur. +10'}}
-    gear.chir_head_ma = {name="Chironic Hat", augments={'Mag. Acc.+30','MND+7'}}
-    gear.chir_legs_ma = {name="Chironic Hose",
-        augments={'Mag. Acc.+19 "Mag.Atk.Bns."+19','Spell interruption rate down -2%','CHR+1','Mag. Acc.+15'}}
-    gear.chir_feet_rf = {name="Chironic Slippers", augments={'Attack+3','"Refresh"+1','Accuracy+20 Attack+20'}}
+    gear.chir_hand_ma = {name="Chironic Gloves", augments={'Mag. Acc.+23 "Mag.Atk.Bns."+23','Enmity-2','Mag. Acc.+10','"Mag.Atk.Bns."+13'}}
+    gear.chir_legs_ma  = {name="Chironic Hose", augments={'Mag. Acc.+25 "Mag.Atk.Bns."+25','Haste+1','CHR+13','Mag. Acc.+13'}}
+    gear.chir_feet_ma = {name="Chironic Slippers", augments={'Mag. Acc.+25 "Mag.Atk.Bns."+25','Spell interruption rate down -10%','MND+11'}}
 
     info.keybinds = make_keybind_list(job_keybinds())
     info.keybinds:bind()
@@ -173,7 +172,7 @@ function init_gear_sets()
     sets.weapons.ClubDW  = {main="Maxentius",sub="Magesmasher +1"}
     sets.weapons.Staff   = {main="Malignance Pole",sub="Alber Strap"}
     sets.weapons.StaffMA = {main="Marin Staff +1",sub="Alber Strap"}
-    sets.TreasureHunter = {head="White Rarab Cap +1"}
+    sets.TreasureHunter = {head="White Rarab Cap +1",waist="Chaac Belt"}
 
     -- Precast Sets
 
@@ -234,7 +233,7 @@ function init_gear_sets()
     sets.midcast.Raise = {main="Mafic Cudgel",sub="Genmei Shield",ammo="Pemphredo Tathlum",
         head="Nahtirah Hat",neck="Loricate Torque +1",ear1="Malignance Earring",ear2="Calamitous Earring",
         body="Inyanga Jubbah +2",hands="Inyanga Dastanas +2",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MACape,waist="Shinjutsu-no-Obi +1",legs="Assiduity Pants +1",feet="Regal Pumps +1"}
+        back=gear.MACape,waist="Shinjutsu-no-Obi +1",legs="Inyanga Shalwar +2",feet="Regal Pumps +1"}
     sets.midcast.Reraise = set_combine(sets.midcast.Raise, {})
     sets.midcast.Esuna   = set_combine(sets.midcast.Raise, {})
     sets.buff['Divine Caress'] = {hands="Ebers Mitts +1",back="Mending Cape"}
@@ -253,7 +252,7 @@ function init_gear_sets()
     sets.midcast.Auspice   = set_combine(sets.midcast.EnhancingDuration, {feet="Ebers Duckbills +1"})
     sets.midcast.Stoneskin = set_combine(sets.midcast.EnhancingDuration, {neck="Nodens Gorget",legs="Shedir Seraweels"})
     sets.midcast.Aquaveil  = set_combine(sets.midcast.EnhancingDuration, {main="Vadose Rod",sub="Ammurapi Shield",
-        head=gear.chir_head_ma,legs="Shedir Seraweels"})
+        head="Chironic Hat",legs="Shedir Seraweels"})
     sets.midcast.Phalanx   = set_combine(sets.midcast['Enhancing Magic'], {head=gear.tel_head_enh})
     sets.midcast.StatBoost = set_combine(sets.midcast.Phalanx, {hands=gear.tel_hand_enh,waist="Embla Sash"})
     sets.midcast.StatBoost.NoGrimoire = set_combine(sets.midcast.Phalanx, {})
@@ -268,15 +267,15 @@ function init_gear_sets()
     sets.midcast['Enfeebling Magic'] = {main="Maxentius",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
         head="Theophany Cap +2",neck="Erra Pendant",ear1="Malignance Earring",ear2="Dignitary's Earring",
         body="Theophany Briault +2",hands="Inyanga Dastanas +2",ring1="Stikini Ring +1",ring2="Metamorph Ring +1",
-        back=gear.MACape,waist="Luminary Sash",legs=gear.chir_legs_ma,feet="Theophany Duckbills +2"}
+        back="Aurist's Cape +1",waist="Luminary Sash",legs=gear.chir_legs_ma,feet="Theophany Duckbills +2"}
     --sets.midcast.Dispelga = set_combine(sets.midcast['Enfeebling Magic'], sets.dispelga)
     sets.midcast.MndEnfeebles = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast.IntEnfeebles = set_combine(sets.midcast.MndEnfeebles, {})
 
     sets.midcast['Divine Magic'] = {main="Marin Staff +1",sub="Enki Strap",ammo="Pemphredo Tathlum",
-        head=empty,neck="Sanctity Necklace",ear1="Malignance Earring",ear2="Crematio Earring",
-        body="Cohort Cloak +1",hands="Fanatic Gloves",ring1="Freke Ring",ring2="Metamorph Ring +1",
-        back=gear.MACape,waist="Refoccilation Stone",legs="Gyve Trousers",feet="Inspirited Boots"}
+        head=empty,neck="Sanctity Necklace",ear1="Malignance Earring",ear2="Regal Earring",
+        body="Cohort Cloak +1",hands=gear.chir_hand_ma,ring1="Freke Ring",ring2="Metamorph Ring +1",
+        back=gear.MACape,waist="Refoccilation Stone",legs="Gyve Trousers",feet=gear.chir_feet_ma}
     sets.midcast['Divine Magic'].MB = set_combine(sets.midcast['Divine Magic'], {
         neck="Mizukage-no-Kubikazari",ear2="Static Earring",ring1="Mujin Band",ring2="Locus Ring"})
     sets.midcast.Banish = set_combine(sets.midcast['Divine Magic'], {hands="Fanatic Gloves"})
@@ -287,7 +286,7 @@ function init_gear_sets()
     sets.midcast.Repose = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast.Flash = {}
 
-    sets.midcast.Drain = set_combine(sets.midcast['Enfeebling Magic'], {
+    sets.midcast.Drain = set_combine(sets.midcast['Enfeebling Magic'], {main="Rubicundity",sub="Ammurapi Shield",
         head="Pixie Hairpin +1",ring1="Archon Ring",ring2="Evanescence Ring",waist="Fucho-no-Obi"})
     sets.midcast.Aspir = sets.midcast.Drain
     sets.drain_belt = {waist="Fucho-no-Obi"}
@@ -303,7 +302,7 @@ function init_gear_sets()
     sets.idle = {main="Mafic Cudgel",sub="Genmei Shield",ammo="Homiliary",
         head="Inyanga Tiara +2",neck="Loricate Torque +1",ear1="Eabani Earring",ear2="Etiolation Earring",
         body="Theophany Briault +2",hands="Inyanga Dastanas +2",ring1="Inyanga Ring",ring2="Defending Ring",
-        back=gear.IdleCape,waist="Embla Sash",legs="Assiduity Pants +1",feet="Herald's Gaiters"}
+        back=gear.IdleCape,waist="Embla Sash",legs="Inyanga Shalwar +2",feet="Herald's Gaiters"}
     sets.idle.PDT  = set_combine(sets.idle, {ring1="Vocane Ring +1",feet="Inyanga Crackows +2"})
     sets.idle.MEVA = set_combine(sets.idle, {body="Inyanga Jubbah +2",legs="Inyanga Shalwar +2",feet="Inyanga Crackows +2"})
     sets.idle.Rf   = set_combine(sets.idle, {feet="Inyanga Crackows +2"})
@@ -401,16 +400,16 @@ function job_aftercast(spell, action, spellMap, eventArgs)
             eventArgs.handled = true
         elseif spell.english == 'Dia II' and state.DiaMsg.value then
             if spell.target.name and spell.target.type == 'MONSTER' then
-                send_command('@input /p Dia II /')
+                send_command('input /p Dia II /')
             end
         elseif spell.type == 'WeaponSkill' and state.WSMsg.value then
             if state.WSMsg.value then
-                send_command('@input /p '..spell.english)
+                send_command('input /p '..spell.english)
             end
         elseif spell.english == 'Sleep' or spell.english == 'Sleepga' then
-            send_command('@timers c "'..spell.english..' ['..spell.target.name..']" 66 down')
+            send_command('timers c "'..spell.english..' ['..spell.target.name..']" 66 down')
         elseif spell.english == 'Sleep II' or spell.english == 'Repose' then
-            send_command('@timers c "'..spell.english..' ['..spell.target.name..']" 99 down')
+            send_command('timers c "'..spell.english..' ['..spell.target.name..']" 99 down')
         end
     end
 end
@@ -439,7 +438,7 @@ function job_buff_change(buff, gain)
             handle_equipping_gear(player.status)
         end
     end
-    if gain then
+    if gain and info.chat_notice_buffs:contains(lbuff) then
         add_to_chat(104, 'Gained ['..buff..']')
     end
 end
@@ -818,7 +817,7 @@ function init_state_text()
     if hud then return end
 
     local mb_text_settings    = {flags={draggable=false,bold=true},bg={red=250,green=200,blue=0,alpha=150},text={stroke={width=2}}}
-    local ally_text_settings  = {pos={x=-178},flags={draggable=false,right=true},bg={alpha=150},text={font='Courier New',size=10}}
+    local ally_text_settings  = {pos={x=-178},flags={draggable=false,right=true,bold=true},bg={alpha=200},text={font='Courier New',size=10}}
     local hyb_text_settings   = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local def_text_settings   = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local off_text_settings   = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}

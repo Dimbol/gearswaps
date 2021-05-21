@@ -1,6 +1,5 @@
 -- Modified from 'https://github.com/Kinematics/GearSwap-Jobs/blob/master/BLM.lua'
 -- TODO test if manawall pieces must be locked
--- TODO death sets
 
 texts = require('texts')
 
@@ -34,19 +33,18 @@ end
 
 -- Setup vars that are user-dependent.  Can override this function in a sidecar file.
 function user_setup()
-    state.OffenseMode:options('None','Normal')                              -- Cycle with F9, locks current weapon
-    state.HybridMode:options('Normal','PDef')                               -- Cycle with ^F9
-    state.CastingMode:options('Normal','MAcc','LowMP','OA')                 -- Cycle with F10, set with ^c, ~^c, !@z, ~^z
-    state.IdleMode:options('Normal','PDT','MEVA','MP')                      -- Cycle with F11
-    state.MagicalDefenseMode:options('MEVA')
+    state.OffenseMode:options('None','Normal')                      -- Cycle with F9, locks current weapon
+    state.HybridMode:options('Normal','PDef')                       -- Cycle with ^F9
+    state.CastingMode:options('Normal','MAcc','LowMP','OA')         -- Cycle with F10, set with ^c, ~^c, !@z, ~^z
+    state.IdleMode:options('Normal','MRf','MP')                     -- Cycle with F11
+    state.MagicalDefenseMode:options('MEVA','MRf')
     state.CombatWeapon = M{['description']='Combat Weapon'}
-    state.CombatWeapon:options('Marin','Pole','Dagger')                     -- Cycle with @F9
+    state.CombatWeapon:options('Marin','MarinK','Pole','Dagger')    -- Cycle with @F9
 
     state.AutoSpaek  = M(true,  'Spaekona Sometimes')   -- Toggle with ~!@z
     state.AutoSpaek.low_mp = 750
     state.MagicBurst = M(false, 'Magic Burst')          -- Toggle with !z
     state.ZendikIdle = M(false, 'Zendik Sphere')        -- Toggle with ^z
-    state.CP         = M(false, 'CP Mode')
     init_state_text()
     hud_update_on_state_change()
 
@@ -54,27 +52,27 @@ function user_setup()
     gear.MACape   = {name="Taranus's Cape", augments={'INT+20','Mag. Acc+20 /Mag. Dmg.+20','"Fast Cast"+10','Phys. dmg. taken-10%'}}
     gear.NukeCape = {name="Taranus's Cape",
         augments={'INT+20','Mag. Acc+20 /Mag. Dmg.+20','INT+10','"Mag.Atk.Bns."+10','Phys. dmg. taken-10%'}}
-    --gear.IdleCape = 
+    --gear.IdleCape =
 
-    gear.mer_head_rf   = {name="Merlinic Hood", augments={'INT+9','Pet: INT+2','"Refresh"+1'}}
+    gear.mer_head_rf   = {name="Merlinic Hood", augments={'"Refresh"+2'}}
     gear.mer_head_fc   = {name="Merlinic Hood", augments={'Mag. Acc.+19 "Mag.Atk.Bns."+19','"Fast Cast"+6','MND+3'}}
     gear.mer_head_mb   = {name="Merlinic Hood", augments={'"Mag.Atk.Bns."+27','Magic burst dmg.+10%','Mag. Acc.+15'}}
     gear.mer_body_mb9  = {name="Merlinic Jubbah", augments={'Mag. Acc.+21 "Mag.Atk.Bns."+21','Magic burst dmg.+9%'}}
     gear.mer_body_mb5  = {name="Merlinic Jubbah",
         augments={'Mag. Acc.+23 "Mag.Atk.Bns."+23','Magic burst dmg.+5%','CHR+10','Mag. Acc.+10','"Mag.Atk.Bns."+11'}}
-    gear.mer_hand_phlx = {name="Merlinic Dastanas",
-        augments={'AGI+8','Pet: Attack+17 Pet: Rng.Atk.+17','Phalanx +3','Accuracy+14 Attack+14'}}
-    gear.mer_legs_th   = {name="Merlinic Shalwar",
-        augments={'DEX+8','"Drain" and "Aspir" potency +4','"Treasure Hunter"+1','Accuracy+20 Attack+20'}}
+    gear.mer_hand_rf   = {name="Merlinic Dastanas", augments={'"Refresh"+2'}}
+    gear.mer_hand_phlx = {name="Merlinic Dastanas", augments={'Phalanx +3'}}
+    gear.mer_legs_rf   = {name="Merlinic Shalwar", augments={'"Refresh"+2'}}
+    gear.mer_legs_th   = {name="Merlinic Shalwar", augments={'"Treasure Hunter"+2'}}
+    gear.mer_feet_rf   = {name="Merlinic Crackows", augments={'"Refresh"+2'}}
     gear.mer_feet_fc   = {name="Merlinic Crackows", augments={'Mag. Acc.+11','"Fast Cast"+6'}}
     gear.mer_feet_dr   = {name="Merlinic Crackows", augments={'Mag. Acc.+28','"Drain" and "Aspir" potency +11','"Mag.Atk.Bns."+7'}}
-    gear.mer_feet_th   = {name="Merlinic Crackows", augments={'DEX+14','STR+10','"Treasure Hunter"+1','Mag. Acc.+8 "Mag.Atk.Bns."+8'}}
     gear.mer_feet_ws   = {name="Merlinic Crackows",
         augments={'DEX+9','Enmity+1','Weapon skill damage +6%','Accuracy+16 Attack+16','Mag. Acc.+19 "Mag.Atk.Bns."+19'}}
     gear.tel_head_enh  = {name="Telchine Cap", augments={'Mag. Evasion+22','"Conserve MP"+5','Enh. Mag. eff. dur. +10'}}
     gear.tel_body_enh  = {name="Telchine Chas.", augments={'Mag. Evasion+19','"Conserve MP"+5','Enh. Mag. eff. dur. +10'}}
-    gear.tel_hand_enh  = {name="Telchine Gloves", augments={'Mag. Evasion+19','"Fast Cast"+5','Enh. Mag. eff. dur. +9'}}
-    gear.tel_legs_enh  = {name="Telchine Braconi", augments={'Mag. Evasion+19','"Conserve MP"+3','Enh. Mag. eff. dur. +9'}}
+    gear.tel_hand_enh  = {name="Telchine Gloves", augments={'Mag. Evasion+19','"Fast Cast"+5','Enh. Mag. eff. dur. +10'}}
+    gear.tel_legs_enh  = {name="Telchine Braconi", augments={'Mag. Evasion+19','"Conserve MP"+3','Enh. Mag. eff. dur. +10'}}
     gear.tel_feet_enh  = {name="Telchine Pigaches", augments={'Mag. Evasion+17','"Conserve MP"+5','Enh. Mag. eff. dur. +10'}}
 
     info.keybinds = make_keybind_list(job_keybinds())
@@ -95,7 +93,7 @@ function user_setup()
             'bind !^3 input /ws "Gust Slash"',
             'bind !^4 input /ws "Shadowstitch"',
             'bind !^6 input /ws "Aeolian Edge"'}},
-        {['Marin']='Staff',['Pole']='Staff',['Dagger']='Dagger'})
+        {['Marin']='Staff',['MarinK']='Staff',['Pole']='Staff',['Dagger']='Dagger'})
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
 
@@ -126,16 +124,17 @@ function init_gear_sets()
 
     sets.weapons = {}
     sets.weapons.Marin  = {main="Marin Staff +1",sub="Enki Strap"}
+    sets.weapons.MarinK = {main="Marin Staff +1",sub="Khonsu"}
     sets.weapons.Pole   = {main="Malignance Pole",sub="Khonsu"}
     sets.weapons.Dagger = {main="Malevolence",sub="Ammurapi Shield"}
 
     sets.manawall = {back=gear.NukeCape,feet="Wicce Sabots +1"}
-    sets.TreasureHunter = {head="White Rarab Cap +1",waist="Chaac Belt",legs=gear.mer_legs_th,feet=gear.mer_feet_th}
+    sets.TreasureHunter = {head="White Rarab Cap +1",waist="Chaac Belt",legs=gear.mer_legs_th}
 
     ---- Precast Sets ----
     sets.precast.JA['Mana Wall'] = sets.manawall
 
-    sets.precast.FC = {main="Oranyan",sub="Umbra Strap",ammo="Sapience Orb",
+    sets.precast.FC = {main="Oranyan",sub="Clerisy Strap",ammo="Sapience Orb",
         head="Amalric Coif +1",neck="Voltsurge Torque",ear1="Malignance Earring",ear2="Etiolation Earring",
         body="Zendik Robe",hands=gear.tel_hand_enh,ring1="Etana Ring",ring2="Kishar Ring",
         back=gear.MACape,waist="Shinjutsu-no-Obi +1",legs="Psycloth Lappas",feet=gear.mer_feet_fc}
@@ -146,7 +145,7 @@ function init_gear_sets()
         body="Jhakri Robe +2",hands="Jhakri Cuffs +2",ring1="Stikini Ring +1",legs=empty})
     sets.impact = {head=empty,body="Twilight Cloak"}
     sets.precast.FC.Impact = set_combine(sets.precast.FC['Elemental Magic'], sets.impact)
-    sets.precast.FC.Death = set_combine(sets.precast.FC['Elemental Magic'], {}) -- TODO
+    sets.precast.FC.Death = set_combine(sets.precast.FC['Elemental Magic'], {}) -- TODO swap priorities for mp levels
     --sets.dispelga = {main="Daybreak",sub="Ammurapi Shield"}
     --sets.precast.FC.Dispelga = set_combine(sets.precast.FC, sets.dispelga)
 
@@ -155,15 +154,16 @@ function init_gear_sets()
         body="Jhakri Robe +2",hands="Gazu Bracelet +1",ring1="Chirich Ring +1",ring2="Rufescent Ring",
         back=gear.MACape,waist="Fotia Belt",legs="Jhakri Slops +2",feet="Jhakri Pigaches +2"}
 
-    sets.precast.WS['Rock Crusher'] = {ammo="Pemphredo Tathlum",
-        head="Jhakri Coronal +2",neck="Sanctity Necklace",ear1="Malignance Earring",ear2="Barkarole Earring",
+    sets.precast.WS['Rock Crusher'] = {ammo="Ghastly Tathlum +1",
+        head="Jhakri Coronal +2",neck="Sanctity Necklace",ear1="Malignance Earring",ear2="Regal Earring",
         body="Jhakri Robe +2",hands="Amalric Gages +1",ring1="Metamorph Ring +1",ring2="Freke Ring",
-        back=gear.NukeCape,waist="Orpheus's Sash",legs="Jhakri Slops +2",feet="Jhakri Pigaches +2"}
+        back=gear.NukeCape,waist="Orpheus's Sash",legs="Archmage's Tonban +3",feet="Jhakri Pigaches +2"}
     sets.precast.WS['Earth Crusher'] = set_combine(sets.precast.WS['Rock Crusher'],  {ear2="Moonshade Earring"})
     sets.precast.WS.Starburst        = set_combine(sets.precast.WS['Earth Crusher'], {})
     sets.precast.WS.Sunburst         = set_combine(sets.precast.WS.Starburst,        {})
     sets.precast.WS.Vidohunir        = set_combine(sets.precast.WS['Rock Crusher'],  {head="Pixie Hairpin +1",ring1="Archon Ring"})
     sets.precast.WS.Cataclysm        = set_combine(sets.precast.WS.Vidohunir,        {ear2="Moonshade Earring"})
+    sets.precast.WS['Aeolian Edge']  = set_combine(sets.precast.WS['Earth Crusher'], {})
 
     sets.precast.WS['Shell Crusher'] = set_combine(sets.precast.WS, {hands="Jhakri Cuffs +2",ring2="Etana Ring"})
     sets.precast.WS.Brainshaker = set_combine(sets.precast.WS['Shell Crusher'], {})
@@ -171,7 +171,7 @@ function init_gear_sets()
     sets.precast.WS.Myrkr = {ammo="Ghastly Tathlum +1",
         head="Amalric Coif +1",neck="Sanctity Necklace",ear1="Moonshade Earring",ear2="Etiolation Earring",
         body="Vanya Robe",hands="Spaekona's Gloves +2",ring1="Mephitas's Ring +1",ring2="Sangoma Ring",
-        back="Bane Cape",waist="Shinjutsu-no-Obi +1",legs="Spaekona's Tonban +2",feet="Telchine Pigaches"}
+        back="Bane Cape",waist="Shinjutsu-no-Obi +1",legs="Spaekona's Tonban +3",feet="Telchine Pigaches"}
 
     ---- Midcast Sets ----
     sets.midcast.Cure = {main="Malignance Pole",sub="Khonsu",ammo="Pemphredo Tathlum",
@@ -208,68 +208,76 @@ function init_gear_sets()
     sets.midcast.FixedPotencyEnhancing = sets.midcast.EnhancingDuration
     sets.midcast.Klimaform = {}
 
-    sets.midcast['Elemental Magic'] = {main="Marin Staff +1",sub="Enki Strap",ammo="Pemphredo Tathlum",
-        head=empty,neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Barkarole Earring",
+    sets.midcast['Elemental Magic'] = {main="Marin Staff +1",sub="Enki Strap",ammo="Ghastly Tathlum +1",
+        head=empty,neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Regal Earring",
         body="Cohort Cloak +1",hands="Amalric Gages +1",ring1="Metamorph Ring +1",ring2="Freke Ring",
-        back=gear.NukeCape,waist="Refoccilation Stone",legs="Jhakri Slops +2",feet="Jhakri Pigaches +2"}
+        back=gear.NukeCape,waist="Refoccilation Stone",legs="Archmage's Tonban +3",feet="Archmage's Sabots +3"}
     sets.midcast['Elemental Magic'].MAcc  = set_combine(sets.midcast['Elemental Magic'], {sub="Khonsu",
         ring1="Stikini Ring +1",ring2="Metamorph Ring +1"})
     sets.midcast['Elemental Magic'].LowMP = set_combine(sets.midcast['Elemental Magic'], {
-        head="Jhakri Coronal +2",body="Spaekona's Coat +3"})
+        head="Jhakri Coronal +2",ear2="Regal Earring",body="Spaekona's Coat +3"})
     sets.midcast['Elemental Magic'].OA = {ammo="Seraphic Ampulla",
         head="Mallquis Chapeau +2",neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Telos Earring",
         body="Spaekona's Coat +3",hands="Amalric Gages +1",ring1="Chirich Ring +1",ring2="Freke Ring",
-        back=gear.NukeCape,waist="Oneiros Rope",legs="Perdition Slops",feet="Jhakri Pigaches +2"}
-    sets.midcast['Elemental Magic'].MB = {main="Marin Staff +1",sub="Enki Strap",ammo="Pemphredo Tathlum",
-        head="Jhakri Coronal +2",neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Static Earring",
-        body=gear.mer_body_mb5,hands="Amalric Gages +1",ring1="Mujin Band",ring2="Locus Ring",
-        back=gear.NukeCape,waist="Refoccilation Stone",legs="Jhakri Slops +2",feet="Jhakri Pigaches +2"}
+        back=gear.NukeCape,waist="Oneiros Rope",legs="Perdition Slops",feet="Archmage's Sabots +3"}
+    sets.midcast['Elemental Magic'].MB = {main="Marin Staff +1",sub="Enki Strap",ammo="Ghastly Tathlum +1",
+        head="Ea Hat +1",neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Regal Earring",
+        body="Ea Houppelande +1",hands="Amalric Gages +1",ring1="Mujin Band",ring2="Freke Ring",
+        back=gear.NukeCape,waist="Refoccilation Stone",legs="Ea Slops +1",feet="Archmage's Sabots +3"}
     sets.midcast['Elemental Magic'].MAcc.MB  = set_combine(sets.midcast['Elemental Magic'].MB, {sub="Khonsu"})
-    sets.midcast['Elemental Magic'].LowMP.MB = set_combine(sets.midcast['Elemental Magic'].MB, {body="Spaekona's Coat +3"})
+    sets.midcast['Elemental Magic'].LowMP.MB = set_combine(sets.midcast['Elemental Magic'].MB, {
+        ear2="Static Earring",body="Spaekona's Coat +3",ring2="Locus Ring",feet="Archmage's Sabots +3"})
 
-    sets.midcast.LowTierNuke               = set_combine(sets.midcast['Elemental Magic'],    {ammo="Ghastly Tathlum +1"})
-    sets.midcast.LowTierNuke.MAcc          = set_combine(sets.midcast.LowTierNuke,    {sub="Khonsu",
+    sets.midcast.LowTierNuke         = set_combine(sets.midcast['Elemental Magic'], {ear2="Barkarole Earring"})
+    sets.midcast.LowTierNuke.MAcc    = set_combine(sets.midcast.LowTierNuke, {sub="Khonsu",
         ring1="Stikini Ring +1",ring2="Metamorph Ring +1"})
-    sets.midcast.LowTierNuke.MB            = set_combine(sets.midcast['Elemental Magic'].MB, {ammo="Ghastly Tathlum +1"})
-    sets.midcast.LowTierNuke.MAcc.MB       = set_combine(sets.midcast.LowTierNuke.MB, {sub="Khonsu"})
+    sets.midcast.LowTierNuke.MB      = set_combine(sets.midcast['Elemental Magic'].MB, {ammo="Ghastly Tathlum +1"})
+    sets.midcast.LowTierNuke.MAcc.MB = set_combine(sets.midcast.LowTierNuke.MB, {sub="Khonsu"})
 
-    sets.midcast.Comet          = set_combine(sets.midcast['Elemental Magic'], {
-        head="Pixie Hairpin +1",body="Jhakri Robe +2",ring1="Archon Ring"})
-    sets.midcast.Comet.MAcc     = set_combine(sets.midcast['Elemental Magic'].MAcc, {
-        head="Pixie Hairpin +1",body="Jhakri Robe +2",ring1="Archon Ring"})
-    sets.midcast.Comet.LowMP    = set_combine(sets.midcast['Elemental Magic'].LowMP,    {head="Pixie Hairpin +1",ring1="Archon Ring"})
-    sets.midcast.Comet.OA       = set_combine(sets.midcast['Elemental Magic'].OA,       {head="Pixie Hairpin +1",ring2="Archon Ring"})
-    sets.midcast.Comet.MB       = set_combine(sets.midcast['Elemental Magic'].MB,       {head="Pixie Hairpin +1",ring2="Archon Ring"})
-    sets.midcast.Comet.MAcc.MB  = set_combine(sets.midcast['Elemental Magic'].MAcc.MB,  {head="Pixie Hairpin +1",ring2="Archon Ring"})
-    sets.midcast.Comet.LowMP.MB = set_combine(sets.midcast['Elemental Magic'].LowMP.MB, {head="Pixie Hairpin +1",ring2="Archon Ring"})
+    sets.midcast.Comet       = set_combine(sets.midcast['Elemental Magic'], {
+        head="Pixie Hairpin +1",body="Ea Houppelande +1",ring1="Archon Ring"})
+    sets.midcast.Comet.MAcc  = set_combine(sets.midcast['Elemental Magic'].MAcc, {
+        head="Pixie Hairpin +1",body="Ea Houppelande +1",ring1="Archon Ring"})
+    sets.midcast.Comet.LowMP = set_combine(sets.midcast['Elemental Magic'].LowMP, {head="Pixie Hairpin +1",ring1="Archon Ring"})
+    sets.midcast.Comet.OA    = set_combine(sets.midcast['Elemental Magic'].OA,    {head="Pixie Hairpin +1",ring2="Archon Ring"})
+    sets.midcast.Comet.MB    = {main="Marin Staff +1",sub="Enki Strap",ammo="Ghastly Tathlum +1",
+        head="Pixie Hairpin +1",neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Barkarole Earring",
+        body="Ea Houppelande +1",hands="Amalric Gages +1",ring1="Mujin Band",ring2="Archon Ring",
+        back=gear.NukeCape,waist="Refoccilation Stone",legs="Ea Slops +1",feet="Jhakri Pigaches +2"}
+    sets.midcast.Comet.MAcc.MB  = set_combine(sets.midcast.Comet.MB, {sub="Khonsu"})
+    sets.midcast.Comet.LowMP.MB = set_combine(sets.midcast.Comet.MB, {ear2="Static Earring",body="Spaekona's Coat +3"})
 
-    sets.midcast.Impact        = set_combine(sets.midcast.Comet.MAcc,    sets.impact)
-    sets.midcast.Impact.OA     = set_combine(sets.midcast.Comet.OA,      sets.impact)
-    sets.midcast.Impact.MB     = set_combine(sets.midcast.Comet.MAcc.MB, sets.impact)
+    sets.midcast.Impact    = set_combine(sets.midcast.Comet.MAcc,    sets.impact)
+    sets.midcast.Impact.OA = set_combine(sets.midcast.Comet.OA,      sets.impact)
+    sets.midcast.Impact.MB = set_combine(sets.midcast.Comet.MAcc.MB, sets.impact)
 
-    sets.midcast.Death = set_combine(sets.midcast['Elemental Magic'], {}) -- TODO
-    sets.midcast.Death.OA      = sets.midcast.Death -- TODO
-    sets.midcast.Death.MAcc    = sets.midcast.Death -- TODO
-    sets.midcast.Death.MB      = sets.midcast.Death -- TODO
-    sets.midcast.Death.MAcc.MB = sets.midcast.Death -- TODO
+    sets.midcast.Death         = set_combine(sets.midcast.Comet,      {})
+    sets.midcast.Death.OA      = set_combine(sets.midcast.Comet.OA,   {})
+    sets.midcast.Death.MAcc    = set_combine(sets.midcast.Comet.MAcc, {})
+    sets.midcast.Death.MB      = {main="Marin Staff +1",sub="Khonsu",ammo="Ghastly Tathlum +1",
+        head="Pixie Hairpin +1",neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Barkarole Earring",
+        body="Ea Houppelande +1",hands="Amalric Gages +1",ring1="Mujin Band",ring2="Archon Ring",
+        back=gear.NukeCape,waist="Shinjutsu-no-Obi +1",legs="Ea Slops +1",feet="Jhakri Pigaches +2"}
+    sets.midcast.Death.MAcc.MB = set_combine(sets.midcast.Death.MB, {ear2="Regal Earring",feet="Spaekona's Sabots +2"})
+    -- spaekona's gloves? mp cape? path A amalric?
 
     sets.orpheus   = {waist="Orpheus's Sash"}
     sets.ele_obi   = {waist="Hachirin-no-Obi"}
     sets.nuke_belt = {waist="Refoccilation Stone"}
 
-    sets.midcast.Drain = {main="Maxentius",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
-        head="Pixie Hairpin +1",neck="Erra Pendant",ear1="Malignance Earring",ear2="Barkarole Earring",
-        body="Zendik Robe",hands="Mallquis Cuffs +2",ring1="Archon Ring",ring2="Evanescence Ring",
-        back=gear.MACape,waist="Fucho-no-Obi",legs="Spaekona's Tonban +2",feet=gear.mer_feet_dr}
+    sets.midcast.Drain = {main="Rubicundity",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
+        head="Pixie Hairpin +1",neck="Erra Pendant",ear1="Malignance Earring",ear2="Regal Earring",
+        body="Zendik Robe",hands="Spaekona's Gloves +2",ring1="Archon Ring",ring2="Evanescence Ring",
+        back=gear.MACape,waist="Fucho-no-Obi",legs="Spaekona's Tonban +3",feet=gear.mer_feet_dr}
     sets.midcast.Aspir = sets.midcast.Drain
     sets.midcast.Aspir.MAcc = set_combine(sets.midcast.Aspir, {head="Amalric Coif +1",ring1="Stikini Ring +1"})
-    sets.midcast.Aspir.MP   = set_combine(sets.midcast.Aspir, {ear2="Etiolation Earring"}) -- TODO
+    sets.midcast.Aspir.MP   = set_combine(sets.midcast.Aspir, {ammo="Ghastly Tathlum +1"})
     sets.drain_belt = {waist="Fucho-no-Obi"}
 
     sets.midcast['Enfeebling Magic'] = {main="Maxentius",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
-        head="Amalric Coif +1",neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Dignitary's Earring",
-        body="Spaekona's Coat +3",hands="Mallquis Cuffs +2",ring1="Metamorph Ring +1",ring2="Stikini Ring +1",
-        back=gear.MACape,waist="Acuity Belt +1",legs="Spaekona's Tonban +2",feet="Mallquis Clogs +2"}
+        head="Spaekona's Petasos +2",neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Regal Earring",
+        body="Spaekona's Coat +3",hands="Spaekona's Gloves +2",ring1="Metamorph Ring +1",ring2="Stikini Ring +1",
+        back="Aurist's Cape +1",waist="Acuity Belt +1",legs="Spaekona's Tonban +3",feet="Spaekona's Sabots +2"}
     --sets.midcast.Dispelga = set_combine(sets.midcast['Enfeebling Magic'], sets.dispelga)
     sets.midcast.Silence  = set_combine(sets.midcast['Enfeebling Magic'], {waist="Luminary Sash"})
     sets.midcast.Slow     = set_combine(sets.midcast['Enfeebling Magic'], {waist="Luminary Sash"})
@@ -281,20 +289,26 @@ function init_gear_sets()
     sets.midcast.Bind     = sets.midcast.Sleep
     sets.midcast.Gravity  = sets.midcast.Sleep
 
-    sets.midcast.Stun = set_combine(sets.midcast['Enfeebling Magic'], {body="Zendik Robe",waist="Goading Belt"})
-    sets.midcast.ElementalEnfeeble = set_combine(sets.midcast['Enfeebling Magic'], {})  -- TODO
-    sets.midcast['Dark Magic'] = set_combine(sets.midcast['Enfeebling Magic'], {}) -- TODO
-    sets.midcast['Divine Magic'] = set_combine(sets.midcast['Enfeebling Magic'], {}) -- TODO
+    sets.midcast.Stun = set_combine(sets.midcast['Enfeebling Magic'], {body="Zendik Robe",back=gear.MACape,waist="Goading Belt"})
+    sets.midcast.ElementalEnfeeble = set_combine(sets.midcast['Enfeebling Magic'], {
+        head=empty,body="Cohort Cloak +1",legs="Archmage's Tonban +3",feet="Archmage's Sabots +3"})
+    sets.midcast['Dark Magic'] = set_combine(sets.midcast['Enfeebling Magic'], {})
+    sets.midcast['Divine Magic'] = set_combine(sets.midcast['Enfeebling Magic'], {})
 
     ---- Sets to return to when not performing an action ----
     sets.idle = {main="Malignance Pole",sub="Khonsu",ammo="Iron Gobbet",
         head=gear.mer_head_rf,neck="Loricate Torque +1",ear1="Eabani Earring",ear2="Lugalbanda Earring",
-        body="Jhakri Robe +2",hands="Mallquis Cuffs +2",ring1="Stikini Ring +1",ring2="Defending Ring",
-        back=gear.NukeCape,waist="Porous Rope",legs="Assiduity Pants +1",feet="Herald's Gaiters"}
+        body="Jhakri Robe +2",hands=gear.mer_hand_rf,ring1="Stikini Ring +1",ring2="Defending Ring",
+        back=gear.NukeCape,waist="Porous Rope",legs=gear.mer_legs_rf,feet="Herald's Gaiters"}
+	sets.idle.MRf  = set_combine(sets.idle, {feet=gear.mer_feet_rf})
     sets.idle.PDT = set_combine(sets.idle, {main="Malignance Pole",sub="Oneiros Grip",
-        head="Hike Khat +1",body="Mallquis Saio +2",ring1="Vocane Ring +1",feet="Mallquis Clogs +2"})
-    sets.idle.MEVA = set_combine(sets.idle.PDT, {}) -- TODO
-    sets.idle.MP = set_combine(sets.idle.PDT, {})   -- TODO
+        head="Hike Khat +1",body="Mallquis Saio +2",ring1="Vocane Ring +1",feet=gear.mer_feet_rf})
+    sets.idle.MEVA = set_combine(sets.idle, {head="Ea Hat +1",body="Ea Houppelande +1",
+        ring1="Vocane Ring +1",legs="Ea Slops +1",feet=gear.mer_feet_rf})
+    sets.idle.MP = {main="Malignance Pole",sub="Khonsu",ammo="Ghastly Tathlum +1",
+        head=gear.mer_head_rf,neck="Loricate Torque +1",ear1="Eabani Earring",ear2="Etiolation Earring",
+        body="Jhakri Robe +2",hands="Spaekona's Gloves +2",ring1="Mephitas's Ring +1",ring2="Defending Ring",
+        back=gear.NukeCape,waist="Shinjutsu-no-Obi +1",legs="Spaekona's Tonban +3",feet=gear.mer_feet_rf}
     sets.latent_refresh = {waist="Fucho-no-obi"}
     sets.zendik         = {body="Zendik Robe"}
     sets.buff.doom      = {neck="Nicander's Necklace",ring1="Saida Ring",ring2="Defending Ring",waist="Gishdubar Sash"}
@@ -302,6 +316,7 @@ function init_gear_sets()
     -- Defense sets
     sets.defense.PDT  = sets.idle.PDT
     sets.defense.MEVA = sets.idle.MEVA
+    sets.defense.MRf  = sets.idle.MRf
     sets.Kiting = {feet="Herald's Gaiters"}
 
     -- Engaged sets
@@ -328,16 +343,19 @@ end
 -- Set eventArgs.handled to true if we don't want any automatic gear equipping to be done.
 -- Set eventArgs.useMidcastGear to true if we want midcast gear equipped on precast.
 function job_precast(spell, action, spellMap, eventArgs)
-    if spell.skill == 'Elemental Magic' then
-        if state.AutoSpaek.value and S{'Normal','LowMP'}:contains(state.CastingMode.value)
-        and not S{'LowTierNuke','ElementalEnfeeble'}:contains(spellMap)
-        and player.mp - spell.mp_cost < state.AutoSpaek.low_mp
-        and not state.Buff['Manawell'] and not state.Buff['Manafont'] then
-            state.CastingMode:set('LowMP')
-        else
-            state.CastingMode:set('Normal')
+    if spell.skill == 'Elemental Magic' and not S{'Impact','Meteor','Death'}:contains(spell.english) then
+        if state.AutoSpaek.value and S{'Normal','LowMP'}:contains(state.CastingMode.value) then
+            if not S{'LowTierNuke','ElementalEnfeeble'}:contains(spellMap)
+            and player.mp - spell.mp_cost < state.AutoSpaek.low_mp
+            and not state.Buff['Manawell'] and not state.Buff['Manafont'] then
+                state.CastingMode:set('LowMP')
+            else
+                state.CastingMode:set('Normal')
+            end
+            hud_update_on_state_change('Casting Mode')
         end
-        hud_update_on_state_change('Casting Mode')
+    elseif spellMap == 'Aspir' and state.IdleMode.value == 'MP' and player.mp > 1300 then
+        equip(sets.precast.FC.Death)
     elseif classes.CustomClass == 'CureCheat' then
         if not (spell.target.type == 'SELF' and spell.english == 'Cure IV') then
             classes.CustomClass = nil
@@ -349,34 +367,29 @@ end
 -- eventArgs is the same one used in job_midcast, in case information needs to be persisted.
 function job_post_midcast(spell, action, spellMap, eventArgs)
     if spell.skill == 'Elemental Magic' and spellMap ~= 'ElementalEnfeeble' and spell.english ~= 'Meteor' then
-        if     spell.english == 'Death' then
-            -- TODO
-        elseif spell.english == 'Impact' then
-            if state.MagicBurst.value then
-                equip(sets.midcast.Impact.MB)
-            end
-        elseif state.MagicBurst.value then
+        if state.MagicBurst.value then
             local base_set
-            if     spell.english == 'Comet'  then base_set = sets.midcast.Comet
-            elseif spellMap == 'LowTierNuke' then base_set = sets.midcast.LowTierNuke
-            else                                  base_set = sets.midcast['Elemental Magic']
+            if S{'Comet','Impact','Death'}:contains(spell.english) then
+                base_set = sets.midcast[spell.english]
+            elseif spellMap == 'LowTierNuke' then
+                base_set = sets.midcast.LowTierNuke
+            else
+                base_set = sets.midcast['Elemental Magic']
             end
 
-            if     state.CastingMode.value == 'MAcc'  and base_set.MAcc  and base_set.MAcc.MB  then
-                equip(base_set.MAcc.MB)
-            elseif state.CastingMode.value == 'LowMP' and base_set.LowMP and base_set.LowMP.MB then
-                equip(base_set.LowMP.MB)
+            if base_set[state.CastingMode.value] and base_set[state.CastingMode.value].MB then
+                equip(base_set[state.CastingMode.value].MB)
             else
                 equip(base_set.MB)
-            end
-
-            if state.CP.value then
-                equip(sets.cp)
             end
         end
 
         if state.CastingMode.value ~= 'OA' then
-            equip(resolve_ele_belt(spell, sets.ele_obi, sets.nuke_belt, 3))
+            if spell.english == 'Death' then
+                equip(resolve_ele_belt(spell, sets.ele_obi, sets.cmp_belt, 3))
+            else
+                equip(resolve_ele_belt(spell, sets.ele_obi, sets.nuke_belt, 3))
+            end
         end
     elseif S{'Drain','Aspir'}:contains(spellMap) then
         equip(resolve_ele_belt(spell, sets.ele_obi, sets.drain_belt, 5))
@@ -396,7 +409,7 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
         end
     end
 
-    if state.Buff['Mana Wall'] then
+    if state.Buff['Mana Wall'] and spell.english ~= 'Death' then
         equip(sets.manawall)
     end
 end
@@ -409,11 +422,11 @@ function job_aftercast(spell, action, spellMap, eventArgs)
         if S{'JobAbility','Scholar'}:contains(spell.type) then
             eventArgs.handled = true
         elseif spell.english == 'Break' or spell.english == 'Breakga' then
-            send_command('@timers c "'..spell.english..' ['..spell.target.name..']" 33 down')
+            send_command('timers c "'..spell.english..' ['..spell.target.name..']" 33 down')
         elseif spell.english == 'Sleep' or spell.english == 'Sleepga' then
-            send_command('@timers c "'..spell.english..' ['..spell.target.name..']" 66 down')
+            send_command('timers c "'..spell.english..' ['..spell.target.name..']" 66 down')
         elseif spell.english == 'Sleep II' or spell.english == 'Sleepga II' then
-            send_command('@timers c "'..spell.english..' ['..spell.target.name..']" 99 down')
+            send_command('timers c "'..spell.english..' ['..spell.target.name..']" 99 down')
         end
     end
 end
@@ -448,7 +461,7 @@ function job_buff_change(buff, gain)
             handle_equipping_gear(player.status)
         end
     end
-    if gain then
+    if gain and info.chat_notice_buffs:contains(lbuff) then
         add_to_chat(104, 'Gained ['..buff..']')
     end
 end
@@ -520,9 +533,6 @@ function customize_idle_set(idleSet)
     if state.Buff['Mana Wall'] then
         idleSet = set_combine(idleSet, sets.manawall)
     end
-    if state.CP.value then
-        idleSet = set_combine(idleSet, sets.cp)
-    end
     if state.Buff.doom then
         idleSet = set_combine(idleSet, sets.buff.doom)
     end
@@ -533,9 +543,6 @@ end
 function customize_defense_set(defenseSet)
     if state.Buff['Mana Wall'] then
         defenseSet = set_combine(defenseSet, sets.manawall)
-    end
-    if state.CP.value then
-        defenseSet = set_combine(defenseSet, sets.cp)
     end
     if state.Buff.doom then
         defenseSet = set_combine(defenseSet, sets.buff.doom)
@@ -562,9 +569,6 @@ function customize_melee_set(meleeSet)
     end
     if state.Buff['Mana Wall'] then
         meleeSet = set_combine(meleeSet, sets.manawall)
-    end
-    if state.CP.value then
-        meleeSet = set_combine(meleeSet, sets.cp)
     end
     if state.Buff.doom then
         meleeSet = set_combine(meleeSet, sets.buff.doom)
@@ -637,11 +641,6 @@ function job_self_command(cmdParams, eventArgs)
     eventArgs.handled = true
     if cmdParams[1] == 'scholar' then
         handle_stratagems(cmdParams)
-    --elseif cmdParams[1] == 'death' then
-    --    state.CastingMode:set('MP')
-    --    state.IdleMode:set('MP')
-    --    state.OffenseMode:set('Normal')
-    --    job_state_change('Offense Mode', 'Normal', '')
     elseif cmdParams[1] == 'CureCheat' then
         classes.CustomClass = 'CureCheat'
         send_command('input /ma "Cure IV" <me>')
@@ -687,11 +686,13 @@ function job_keybinds()
         'bind !space gs c set DefenseMode Physical',
         'bind @space gs c set DefenseMode Magical',
         'bind !@space gs c reset DefenseMode',
+        'bind @z      gs c cycle MagicalDefenseMode',
         'bind !w   gs c set OffenseMode Normal',
         'bind !@w  gs c set OffenseMode None',
         'bind ~!^q gs c set CombatWeapon Dagger',
-        'bind !^q  gs c set CombatWeapon Marin',
-        'bind !^w  gs c set CombatWeapon Pole',
+        'bind !^q  gs c set CombatWeapon Pole',
+        'bind !^w  gs c set CombatWeapon Marin',
+        'bind ~!^w gs c set CombatWeapon MarinK',
         'bind ^z   gs c toggle ZendikIdle',
         'bind !z   gs c toggle MagicBurst',
         'bind ^c   gs c reset CastingMode',
@@ -716,6 +717,8 @@ function job_keybinds()
         'bind ~^2 input /ma Sleep',
         'bind ^3  input /ma "Sleepga II"',
         'bind ~^3 input /ma "Sleep II"',
+
+        'bind !^d input /ma Bind <stnpc>',
 
         'bind  ^backspace input /ma Comet',
         'bind ~^backspace input /ma Impact',
@@ -789,20 +792,22 @@ function job_keybinds()
         'bind ^q input /ma Dispelga',
         'bind !d input /ma Stun',
 
-        'bind @d  input /ma "Aspir II"',
-        'bind !@d input /ma "Aspir"',
+        'bind @d  input /ma "Aspir III"',
+        'bind !@d input /ma "Aspir II"',
 
         'bind @b input /ma Stonega'}
 
     if     player.sub_job == 'RDM' then
         bind_command_list:extend(L{
+            'bind ~^@tab input /ja Convert <me>',
             'bind ^tab input /ma Dispel',
             'bind ^4  input /ma Silence',
             'bind !3  input /ma Distract',
             'bind !4  input /ma Frazzle',
             'bind !f  input /ma Haste     <me>',
             'bind !g  input /ma Phalanx   <me>',
-            'bind !b  input /ma Refresh   <me>'})
+            'bind !b  input /ma Refresh   <me>',
+            'bind ~!^d input /ma Bind <stnpc>'})
     elseif player.sub_job == 'WHM' then
         bind_command_list:extend(L{
             'bind ^tab input /ja "Divine Seal" <me>',

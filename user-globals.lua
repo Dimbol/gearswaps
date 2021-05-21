@@ -2,11 +2,24 @@
 -- contains common functions for use across job files
 
 -- sometimes windower updates Mote-Mappings.lua, which can break my code
-do
-    if not my_mote_mappings then
-        add_to_chat(123, 'Mote-Mappings.lua is broken.')
-    end
+if not my_mote_mappings then
+    add_to_chat(123, 'Mote-Mappings.lua is broken.')
 end
+
+-- check this set in job_buff_change before adding a message to chat
+info.chat_notice_buffs = S{
+    'ko','weakness','sleep','poison','paralysis','blindness','silence','petrification','disease','curse',
+    'stun','bind','weight','slow','charm','doom','amnesia','gradual petrification','sleep','addle','kaustra',
+    'terror','mute','bane','plague','flash','muddle',
+    'invisible','deodorize','sneak','cover','haste','flurry','phalanx','embrava',
+    'aftermath: lv.1','aftermath: lv.2','aftermath: lv.3',
+    'burn','frost','choke','rasp','shock','drown','dia','bio','helix',
+    'max hp down','max mp down','max tp down','accuracy down','attack down','evasion down','defense down',
+    'magic def. down','magic acc. down','magic atk. down','magic evasion down','critical hit evasion down','avoidance down',
+    'encumbrance','requiem','lullaby','elegy','bust','snake eye','crooked cards','nightingale','troubadour','marcato',
+    'light arts','dark arts','addendum: white','addendum: black','enlightenment','afflatus solace','afflatus misery','mana wall',
+    'divine caress','migawari','embolden','one for all',
+}
 
 -- General handling of stratagems in an Arts-agnostic way.
 -- Format: gs c scholar <stratagem>
@@ -170,36 +183,38 @@ function report_ja_recasts(recast_ids, show_available, n)
     local available_list = L{}
     local unavailable_list = L{}
     local stratagems_id = 231
-    show_available = show_available or true
+    show_available = show_available and true or false
     n = n or 6
 
     for ability in recast_ids:it() do
         local r = all_ja_recasts[ability.id]
 
-        if ability.id == stratagems_id then
-            local max_strats, charge_time
-            if player.sub_job == 'SCH' then
-                max_strats = 2
-                charge_time = 120
-            elseif player.main_job == 'SCH' then
-                max_strats = 5
-                charge_time = (windower.ffxi.get_player().job_points.sch.jp_spent >= 550) and 33 or 48
-            else break end
+        if r ~= nil then
+            if ability.id == stratagems_id then
+                local max_strats, charge_time
+                if player.sub_job == 'SCH' then
+                    max_strats = 2
+                    charge_time = 120
+                elseif player.main_job == 'SCH' then
+                    max_strats = 5
+                    charge_time = (windower.ffxi.get_player().job_points.sch.jp_spent >= 550) and 33 or 48
+                else break end
 
-            local num_strats = math.floor(max_strats - r/charge_time)
-            r = r%charge_time
-            if num_strats == 0 then
-                unavailable_list:append({text="[%s][%d](%d:%02d)":format(ability.name, num_strats, math.floor(r/60), r%60), r=0})
-            elseif num_strats < max_strats then
-                available_list:insert(1, "[%s][%d](%d:%02d)":format(ability.name, num_strats, math.floor(r/60), r%60))
+                local num_strats = math.floor(max_strats - r/charge_time)
+                r = r%charge_time
+                if num_strats == 0 then
+                    unavailable_list:append({text="[%s][%d](%d:%02d)":format(ability.name, num_strats, math.floor(r/60), r%60), r=0})
+                elseif num_strats < max_strats then
+                    available_list:insert(1, "[%s][%d](%d:%02d)":format(ability.name, num_strats, math.floor(r/60), r%60))
+                else
+                    available_list:insert(1, "[%s][%d]":format(ability.name, num_strats))
+                end
             else
-                available_list:insert(1, "[%s][%d]":format(ability.name, num_strats))
-            end
-        else
-            if r > 0 then
-                unavailable_list:append({text="[%s](%d:%02d)":format(ability.name, math.floor(r/60), r%60), r=r})
-            else
-                available_list:append("[%s]":format(ability.name))
+                if r > 0 then
+                    unavailable_list:append({text="[%s](%d:%02d)":format(ability.name, math.floor(r/60), r%60), r=r})
+                else
+                    available_list:append("[%s]":format(ability.name))
+                end
             end
         end
     end

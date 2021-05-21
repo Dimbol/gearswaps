@@ -1,6 +1,4 @@
 -- Modified from 'https://github.com/Kinematics/GearSwap-Jobs/blob/master/Template.lua'
--- TODO weakened hp set (or make higher hp defense modes)
--- TODO fix swaps to not get stuck in enmity gear while stunned/petrified
 
 -- NOTES
 -- sylvie does indi-haste!
@@ -20,7 +18,6 @@
 -- mdt probably helps with drains
 -- use vivacious pulse often
 -- liement works on breath attacks. bad breath is earth, sweet breath is dark, interference is dark
--- consider using the MDT50 tanking set for strong breath attacks, eg, arrogance incarnate
 -- add items to the hpgear table in user_setup() to prioritize swap order by hp so less max hp is lost
 -- in Tank casting mode, only non-shockwave weaponskills should leave you open to damage
 -- weaponskills and effusions are changed from <stnpc> to <t> in job_auto_change_target
@@ -44,7 +41,7 @@
 
 -- VINIPATA
 -- protect/shell/battuta only (tp moves are magical in raksha stance, physical in yaksha stance)
--- use battuta if yaksha gets scary. mdt50 if raksha is bad. use foil for hate, but cancel it
+-- use battuta if yaksha gets scary. use foil for hate, but cancel it
 -- can cancel shell during yaksha
 -- avoid hate moves that give buffs (valiance/liement/vallation/pflug)
 -- battuta/gambit/rayke revit, repeat
@@ -119,13 +116,13 @@ end
 
 -- Setup vars that are user-dependent.  Can override this function in a sidecar file.
 function user_setup()
-    state.OffenseMode:options('Normal','None')                      -- Cycle with F9, set with !w, !@w
-    state.HybridMode:options('Normal','PDef','PDef2')               -- Cycle with ^space
-    state.WeaponskillMode:options('Normal','Tank','Acc')            -- Cycle with @F9
-    state.CastingMode:options('Tank','MAcc')                        -- Cycle with F10, reset with !F10, set with ^c, !@c
-    state.IdleMode:options('Normal','Refresh','Kite')               -- Cycle with F11, reset with !F11
-    state.PhysicalDefenseMode:options('Parry','ParryRf','Kite')     -- Cycle with !z
-    state.MagicalDefenseMode:options('MEVA','MDT50')                -- Cycle with @z, set to MDT50 with !@z
+    state.OffenseMode:options('Normal','None')              -- Cycle with F9, set with !w, !@w
+    state.HybridMode:options('Normal','PDef','PDef2')       -- Cycle with ^space
+    state.WeaponskillMode:options('Tank','Normal')          -- Cycle with @F9
+    state.CastingMode:options('Tank','MAcc')                -- Cycle with F10, reset with !F10, set with ^c, !@c
+    state.IdleMode:options('Normal','Refresh','Kite')       -- Cycle with F11, reset with !F11
+    state.PhysicalDefenseMode:options('Parry','VParry','Eva','Kite') -- Cycle with !z, reset with !@z
+    state.MagicalDefenseMode:options('MEVA')                -- Cycle with @z
     state.StatusDefenseMode = M{['description']='Status Defense Mode'}
     state.StatusDefenseMode:options('None','Knockback','Charm','Death')  -- Set with !7..!0
     state.CombatWeapon = M{['description']='Combat Weapon'}
@@ -134,6 +131,8 @@ function user_setup()
     else
         state.CombatWeapon:options('Epeo','EpeoRef','Lionheart','GreatAxe','Hepatizon','Sword','Axe')
     end
+    state.HybridMode:set('PDef')
+    state.DefenseMode:set('Physical')
 
     state.WSMsg = M(false, 'WS Message')                        -- Toggle with ^\ (also chat for JAs)
     state.SIRD  = M(false, 'SIRD Casting')                      -- Toggle with !c
@@ -144,86 +143,94 @@ function user_setup()
         'Cocoon','Healing Breeze','Wild Carrot','Sheep Song','Stinking Gas','Geist Wall'}
 
     -- Augmented items get variables for convenience and specificity
-    gear.TPCape   = {name="Ogma's cape", augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','"Dbl.Atk."+10','Phys. dmg. taken-10%'}}
-    gear.ResoCape = {name="Ogma's cape", augments={'STR+20','Accuracy+20 Attack+20','STR+10','"Dbl.Atk."+10','Phys. dmg. taken-10%'}}
-    gear.DimiCape = {name="Ogma's cape",
-        augments={'DEX+20','Accuracy+20 Attack+20','DEX+10','Weapon skill damage +10%','Phys. dmg. taken-10%'}}
-    gear.MEVACape = {name="Ogma's cape", augments={'HP+60','Eva.+20 /Mag. Eva.+20','Mag. Evasion+10','Enmity+10','Phys. dmg. taken-10%'}}
-    gear.FCCape   = {name="Ogma's cape", augments={'HP+60','HP+20','"Fast Cast"+10'}}
+    gear.TPCape    = {name="Ogma's cape", augments={'DEX+20','Accuracy+20 Attack+20','"Dbl.Atk."+10'}}
+    gear.ResoCape  = {name="Ogma's cape", augments={'STR+20','Accuracy+20 Attack+20','"Dbl.Atk."+10'}}
+    gear.DimiCape  = {name="Ogma's cape", augments={'DEX+20','Accuracy+20 Attack+20','Weapon skill damage +10%'}}
+    gear.MEVACape  = {name="Ogma's cape", augments={'HP+60','Enmity+10','Phys. dmg. taken-10%'}, priority=60}
+    gear.ParryCape = {name="Ogma's cape", augments={'HP+60','Enmity+10','Parrying rate+5%'}, priority=60}
+    gear.FCCape    = {name="Ogma's cape", augments={'HP+60','HP+20','"Fast Cast"+10'}, priority=80}
     gear.taeon_head_sird  = {name="Taeon Chapeau", augments={'Spell interruption rate down -7%'}}
-    gear.taeon_body_phlx  = {name="Taeon Tabard", augments={'Spell interruption rate down -10%','Phalanx +3'}}
-    gear.taeon_hands_phlx = {name="Taeon Gloves", augments={'Spell interruption rate down -8%','Phalanx +3'}}
+    gear.taeon_body_phlx  = {name="Taeon Tabard", augments={'Phalanx +3'}}
+    gear.taeon_hands_phlx = {name="Taeon Gloves", augments={'Phalanx +3'}}
     gear.taeon_legs_phlx  = {name="Taeon Tights", augments={'Phalanx +3'}}
-    gear.taeon_feet_phlx  = {name="Taeon Boots", augments={'Spell interruption rate down -9%','Phalanx +3'}}
-    gear.herc_head_ma  = {name="Herculean Helm",
-        augments={'"Mag.Atk.Bns."+23','Mag. Acc.+16','Accuracy+2 Attack+2','Mag. Acc.+12 "Mag.Atk.Bns."+12'}}
-    gear.herc_hands_ma = {name="Herculean Gloves",
-        augments={'Mag. Acc.+18 "Mag.Atk.Bns."+18','Magic burst dmg.+3%','Mag. Acc.+12','"Mag.Atk.Bns."+10'}}
-    gear.herc_legs_ma  = {name="Herculean Trousers",
-        augments={'"Mag.Atk.Bns."+30','Weapon Skill Acc.+5','Accuracy+14 Attack+14','Mag. Acc.+16 "Mag.Atk.Bns."+16'}}
-    gear.herc_feet_ma  = {name="Herculean Boots",
-        augments={'Mag. Acc.+19 "Mag.Atk.Bns."+19','Enmity-2','MND+4','Mag. Acc.+4','"Mag.Atk.Bns."+15'}}
-    gear.herc_head_wsd = {name="Herculean Helm",
-        augments={'"Cure" spellcasting time -10%','Pet: INT+6','Weapon skill damage +9%'}}
-    gear.herc_feet_ta  = {name="Herculean Boots", augments={'Rng.Acc.+4','"Triple Atk."+4','Accuracy+14','Attack+12'}}
-    gear.herc_head_rf = {name="Herculean Helm",
-        augments={'Accuracy+17','DEX+6','"Refresh"+2','Accuracy+16 Attack+16','Mag. Acc.+20 "Mag.Atk.Bns."+20'}}
-    gear.herc_hands_dt = {name="Herculean Gloves", augments={'Attack+27','Damage taken-4%','DEX+5','Accuracy+9'}}
-    gear.herc_legs_th  = {name="Herculean Trousers",
-        augments={'Attack+3','"Cure" spellcasting time -2%','"Treasure Hunter"+2','Accuracy+1 Attack+1'}}
+    gear.taeon_feet_phlx  = {name="Taeon Boots", augments={'Phalanx +3'}}
+    gear.adh_body_ta = {name="Adhemar Jacket +1", augments={'Accuracy+20'}, priority=63}
+    gear.adh_body_fc = {name="Adhemar Jacket +1", augments={'"Fast Cast"+10'}, priority=168}
+    gear.herc_head_ma  = {name="Herculean Helm", augments={'"Mag.Atk.Bns."+23','Mag. Acc.+16','Mag. Acc.+12 "Mag.Atk.Bns."+12'}}
+    gear.herc_hands_ma = {name="Herculean Gloves", augments={'Mag. Acc.+18 "Mag.Atk.Bns."+18','Mag. Acc.+12','"Mag.Atk.Bns."+10'}}
+    gear.herc_legs_ma  = {name="Herculean Trousers", augments={'"Mag.Atk.Bns."+30','Accuracy+14 Attack+14','Mag. Acc.+16 "Mag.Atk.Bns."+16'}}
+    gear.herc_feet_ma  = {name="Herculean Boots", augments={'Mag. Acc.+19 "Mag.Atk.Bns."+19','Mag. Acc.+4','"Mag.Atk.Bns."+15'}}
+    gear.herc_head_wsd = {name="Herculean Helm", augments={'Weapon skill damage +9%'}}
+    gear.herc_body_wsd = {name="Herculean Vest", augments={'Weapon skill damage +8%'}}
+    gear.herc_hands_wsd = {name="Herculean Gloves", augments={'Weapon skill damage +8%'}}
+    gear.herc_feet_wsd = {name="Herculean Boots", augments={'Weapon skill damage +9%'}}
+    gear.herc_feet_ta  = {name="Herculean Boots", augments={'"Triple Atk."+4'}}
+    gear.herc_head_rf = {name="Herculean Helm", augments={'"Refresh"+2'}}
+    gear.herc_hands_dt = {name="Herculean Gloves", augments={'Damage taken-4%'}}
+    gear.herc_legs_th  = {name="Herculean Trousers", augments={'"Treasure Hunter"+2'}}
     gear.Lstikini = {name="Stikini Ring +1", bag="wardrobe2"}
     gear.Rstikini = {name="Stikini Ring +1", bag="wardrobe3"}
 
     -- High HP items get tagged with priorities
     hpgear = {}
-    hpgear["Epeolatry"]               = {name="Epeolatry",priority=900}
-    hpgear["Lionheart"]               = {name="Lionheart",priority=900}
-    hpgear["Hepatizon Axe +1"]        = {name="Hepatizon Axe +1",priority=900}
-    hpgear["Kaja Chopper"]            = {name="Kaja Chopper",priority=900}
-    hpgear["Adhemar Jacket"]          = {name="Adhemar Jacket",priority=143}
-    hpgear["Aqreqaq Bomblet"]         = {name="Aqreqaq Bomblet",priority=20}
-    hpgear["Ashera Harness"]          = {name="Ashera Harness",priority=182}
-    hpgear["Balarama Grip"]           = {name="Balarama Grip",priority=50}
-    hpgear["Carmine Cuisses +1"]      = {name="Carmine Cuisses +1",priority=130}
-    hpgear["Carmine Greaves +1"]      = {name="Carmine Greaves +1",priority=95}
-    hpgear["Cryptic Earring"]         = {name="Cryptic Earring",priority=40}
-    hpgear["Eabani Earring"]          = {name="Eabani Earring",priority=45}
-    hpgear["Eihwaz Ring"]             = {name="Eihwaz Ring",priority=70}
-    hpgear["Emet Harness +1"]         = {name="Emet Harness +1",priority=61}
-    hpgear["Erilaz Galea +1"]         = {name="Erilaz Galea +1",priority=91}
-    hpgear["Erilaz Leg Guards +1"]    = {name="Erilaz Leg Guards +1",priority=80}
-    hpgear["Erilaz Surcoat +1"]       = {name="Erilaz Surcoat +1",priority=123}
-    hpgear["Etana Ring"]              = {name="Etana Ring",priority=60}
-    hpgear["Ethereal Earring"]        = {name="Ethereal Earring",priority=15}
-    hpgear["Etiolation Earring"]      = {name="Etiolation Earring",priority=50}
-    hpgear["Futhark Bandeau +3"]      = {name="Futhark Bandeau +3",priority=56}
-    hpgear["Futhark Coat +3"]         = {name="Futhark Coat +3",priority=119}
-    hpgear["Futhark Mitons +3"]       = {name="Futhark Mitons +3",priority=45}
-    hpgear["Futhark Torque +2"]       = {name="Futhark Torque +2",priority=60}
-    hpgear["Futhark Trousers +3"]     = {name="Futhark Trousers +3",priority=107}
-    hpgear["Halitus Helm"]            = {name="Halitus Helm",priority=88}
-    hpgear["Ilabrat Ring"]            = {name="Ilabrat Ring",priority=60}
-    hpgear["Moonbeam Cape"]           = {name="Moonbeam Cape",priority=250}
-    hpgear["Moonlight Ring"]          = {name="Moonlight Ring",priority=110}
-    hpgear["Odnowa Earring +1"]       = {name="Odnowa Earring +1",priority=100}
-    hpgear["Oneiros Belt"]            = {name="Oneiros Belt",priority=55}
-    hpgear["Rawhide Gloves"]          = {name="Rawhide Gloves",priority=75}
-    hpgear["Regal Ring"]              = {name="Regal Ring",priority=50}
-    hpgear["Runeist's Bandeau +3"]    = {name="Runeist's Bandeau +3",priority=109}
-    hpgear["Runeist's Boots +3"]      = {name="Runeist's Boots +3",priority=74}
-    hpgear["Runeist's Coat +3"]       = {name="Runeist's Coat +3",priority=218}
-    hpgear["Runeist's Mitons +3"]     = {name="Runeist's Mitons +3",priority=85}
-    hpgear["Runeist Trousers +1"]     = {name="Runeist Trousers +1",priority=47}
-    hpgear["Sacro Gorget"]            = {name="Sacro Gorget",priority=50}
-    hpgear["Sanctity Necklace"]       = {name="Sanctity Necklace",priority=35}
-    hpgear["Skaoi Boots"]             = {name="Skaoi Boots",priority=65}
-    hpgear["Supershear Ring"]         = {name="Supershear Ring",priority=30}
-    hpgear["Turms Cap +1"]            = {name="Turms Cap +1",priority=94}
-    hpgear["Turms Leggings +1"]       = {name="Turms Leggings +1",priority=76}
-    hpgear["Turms Mittens +1"]        = {name="Turms Mittens +1",priority=74}
-    hpgear["Unmoving Collar +1"]      = {name="Unmoving Collar +1",priority=200}
-    hpgear["Utu Grip"]                = {name="Utu Grip",priority=70}
-    hpgear["Volte Cap"]               = {name="Volte Cap",priority=57}
+    hpgear["Epeolatry"] = 900
+    hpgear["Lionheart"] = 900
+    hpgear["Hepatizon Axe +1"] = 900
+    hpgear["Kaja Chopper"] = 900
+    hpgear["Aqreqaq Bomblet"] = 20
+    hpgear["Ashera Harness"] = 182
+    hpgear["Balarama Grip"] = 50
+    hpgear["Bathy Choker +1"] = 35
+    hpgear["Carmine Cuisses +1"] = 130
+    hpgear["Carmine Greaves +1"] = 95
+    hpgear["Cryptic Earring"] = 40
+    hpgear["Eabani Earring"] = 45
+    hpgear["Eihwaz Ring"] = 70
+    hpgear["Emet Harness +1"] = 61
+    hpgear["Erilaz Galea +1"] = 91
+    hpgear["Erilaz Leg Guards +1"] = 80
+    hpgear["Erilaz Surcoat +1"] = 123
+    hpgear["Etana Ring"] = 60
+    hpgear["Ethereal Earring"] = 15
+    hpgear["Etiolation Earring"] = 50
+    hpgear["Futhark Bandeau +3"] = 56
+    hpgear["Futhark Coat +3"] = 119
+    hpgear["Futhark Mitons +3"] = 45
+    hpgear["Futhark Torque +2"] = 60
+    hpgear["Futhark Trousers +3"] = 107
+    hpgear["Gelatinous Ring +1"] = 120
+    hpgear["Halitus Helm"] = 88
+    hpgear["Ilabrat Ring"] = 60
+    hpgear["Kasiri Belt"] = 30
+    hpgear["Moonbeam Cape"] = 250
+    hpgear["Moonlight Ring"] = 110
+    hpgear["Nyame Helm"] = 91
+    hpgear["Nyame Mail"] = 136
+    hpgear["Nyame Gauntlets"] = 91
+    hpgear["Nyame Flanchard"] = 169
+    hpgear["Nyame Sollerets"] = 68
+    hpgear["Odnowa Earring +1"] = 110
+    hpgear["Oneiros Belt"] = 55
+    hpgear["Rawhide Gloves"] = 75
+    hpgear["Regal Ring"] = 50
+    hpgear["Runeist's Bandeau +3"] = 109
+    hpgear["Runeist's Boots +3"] = 74
+    hpgear["Runeist's Coat +3"] = 218
+    hpgear["Runeist's Mitons +3"] = 85
+    hpgear["Runeist Trousers +1"] = 47
+    hpgear["Sacro Gorget"] = 50
+    hpgear["Sanctity Necklace"] = 35
+    hpgear["Skaoi Boots"] = 65
+    hpgear["Supershear Ring"] = 30
+    hpgear["Turms Cap +1"] = 94
+    hpgear["Turms Leggings +1"] = 76
+    hpgear["Turms Mittens +1"] = 74
+    hpgear["Unmoving Collar +1"] = 200
+    hpgear["Utu Grip"] = 70
+    hpgear["Volte Cap"] = 57
+    for k, v in pairs(hpgear) do
+        hpgear[k] = {name = k, priority = v}
+    end
 
     -- have typos to hpgear[] keys return that key instead of nil, so `//gs validate' catches the issue
     setmetatable(hpgear, {__index = function(t, k) return k end})
@@ -301,18 +308,22 @@ function init_gear_sets()
 
     -- Precast Sets
     sets.Enmity = {main=hpgear["Epeolatry"],sub=hpgear["Balarama Grip"],ammo=hpgear["Aqreqaq Bomblet"],
-        head=hpgear["Halitus Helm"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Cryptic Earring"],ear2="Trux Earring",
+        head=hpgear["Halitus Helm"],neck=hpgear["Futhark Torque +2"],ear1="Trux Earring",ear2=hpgear["Cryptic Earring"],
         body=hpgear["Emet Harness +1"],hands="Kurys Gloves",ring1=hpgear["Eihwaz Ring"],ring2=hpgear["Supershear Ring"],
         back=gear.MEVACape,waist=hpgear["Oneiros Belt"],legs=hpgear["Erilaz Leg Guards +1"],feet="Erilaz Greaves +1"}
-    -- enm+85, pdt-37, inqu+5, mdt-9,  mdb+20, bdt-9,  meva+463, 2696 hp /drk
-    sets.Enmity.Tank = set_combine(sets.Enmity, {ring2="Defending Ring"})
-    -- enm+80, pdt-47, inqu+5, mdt-19, mdb+20, bdt-19, meva+463, 2666 hp /drk
+    -- enm+85, pdt-37, inqu+5, mdt-9,  bdt-9,  meva+463, 2696 hp /drk
+    sets.Enmity.Tank = {main=hpgear["Epeolatry"],sub=hpgear["Balarama Grip"],ammo="Staunch Tathlum +1",
+        head=hpgear["Halitus Helm"],neck=hpgear["Unmoving Collar +1"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Cryptic Earring"],
+        body=hpgear["Emet Harness +1"],hands="Kurys Gloves",ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
+        back=gear.MEVACape,waist=hpgear["Kasiri Belt"],legs=hpgear["Erilaz Leg Guards +1"],feet="Erilaz Greaves +1"}
+    -- enm+71, pdt-50, inqu+5, mdt-25, bdt-23, meva+408, 2911 hp /drk
 
     -- combined with and Enmity set in job_precast
     sets.precast.JA.Warcry = {}
     sets.precast.JA.Provoke = {}
     sets.precast.JA.Souleater = {}
     sets.precast.JA['Last Resort'] = {}
+    sets.precast.JA['Weapon Bash'] = {}
     sets.precast.JA['Elemental Sforzo'] = {body=hpgear["Futhark Coat +3"]}
     sets.precast.JA['Odyllic Subterfuge'] = {}
     sets.precast.JA['One for All'] = {neck=hpgear["Unmoving Collar +1"],body=hpgear["Runeist's Coat +3"],back=hpgear["Moonbeam Cape"]}
@@ -326,15 +337,15 @@ function init_gear_sets()
     sets.precast.JA.Rayke = {feet="Futhark Boots"}
 
     sets.precast.JA['Vivacious Pulse'] = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Staunch Tathlum +1",
-        head=hpgear["Erilaz Galea +1"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Cryptic Earring"],ear2=hpgear["Etiolation Earring"],
-        body=hpgear["Futhark Coat +3"],hands="Kurys Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist=hpgear["Oneiros Belt"],legs=hpgear["Runeist Trousers +1"],feet="Erilaz Greaves +1"}
-    -- pdt-50, mdt-42, bdt-39, 2654 hp /drk
+        head=hpgear["Erilaz Galea +1"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Cryptic Earring"],
+        body=hpgear["Ashera Harness"],hands=hpgear["Turms Mittens +1"],ring1="Vocane Ring +1",ring2="Defending Ring",
+        back=gear.ParryCape,waist="Flume Belt +1",legs=hpgear["Nyame Flanchard"],feet=hpgear["Turms Leggings +1"]}
+    -- pdt-50, mdt-48, bdt-46, 2896 hp /drk
 
     sets.precast.JA.Lunge = {main=hpgear["Epeolatry"],sub="Niobid Strap",ammo="Seething Bomblet +1",
-        head=gear.herc_head_ma,neck="Warder's Charm +1",ear1="Friomisi Earring",ear2="Hecate's Earring",
-        body="Samnuha Coat",hands="Carmine Finger Gauntlets +1",ring1="Mujin Band",ring2="Locus Ring",
-        back="Izdubar Mantle",waist="Orpheus's Sash",legs=gear.herc_legs_ma,feet=gear.herc_feet_ma}
+        head=hpgear["Nyame Helm"],neck="Warder's Charm +1",ear1="Friomisi Earring",ear2="Hecate's Earring",
+        body=hpgear["Nyame Mail"],hands=hpgear["Nyame Gauntlets"],ring1="Mujin Band",ring2="Locus Ring",
+        back="Izdubar Mantle",waist="Orpheus's Sash",legs=hpgear["Nyame Flanchard"],feet=hpgear["Nyame Sollerets"]}
     sets.precast.JA.Swipe = sets.precast.JA.Lunge
     sets.dark_dmg  = {head="Pixie Hairpin +1",ring2="Archon Ring"}
     sets.orpheus   = {waist="Orpheus's Sash"}
@@ -342,44 +353,34 @@ function init_gear_sets()
     sets.nuke_belt = {waist="Eschan Stone"}
 
     sets.precast.Step = {ammo="Yamarang",
-        head=hpgear["Runeist's Bandeau +3"],neck="Combatant's Torque",ear1="Odr Earring",ear2="Telos Earring",
-        body=hpgear["Runeist's Coat +3"],hands=hpgear["Runeist's Mitons +3"],ring1=hpgear["Moonlight Ring"],ring2=hpgear["Regal Ring"],
-        back=gear.TPCape,waist="Grunfeld Rope",legs="Ayanmo Cosciales +2",feet=hpgear["Runeist's Boots +3"]}
-    sets.precast.JA['Violent Flourish'] = {ammo="Yamarang",
-        head=hpgear["Runeist's Bandeau +3"],neck=hpgear["Sanctity Necklace"],ear1="Dignitary's Earring",ear2="Telos Earring",
-        body=hpgear["Runeist's Coat +3"],hands="Ayanmo Manopolas +2",ring1=hpgear["Etana Ring"],ring2=hpgear["Regal Ring"],
-        back=gear.TPCape,waist="Eschan Stone",legs="Ayanmo Cosciales +2",feet="Ayanmo Gambieras +2"}
-    sets.precast.JA['Weapon Bash'] = set_combine(sets.precast.JA['Violent Flourish'], {back=hpgear["Moonbeam Cape"]})
+        head=hpgear["Nyame Helm"],neck="Combatant's Torque",ear1="Odr Earring",ear2="Telos Earring",
+        body=hpgear["Nyame Mail"],hands=hpgear["Nyame Gauntlets"],ring1=hpgear["Moonlight Ring"],ring2=hpgear["Regal Ring"],
+        back=gear.TPCape,waist="Grunfeld Rope",legs=hpgear["Nyame Flanchard"],feet=hpgear["Nyame Sollerets"]}
+    sets.precast.JA['Violent Flourish'] = set_combine(sets.precast.Step, {ear1="Dignitary's Earring",ring1="Etana Ring",waist="Eschan Stone"})
 
     sets.precast.WS = {ammo="Knobkierrie",
         head="Adhemar Bonnet +1",neck="Fotia Gorget",ear1="Sherida Earring",ear2="Moonshade Earring",
         body="Ayanmo Corazza +2",hands="Adhemar Wristbands +1",ring1=hpgear["Regal Ring"],ring2="Niqmaddu Ring",
         back=gear.ResoCape,waist="Fotia Belt",legs="Meghanada Chausses +2",feet=gear.herc_feet_ta}
-    sets.precast.WS.Acc  = set_combine(sets.precast.WS, {ammo="Yamarang",back=gear.TPCape})
     sets.precast.WS.Tank = set_combine(sets.precast.WS, {ammo="Yamarang",
-        head=hpgear["Runeist's Bandeau +3"],neck=hpgear["Futhark Torque +2"],
-        body=hpgear["Ashera Harness"],ring1=hpgear["Moonlight Ring"],ring2="Defending Ring"})
-    sets.precast.WS.Resolution = set_combine(sets.precast.WS, {ammo="Seething Bomblet +1",body="Adhemar Jacket +1"})
+        head=hpgear["Nyame Helm"],body=hpgear["Nyame Mail"],hands=hpgear["Nyame Gauntlets"],
+        legs=hpgear["Nyame Flanchard"],feet=hpgear["Nyame Sollerets"]})
+    sets.precast.WS.Resolution = set_combine(sets.precast.WS, {ammo="Seething Bomblet +1",body=gear.adh_body_ta})
     sets.precast.WS.Resolution.Tank = set_combine(sets.precast.WS.Resolution, {
-        head=hpgear["Runeist's Bandeau +3"],ring1=hpgear["Moonlight Ring"],ring2=hpgear["Regal Ring"]})
-    sets.precast.WS.Resolution.Acc = set_combine(sets.precast.WS.Acc, {})
+        head=hpgear["Nyame Helm"],ring1=hpgear["Moonlight Ring"],ring2=hpgear["Regal Ring"]})
     sets.precast.WS.Decimation     = set_combine(sets.precast.WS.Resolution, {ear2="Brutal Earring"})
     sets.precast.WS.Ruinator       = set_combine(sets.precast.WS.Resolution, {ear2="Brutal Earring"})
 
     sets.precast.WS.OneHit = {ammo="Knobkierrie",
-        head=gear.herc_head_wsd,neck=hpgear["Futhark Torque +2"],ear1="Sherida Earring",ear2="Moonshade Earring",
-        body="Ayanmo Corazza +2",hands="Meghanada Gloves +2",ring1=hpgear["Regal Ring"],ring2="Niqmaddu Ring",
-        back=gear.DimiCape,waist="Sailfi Belt +1",legs="Meghanada Chausses +2",feet="Meghanada Jambeaux +2"}
-    sets.precast.WS.Dimidiation = set_combine(sets.precast.WS.OneHit, {
-        neck="Fotia Gorget",waist="Fotia Belt",legs="Lustratio Subligar +1",feet="Lustratio Leggings +1"})
-    sets.precast.WS.Dimidiation.Tank = set_combine(sets.precast.WS.Dimidiation, {
-        body=hpgear["Ashera Harness"],ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",waist="Flume Belt +1"})
-    sets.precast.WS.Dimidiation.Acc  = set_combine(sets.precast.WS.Dimidiation, {head="Meghanada Visor +2",feet="Meghanada Jambeaux +2"})
+        head=hpgear["Nyame Helm"],neck=hpgear["Futhark Torque +2"],ear1="Sherida Earring",ear2="Moonshade Earring",
+        body=hpgear["Nyame Mail"],hands=hpgear["Nyame Gauntlets"],ring1=hpgear["Regal Ring"],ring2="Niqmaddu Ring",
+        back=gear.DimiCape,waist="Sailfi Belt +1",legs=hpgear["Nyame Flanchard"],feet=hpgear["Nyame Sollerets"]}
+    sets.precast.WS.Dimidiation = set_combine(sets.precast.WS.OneHit, {waist="Fotia Belt"})
     sets.precast.WS['Steel Cyclone'] = set_combine(sets.precast.WS.OneHit, {})
-    sets.precast.WS['Fell Cleave']   = set_combine(sets.precast.WS.OneHit, {ring1="Vocane Ring +1",ring2="Defending Ring"})
+    sets.precast.WS['Fell Cleave']   = set_combine(sets.precast.WS.OneHit, {})
     sets.precast.WS['Ground Strike'] = set_combine(sets.precast.WS.OneHit, {})
     sets.precast.WS['Savage Blade']  = set_combine(sets.precast.WS.OneHit, {})
-    sets.precast.WS['Bora Axe']      = set_combine(sets.precast.WS.Dimidiation, {waist="Grunfeld Rope"})
+    sets.precast.WS['Bora Axe']      = set_combine(sets.precast.WS.Dimidiation, {})
 
     sets.precast.WS.Crit = set_combine(sets.precast.WS, {ammo="Yetshila +1",ear2="Odr Earring",feet="Ayanmo Gambieras +2"})
     sets.precast.WS['Vorpal Blade'] = set_combine(sets.precast.WS.Crit, {})
@@ -389,13 +390,13 @@ function init_gear_sets()
     sets.precast.WS['Sanguine Blade'] = set_combine(sets.precast.WS.Magical, sets.dark_dmg)
 
     sets.precast.WS.AddEffect = {ammo="Yamarang",
-        head="Ayanmo Zucchetto +2",neck=hpgear["Sanctity Necklace"],ear1="Dignitary's Earring",ear2="Moonshade Earring",
-        body="Ayanmo Corazza +2",hands="Ayanmo Manopolas +2",ring1=hpgear["Moonlight Ring"],ring2=hpgear["Etana Ring"],
-        back=gear.TPCape,waist="Eschan Stone",legs="Ayanmo Cosciales +2",feet="Ayanmo Gambieras +2"}
+        head=hpgear["Nyame Helm"],neck=hpgear["Sanctity Necklace"],ear1="Dignitary's Earring",ear2="Moonshade Earring",
+        body=hpgear["Nyame Mail"],hands=hpgear["Nyame Gauntlets"],ring1=hpgear["Moonlight Ring"],ring2=hpgear["Etana Ring"],
+        back=gear.TPCape,waist="Eschan Stone",legs=hpgear["Nyame Flanchard"],feet=hpgear["Nyame Sollerets"]}
     sets.precast.WS.Shockwave = {ammo="Yamarang",
-        head=hpgear["Runeist's Bandeau +3"],neck=hpgear["Futhark Torque +2"],ear1="Dignitary's Earring",ear2="Moonshade Earring",
-        body=hpgear["Ashera Harness"],hands="Ayanmo Manopolas +2",ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
-        back=gear.DimiCape,waist="Eschan Stone",legs="Ayanmo Cosciales +2",feet="Ayanmo Gambieras +2"}
+        head=hpgear["Nyame Helm"],neck=hpgear["Unmoving Collar +1"],ear1="Dignitary's Earring",ear2="Moonshade Earring",
+        body=hpgear["Nyame Mail"],hands=hpgear["Nyame Gauntlets"],ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
+        back=gear.ParryCape,waist="Eschan Stone",legs=hpgear["Nyame Flanchard"],feet=hpgear["Nyame Sollerets"]}
     sets.precast.WS['Herculean Slash'] = set_combine(sets.precast.WS.AddEffect, {})
     sets.precast.WS['Full Break']      = set_combine(sets.precast.WS.AddEffect, {})
     sets.precast.WS['Shield Break']    = set_combine(sets.precast.WS.AddEffect, {})
@@ -406,24 +407,24 @@ function init_gear_sets()
 
     sets.precast.RA = {ammo=empty}
     sets.precast.FC = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Sapience Orb",
-        head=hpgear["Runeist's Bandeau +3"],neck="Orunmila's Torque",ear1="Loquacious Earring",ear2=hpgear["Etiolation Earring"],
-        body=hpgear["Adhemar Jacket"],hands="Leyline Gloves",ring1=hpgear["Moonlight Ring"],ring2="Kishar Ring",
+        head=hpgear["Runeist's Bandeau +3"],neck="Orunmila's Torque",ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
+        body=gear.adh_body_fc,hands="Leyline Gloves",ring1=hpgear["Moonlight Ring"],ring2="Kishar Ring",
         back=gear.FCCape,waist=hpgear["Oneiros Belt"],legs="Ayanmo Cosciales +2",feet=hpgear["Carmine Greaves +1"]}
-    -- fc+67 (+36 val), 2801 hp /drk
+    -- fc+65 (+36 val), 2911 hp /drk
     sets.precast.FC['Enhancing Magic'] = set_combine(sets.precast.FC, {waist="Siegel Sash",legs=hpgear["Futhark Trousers +3"]})
-    -- fc+80 (+36 val), 2808 hp /drk
+    -- fc+80 (+36 val), 2918 hp /drk
     sets.precast.FC.Utsusemi = set_combine(sets.precast.FC, {neck="Magoraga Beads"})
-    -- fc+72 (+36 val), 2801 hp /drk
+    -- fc+70 (+36 val), 2911 hp /drk
 
     -- Midcast Sets
     sets.SIRD = {main=hpgear["Epeolatry"],sub="Refined Grip +1",ammo="Staunch Tathlum +1",
-        head=gear.taeon_head_sird,neck="Moonlight Necklace",ear1=hpgear["Cryptic Earring"],ear2="Halasz Earring",
+        head=gear.taeon_head_sird,neck="Moonlight Necklace",ear1="Halasz Earring",ear2=hpgear["Cryptic Earring"],
         body=gear.taeon_body_phlx,hands=hpgear["Rawhide Gloves"],ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.MEVACape,waist="Rumination Sash",legs=hpgear["Carmine Cuisses +1"],feet=gear.taeon_feet_phlx}
     -- sir-102, pdt-31, mdt-21, bdt-21, enm+26, 2502 hp /drk
     sets.SIRD.Choral = {main=hpgear["Epeolatry"],sub="Refined Grip +1",ammo="Staunch Tathlum +1",
         head=hpgear["Futhark Bandeau +3"],neck="Moonlight Necklace",ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
-        body=hpgear["Futhark Coat +3"],hands=gear.herc_hands_dt,ring1="Vocane Ring +1",ring2="Defending Ring",
+        body=hpgear["Futhark Coat +3"],hands=hpgear["Nyame Gauntlets"],ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.MEVACape,waist="Rumination Sash",legs=hpgear["Carmine Cuisses +1"],feet="Erilaz Greaves +1"}
     -- sir-56, pdt-50, mdt-39, bdt-34, enm+31, 2652 hp /drk
 
@@ -435,9 +436,9 @@ function init_gear_sets()
     -- skill=523, dur+35, pdt-16, mdt-5, bdt-5, 2592 hp /drk (risky spell)
     sets.midcast.Temper.Tank = {main=hpgear["Epeolatry"],sub="Refined Grip +1",ammo="Staunch Tathlum +1",
         head=hpgear["Erilaz Galea +1"],neck=hpgear["Futhark Torque +2"],ear1="Andoaa Earring",ear2="Mimir Earring",
-        body=hpgear["Futhark Coat +3"],hands=hpgear["Runeist's Mitons +3"],ring1=gear.Lstikini,ring2="Defending Ring",
-        back=gear.MEVACape,waist="Flume Belt +1",legs=hpgear["Carmine Cuisses +1"],feet="Erilaz Greaves +1"}
-    -- skill=500, dur+35, pdt-50, mdt-29, bdt-29, 2652 hp /drk
+        body=hpgear["Nyame Mail"],hands=hpgear["Runeist's Mitons +3"],ring1=gear.Lstikini,ring2="Defending Ring",
+        back=gear.MEVACape,waist="Flume Belt +1",legs=hpgear["Carmine Cuisses +1"],feet=hpgear["Nyame Sollerets"]}
+    -- skill=500, dur+35, pdt-50, mdt-39, bdt-39, 2719 hp /drk
     sets.midcast.Phalanx = {main="Deacon Sword",sub=empty,ammo="Staunch Tathlum +1",
         head=hpgear["Futhark Bandeau +3"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2="Mimir Earring",
         body=gear.taeon_body_phlx,hands=gear.taeon_hands_phlx,ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
@@ -450,21 +451,21 @@ function init_gear_sets()
 
     sets.midcast.FixedPotencyEnhancing = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Staunch Tathlum +1",
         head=hpgear["Erilaz Galea +1"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
-        body=hpgear["Ashera Harness"],hands=gear.herc_hands_dt,ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Engraved Belt",legs=hpgear["Futhark Trousers +3"],feet=hpgear["Turms Leggings +1"]}
+        body=hpgear["Nyame Mail"],hands=hpgear["Turms Mittens +1"],ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
+        back=gear.MEVACape,waist="Flume Belt +1",legs=hpgear["Futhark Trousers +3"],feet=hpgear["Turms Leggings +1"]}
     sets.midcast.Refresh = set_combine(sets.midcast.FixedPotencyEnhancing, {waist="Gishdubar Sash"})
     sets.midcast['Regen IV'] = set_combine(sets.midcast.FixedPotencyEnhancing, {
-        head=hpgear["Runeist's Bandeau +3"],neck=hpgear["Sacro Gorget"],body=hpgear["Futhark Coat +3"],waist="Flume Belt +1"})
+        head=hpgear["Runeist's Bandeau +3"],neck=hpgear["Sacro Gorget"],feet=hpgear["Nyame Sollerets"]})
     sets.midcast.Blink = {}
     sets.midcast.Stoneskin = {}
 
     sets.midcast['Enfeebling Magic'] = {main=hpgear["Epeolatry"],sub="Kaja Grip",ammo="Yamarang",
-        head=hpgear["Volte Cap"],neck="Erra Pendant",ear1="Dignitary's Earring",ear2="Gwati Earring",
-        body=hpgear["Futhark Coat +3"],hands="Ayanmo Manopolas +2",ring1=gear.Lstikini,ring2=gear.Rstikini,
-        back=gear.MEVACape,waist="Luminary Sash",legs="Ayanmo Cosciales +2",feet="Ayanmo Gambieras +2"}
+        head=hpgear["Nyame Helm"],neck="Erra Pendant",ear1="Dignitary's Earring",ear2="Gwati Earring",
+        body=hpgear["Nyame Mail"],hands=hpgear["Nyame Mail"],ring1=gear.Lstikini,ring2=gear.Rstikini,
+        back=gear.MEVACape,waist="Eschan Stone",legs=hpgear["Nyame Flanchard"],feet=hpgear["Nyame Sollerets"]}
     sets.midcast.Poisonga = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Staunch Tathlum +1",
         head=hpgear["Volte Cap"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
-        body=hpgear["Futhark Coat +3"],hands=hpgear["Turms Mittens +1"],ring1="Vocane Ring +1",ring2="Defending Ring",
+        body=hpgear["Nyame Mail"],hands=hpgear["Turms Mittens +1"],ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.MEVACape,waist="Chaac Belt",legs=gear.herc_legs_th,feet=hpgear["Turms Leggings +1"]}
     sets.midcast.Repose = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast.Absorb = set_combine(sets.midcast['Enfeebling Magic'], {})
@@ -499,49 +500,44 @@ function init_gear_sets()
     sets.midcast.Jettatura.MAcc     = set_combine(sets.midcast['Enfeebling Magic'], {})
 
     sets.buff.doom = {neck="Nicander's Necklace",ring1="Eshmun's Ring",ring2="Defending Ring",waist="Gishdubar Sash"}
-    sets.buff.doom.PDef = {main=hpgear["Epeolatry"],sub="Refined Grip +1",ammo="Staunch Tathlum +1",
-        head=hpgear["Futhark Bandeau +3"],neck="Nicander's Necklace",ear1="Genmei Earring",ear2=hpgear["Etiolation Earring"],
-        body=hpgear["Futhark Coat +3"],hands=gear.herc_hands_dt,ring1="Eshmun's Ring",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Gishdubar Sash",legs=hpgear["Erilaz Leg Guards +1"],feet=hpgear["Erilaz Greaves +1"]}
-    -- pdt-48, inqu+5, mdt-29, mdb+24, bdt-26, meva+469, r.st+11, enm+27, 2487 hp /drk
+    sets.buff.doom.PDef = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Staunch Tathlum +1",
+        head=hpgear["Nyame Helm"],neck="Nicander's Necklace",ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
+        body=hpgear["Nyame Mail"],hands=hpgear["Nyame Gauntlets"],ring1="Eshmun's Ring",ring2="Defending Ring",
+        back=gear.MEVACape,waist="Gishdubar Sash",legs=hpgear["Erilaz Leg Guards +1"],feet=hpgear["Nyame Sollerets"]}
+    -- pdt-50, inqu+5, mdt-50, bdt-46, meva+661, r.st+11, enm+21, 2775 hp /drk
     sets.buff.Sleep = {head="Frenzy Sallet"}
     sets.buff.Embolden = {back="Evasionist's Cape"}
 
     -- Idle and tanking sets
     sets.idle = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Staunch Tathlum +1",
         head=hpgear["Turms Cap +1"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
-        body=hpgear["Runeist's Coat +3"],hands=gear.herc_hands_dt,ring1="Vocane Ring +1",ring2="Defending Ring",
+        body=hpgear["Runeist's Coat +3"],hands=hpgear["Nyame Gauntlets"],ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.MEVACape,waist="Flume Belt +1",legs=hpgear["Carmine Cuisses +1"],feet="Erilaz Greaves +1"}
-    -- pdt-50, mdt-37, mdb+25, bdt-32, meva+557, r.st+11, rf+3, rg+7, 2% mp conv, 2849 hp /drk
+    -- pdt-50, mdt-37, bdt-32, meva+557, r.st+11, rf+3, rg+7, 2% mp conv, 2849 hp /drk
     sets.idle.Refresh = {main=hpgear["Epeolatry"],sub="Refined Grip +1",ammo="Homiliary",
         head=gear.herc_head_rf,neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
-        body=hpgear["Runeist's Coat +3"],hands=gear.herc_hands_dt,ring1=gear.Lstikini,ring2="Defending Ring",
-        back=gear.MEVACape,waist="Flume Belt +1",legs="Rawhide Trousers",feet="Erilaz Greaves +1"}
-    -- pdt-42, mdt-26, mdb+22, bdt-21, meva+496, rf+8, 2% mp conv, 2710 hp /drk
-    sets.idle.Kite = {main=hpgear["Epeolatry"],sub="Refined Grip +1",ammo="Staunch Tathlum +1",
+        body=hpgear["Runeist's Coat +3"],hands=hpgear["Nyame Gauntlets"],ring1=gear.Lstikini,ring2="Defending Ring",
+        back=gear.MEVACape,waist="Flume Belt +1",legs="Rawhide Trousers",feet=hpgear["Nyame Sollerets"]}
+    -- pdt-48, mdt-39, bdt-34, meva+544, rf+8, 2% mp conv, 2831 hp /drk
+    sets.idle.Kite = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Homiliary",
         head=hpgear["Turms Cap +1"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
-        body=hpgear["Futhark Coat +3"],hands=hpgear["Turms Mittens +1"],ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Flume Belt +1",legs=hpgear["Carmine Cuisses +1"],feet=hpgear["Turms Leggings +1"]}
-    -- pdt-50, mdt-42, mdb+31, bdt-37, meva+581, r.st+11, rg+23, 2% mp conv, 2862 hp /drk
+        body=hpgear["Runeist's Coat +3"],hands=hpgear["Nyame Gauntlets"],ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
+        back=gear.MEVACape,waist="Flume Belt +1",legs=hpgear["Carmine Cuisses +1"],feet=hpgear["Nyame Sollerets"]}
+    -- pdt-50, mdt-44, bdt-39, meva+605, rf+4, rg+7, 2% mp conv, 3080 hp /drk
     sets.latent_refresh = {ammo="Homiliary",waist="Fucho-no-obi"}
     sets.defense.Kite = set_combine(sets.idle.Kite, {})
 
     sets.defense.Parry = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Staunch Tathlum +1",
-        head=hpgear["Turms Cap +1"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
-        body=hpgear["Ashera Harness"],hands=hpgear["Turms Mittens +1"],ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Engraved Belt",legs=hpgear["Erilaz Leg Guards +1"],feet=hpgear["Turms Leggings +1"]}
-    -- pdt-50, inqu+10, mdt-40, mdb+30, bdt-35, meva+640, r.st+11, enm+31, 2875 hp /drk
-    sets.defense.ParryAcc = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Staunch Tathlum +1",
-        head="Ayanmo Zucchetto +2",neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
-        body=hpgear["Ashera Harness"],hands=hpgear["Turms Mittens +1"],ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
-        back=gear.TPCape,waist="Sailfi Belt +1",legs=hpgear["Erilaz Leg Guards +1"],feet=hpgear["Turms Leggings +1"]}
-    -- acc~1231, haste+26, stp+21, da+15, ta+2
-    -- pdt-50, inqu+10, mdt-40, mdb+26, bdt-35, meva+534, r.st+11, enm+21, 2876 hp /drk
-    sets.defense.ParryRf = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Staunch Tathlum +1",
-        head=hpgear["Turms Cap +1"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Ethereal Earring"],
-        body=hpgear["Runeist's Coat +3"],hands=hpgear["Turms Mittens +1"],ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Flume Belt +1",legs=hpgear["Erilaz Leg Guards +1"],feet=hpgear["Turms Leggings +1"]}
-    -- pdt-49, inqu+10, mdt-30, mdb+32, bdt-28, meva+657, r.st+11, rf+3, rg+18, 5% mp conv, enm+31, 2876 hp /drk
+        head=hpgear["Nyame Helm"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Cryptic Earring"],
+        body=hpgear["Nyame Mail"],hands=hpgear["Turms Mittens +1"],ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
+        back=gear.ParryCape,waist=hpgear["Kasiri Belt"],legs=hpgear["Erilaz Leg Guards +1"],feet=hpgear["Turms Leggings +1"]}
+    -- pdt-50, inqu+15, mdt-46, bdt-44, meva+677, enm+34, 2956 hp /drk
+    sets.defense.VParry = set_combine(sets.defense.Parry, {ring1="Vocane Ring +1"})
+    sets.defense.Eva = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Yamarang",
+        head=hpgear["Nyame Helm"],neck=hpgear["Bathy Choker +1"],ear1=hpgear["Eabani Earring"],ear2=hpgear["Ethereal Earring"],
+        body=hpgear["Nyame Mail"],hands=hpgear["Turms Mittens +1"],ring1="Vocane Ring +1",ring2="Defending Ring",
+        back=gear.MEVACape,waist=hpgear["Kasiri Belt"],legs=hpgear["Nyame Flanchard"],feet=hpgear["Turms Leggings +1"]}
+    -- pdt-50, inqu+8, mdt-42, bdt-42, meva+713, enm+13, eva~1154, 2765 hp /drk
 
     sets.defense.HPdown = {main=hpgear["Epeolatry"],sub="Refined Grip +1",ammo="Staunch Tathlum +1",
         head="Ayanmo Zucchetto +2",neck="Loricate Torque +1",ear1="Hearty Earring",ear2="Telos Earring",
@@ -552,36 +548,32 @@ function init_gear_sets()
         body=hpgear["Ashera Harness"],hands=hpgear["Runeist's Mitons +3"],ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
         back=hpgear["Moonbeam Cape"],waist=hpgear["Oneiros Belt"],legs=hpgear["Erilaz Leg Guards +1"],feet=hpgear["Turms Leggings +1"]}
 
-    sets.defense.MEVA = {main=hpgear["Epeolatry"],sub="Refined Grip +1",ammo="Yamarang",
-        head=hpgear["Turms Cap +1"],neck=hpgear["Futhark Torque +2"],ear1="Eabani Earring",ear2=hpgear["Etiolation Earring"],
-        body=hpgear["Runeist's Coat +3"],hands=hpgear["Turms Mittens +1"],ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Engraved Belt",legs=hpgear["Erilaz Leg Guards +1"],feet=hpgear["Turms Leggings +1"]}
-    -- pdt-42, inqu+10, mdt-28, mdb+32, bdt-25, meva+692, enm+31, 2846 hp /drk
-    sets.defense.MDT50 = {main=hpgear["Epeolatry"],sub="Refined Grip +1",ammo="Staunch Tathlum +1",
-        head="Ayanmo Zucchetto +2",neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
-        body=hpgear["Futhark Coat +3"],hands=gear.herc_hands_dt,ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=hpgear["Moonbeam Cape"],waist="Engraved Belt",legs=hpgear["Erilaz Leg Guards +1"],feet="Erilaz Greaves +1"}
-    -- pdt-50, inqu+7, mdt-50, mdb+24, bdt-49, meva+426, r.st+11, enm+11, 2841 hp /drk
+    sets.defense.MEVA = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Yamarang",
+        head=hpgear["Nyame Helm"],neck=hpgear["Futhark Torque +2"],ear1=hpgear["Odnowa Earring +1"],ear2=hpgear["Etiolation Earring"],
+        body=hpgear["Nyame Mail"],hands=hpgear["Turms Mittens +1"],ring1="Vocane Ring +1",ring2="Defending Ring",
+        back=gear.ParryCape,waist="Engraved Belt",legs=hpgear["Nyame Flanchard"],feet=hpgear["Turms Leggings +1"]}
+    -- pdt-50, inqu+13, mdt-50, bdt-50, meva+755, enm+20, 2860 hp /drk
 
-    sets.defense.Knockback = {ring1="Vocane Ring +1",back="Repulse Mantle",waist="Flume Belt +1"}--,legs="Dashing Subligar"}
+    sets.defense.Knockback = {ring1="Vocane Ring +1",back="Repulse Mantle"}
     sets.defense.Charm     = {ammo="Staunch Tathlum +1",neck=hpgear["Unmoving Collar +1"],ear1="Hearty Earring"}
     sets.defense.Death     = {ammo="Staunch Tathlum +1",ear1="Hearty Earring",
         body="Samnuha Coat",ring1=hpgear["Eihwaz Ring"],ring2="Shadow Ring"}
     sets.Kiting = {legs=hpgear["Carmine Cuisses +1"]}
 
     -- Engaged (DD) sets
-    sets.engaged = {main=hpgear["Epeolatry"],sub="Utu Grip",ammo="Yamarang",
+    sets.engaged = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Yamarang",
         head="Adhemar Bonnet +1",neck="Anu Torque",ear1="Sherida Earring",ear2="Telos Earring",
-        body="Adhemar Jacket +1",hands="Adhemar Wristbands +1",ring1="Epona's Ring",ring2="Niqmaddu Ring",
+        body=gear.adh_body_ta,hands="Adhemar Wristbands +1",ring1="Epona's Ring",ring2="Niqmaddu Ring",
         back=gear.TPCape,waist="Windbuffet Belt +1",legs="Samnuha Tights",feet=gear.herc_feet_ta}
-    -- acc~1235, haste+26, stp+34, da+22, ta+26, qa+5, pdt-12, inqu+3, mdt-0, mdb+21, bdt-0, meva+336, 2265 hp /drk
-    sets.engaged.PDef = set_combine(sets.engaged, {
-        head="Ayanmo Zucchetto +2",body=hpgear["Ashera Harness"],ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
-        waist="Sailfi Belt +1",legs="Meghanada Chausses +2"})
-    -- acc~1270, haste+26, stp+48, da+21, ta+17, pdt-43, inqu+3, mdt-25, mdb+20 bdt-25, meva+351, 2492 hp /drk
+    -- acc~1235, haste+26, stp+34, da+22, ta+26, qa+5, pdt-12, inqu+3, mdt-0, bdt-0, meva+336, 2265 hp /drk
+    sets.engaged.PDef = {main=hpgear["Epeolatry"],sub=hpgear["Utu Grip"],ammo="Yamarang",
+        head="Ayanmo Zucchetto +2",neck=hpgear["Futhark Torque +2"],ear1="Sherida Earring",ear2="Telos Earring",
+        body=hpgear["Ashera Harness"],hands="Adhemar Wristbands +1",ring1=hpgear["Moonlight Ring"],ring2="Defending Ring",
+        back=gear.TPCape,waist="Sailfi Belt +1",legs="Meghanada Chausses +2",feet=gear.herc_feet_ta}
+    -- acc~1279, haste+26, stp+41, da+21, ta+17, pdt-50, inqu+3, mdt-32, bdt-35, meva+381, 2552 hp /drk
     sets.engaged.PDef2 = set_combine(sets.engaged.PDef, {ammo="Staunch Tathlum +1",
-        head="Ayanmo Zucchetto +2",hands=gear.herc_hands_dt,feet=hpgear["Turms Leggings +1"]})
-    -- acc~1251, haste+25, stp+38, da+18, ta+9, pdt-50, inqu+8, mdt-32, mdb+22 bdt-32, meva+408, r.st+11, 2557 hp /drk
+        hands=hpgear["Turms Mittens +1"],feet=hpgear["Turms Leggings +1"]})
+    -- acc~1293, haste+26, stp+31, da+21, ta+7, pdt-50, inqu+8, mdt-35, bdt-35, meva+496, r.st+11, 2671 hp /drk
 
     sets.engaged.AxeDW         = set_combine(sets.engaged,       {ear2="Suppanomimi",waist="Reiki Yotai"})
     sets.engaged.AxeDW.PDef    = set_combine(sets.engaged.PDef,  {ear2="Suppanomimi",waist="Reiki Yotai",legs="Samnuha Tights"})
@@ -667,16 +659,16 @@ function job_aftercast(spell, action, spellMap, eventArgs)
     else
         if state.WSMsg.value then
             if spell.type == 'WeaponSkill' then
-                send_command('@input /p '..spell.english)
+                send_command('input /p '..spell.english)
             elseif spell.english == 'Embolden' then
-                send_command('@input /p Used '..spell.english)
+                send_command('input /p Used '..spell.english)
             elseif S{'Gambit','Rayke'}:contains(spell.english) then
                 local msg = 'Used '..spell.english
                 local triple_rune = triple_rune_string()
                 if triple_rune then
                     msg = msg..' ('..triple_rune..')'
                 end
-                send_command('@input /p '..msg)
+                send_command('input /p '..msg)
             end
         end
         if spell.type == 'Rune' or spell.type == 'JobAbility' and not sets.precast.JA[spell.english] then
@@ -704,7 +696,8 @@ end
 -- buff == buff gained or lost
 -- gain == true if the buff was gained, false if it was lost.
 function job_buff_change(buff, gain)
-    if buff:lower() == 'sleep' then
+    local lbuff = buff:lower()
+    if lbuff == 'sleep' then
         if gain then
             if player.hp > 100 and player.status == 'Engaged' then
                 send_command('cancel stoneskin')
@@ -713,18 +706,18 @@ function job_buff_change(buff, gain)
         elseif not midaction() then
             handle_equipping_gear(player.status)
         end
-    elseif buff:lower() == 'doom' then
+    elseif lbuff == 'doom' then
         if not midaction() then
             handle_equipping_gear(player.status)
         end
-    elseif state.DefenseMode.value == 'None' and S{'stun','terror','petrification'}:contains(buff:lower()) then
+    elseif state.DefenseMode.value == 'None' and S{'stun','terror','petrification'}:contains(lbuff) then
         if gain then
             equip(sets.defense.Parry)
         elseif not midaction() then
             handle_equipping_gear(player.status)
         end
     end
-    if gain then
+    if gain and info.chat_notice_buffs:contains(lbuff) then
         add_to_chat(104, 'Gained ['..buff..']')
     end
 end
@@ -747,9 +740,6 @@ function job_state_change(stateField, newValue, oldValue)
             disable('main','sub')
         end
     elseif stateField:endswith('Defense Mode') then
-        if newValue == 'MDT50' then
-            state.DefenseMode:set('Magical')
-        end
         if state.DefenseMode.value ~= 'None' then
             local defMode = state[state.DefenseMode.value..'DefenseMode'].current
             sets.midcast.FastRecast = set_combine(sets.defense[defMode], {})
@@ -805,11 +795,15 @@ end
 
 -- Modify the default defense set after it was constructed.
 function customize_defense_set(defenseSet)
-    if player.status ~= 'Engaged' and state.DefenseMode.value == 'Physical' then
+    if player.status ~= 'Engaged'
+    and state.DefenseMode.value == 'Physical' and state.PhysicalDefenseMode.value:endswith('Parry') then
         defenseSet = sets.defense.Kite
     end
     if state.Buff.doom then
-        defenseSet = set_combine(defenseSet, sets.buff.doom)
+        defenseSet = set_combine(defenseSet, sets.buff.doom.PDef)
+    end
+    if state.Buff.Embolden then
+        defenseSet = set_combine(defenseSet, sets.buff.Embolden)
     end
     return defenseSet
 end
@@ -962,7 +956,7 @@ function job_keybinds()
         'bind ^z gs c set HybridMode PDef2',
         'bind !z gs c cycle PhysicalDefenseMode',
         'bind @z gs c cycle MagicalDefenseMode',
-        'bind !@z gs c set  MagicalDefenseMode MDT50',
+        'bind !@z gs c reset PhysicalDefenseMode',
         'bind !c  gs c toggle SIRD',
         'bind ^c  gs c set CastingMode Tank',
 

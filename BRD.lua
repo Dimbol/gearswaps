@@ -166,7 +166,7 @@ function init_gear_sets()
         body="Inyanga Jubbah +2",hands="Leyline Gloves",ring2="Kishar Ring",
         back=gear.SongCape,waist="Embla Sash",legs="Ayanmo Cosciales +2",feet="Telchine Pigaches"}
     -- cast time -74%
-    sets.precast.FC.Cure = set_combine(sets.precast.FC, {ear2="Mendicant's Earring",body="Heka's Kalasiris",feet="Vanya Clogs"})
+    sets.precast.FC.Cure = set_combine(sets.precast.FC, {ear2="Mendicant's Earring",feet="Vanya Clogs"})
     sets.precast.FC['Enhancing Magic'] = set_combine(sets.precast.FC, {waist="Siegel Sash"})
     sets.precast.FC.BardSong = set_combine(sets.precast.FC, {head="Fili Calot +1",body="Brioso Justaucorps +3"})
     sets.precast.FC['Honor March'] = set_combine(sets.precast.FC.BardSong, {range="Marsyas"})
@@ -181,26 +181,25 @@ function init_gear_sets()
         neck="Sanctity Necklace",ring1="Etana Ring",waist="Eschan Stone"})
 
     sets.precast.WS = {range="Linos",
-        head="Ayanmo Zucchetto +2",neck="Bard's Charm +2",ear1="Telos Earring",ear2="Moonshade Earring",
-        body="Bihu Justaucorps +3",hands="Ayanmo Manopolas +2",ring1="Hetairoi Ring",ring2="Ilabrat Ring",
-        back=gear.TPCape,waist="Fotia Belt",legs="Ayanmo Cosciales +2",feet="Ayanmo Gambieras +2"}
+        head="Nyame Helm",neck="Bard's Charm +2",ear1="Telos Earring",ear2="Moonshade Earring",
+        body="Bihu Justaucorps +3",hands="Nyame Gauntlets",ring1="Hetairoi Ring",ring2="Ilabrat Ring",
+        back=gear.TPCape,waist="Fotia Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"}
     sets.precast.WS['Evisceration'] = set_combine(sets.precast.WS, {})
     sets.precast.WS['Exenterator'] = set_combine(sets.precast.WS, {ear2="Brutal Earring"})
     sets.precast.WS.Rudras = set_combine(sets.precast.WS, {ear1="Ishvara Earring",ring1="Petrov Ring",
         back=gear.RudraCape,waist="Grunfeld Rope",legs="Lustratio Subligar +1",feet="Lustratio Leggings +1"})
     sets.precast.WS['Rudra\'s Storm'] = sets.precast.WS.Rudras
     sets.precast.WS['Savage Blade'] = {range="Linos",
-        head="Bihu Roundlet +3",neck="Bard's Charm +2",ear1="Regal Earring",ear2="Moonshade Earring",
-        body="Bihu Justaucorps +3",hands="Ayanmo Manopolas +2",ring1=gear.Lstikini,ring2="Rufescent Ring",
-        back=gear.RudraCape,waist="Sailfi Belt +1",legs="Bihu Cannions +3",feet="Ayanmo Gambieras +2"}
+        head="Nyame Helm",neck="Bard's Charm +2",ear1="Regal Earring",ear2="Moonshade Earring",
+        body="Bihu Justaucorps +3",hands="Nyame Gauntlets",ring1=gear.Lstikini,ring2="Rufescent Ring",
+        back=gear.RudraCape,waist="Sailfi Belt +1",legs="Nyame Flanchard",feet="Nyame Sollerets"}
     sets.precast.WS['Mordant Rime'] = {range="Linos",
         head="Bihu Roundlet +3",neck="Bard's Charm +2",ear1="Telos Earring",ear2="Regal Earring",
         body="Bihu Justaucorps +3",hands="Bihu Cuffs +3",ring1="Metamorph Ring +1",ring2="Ilabrat Ring",
         back=gear.RimeCape,waist="Sailfi Belt +1",legs="Bihu Cannions +3",feet="Bihu Slippers +3"}
     sets.precast.WS['Aeolian Edge'] = set_combine(sets.precast.WS, {
-        head="Chironic Hat",neck="Fotia Gorget",ear1="Friomisi Earring",ear2="Hecate's Earring",
-        body="Chironic Doublet",hands="Chironic Gloves",ring1="Metamorph Ring +1",ring2="Ilabrat Ring",
-        back=gear.RudraCape,waist="Fotia Belt",legs="Lengo Pants",feet=gear.chir_feet_ma})
+        neck="Fotia Gorget",ear1="Friomisi Earring",ear2="Hecate's Earring",
+        ring1="Metamorph Ring +1",ring2="Ilabrat Ring",back=gear.RudraCape,waist="Fotia Belt"})
     sets.precast.WS['Cyclone'] = set_combine(sets.precast.WS['Aeolian Edge'], {})
     sets.precast.WS['Cataclysm'] = set_combine(sets.precast.WS['Aeolian Edge'], {head="Pixie Hairpin +1",ring2="Archon Ring"})
     sets.precast.WS['Energy Drain'] = set_combine(sets.precast.WS['Cataclysm'], {})
@@ -260,7 +259,7 @@ function init_gear_sets()
     sets.midcast.SongDebuff = {main="Carnwenhan",sub="Ammurapi Shield",range="Gjallarhorn",
         head="Brioso Roundlet +3",neck="Moonbow Whistle +1",ear1="Regal Earring",ear2="Dignitary's Earring",
         body="Brioso Justaucorps +3",hands="Brioso Cuffs +3",ring1=gear.Lstikini,ring2=gear.Rstikini,
-        back=gear.SongCape,waist="Luminary Sash",legs="Inyanga Shalwar +2",feet="Brioso Slippers +3"}
+        back=gear.SongCape,waist="Obstinate Sash",legs="Inyanga Shalwar +2",feet="Brioso Slippers +3"}
     -- m.acc+752, sing=500, wind=480, chr+266, dur+157%
     sets.midcast.SongDebuff.Resistant = set_combine(sets.midcast.SongDebuff, {legs="Brioso Cannions +3"})
     -- m.acc+778, sing=500, wind=499, chr+267, dur+140%
@@ -316,8 +315,8 @@ function init_gear_sets()
     sets.midcast['Enfeebling Magic'] = {main="Carnwenhan",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
         head="Brioso Roundlet +3",neck="Moonbow Whistle +1",ear1="Regal Earring",ear2="Dignitary's Earring",
         body="Brioso Justaucorps +3",hands="Kaykaus Cuffs +1",ring1=gear.Lstikini,ring2=gear.Rstikini,
-        back=gear.SongCape,waist="Luminary Sash",legs="Chironic Hose",feet="Skaoi Boots"}
-    -- enf.skill=217, m.acc+734, mnd+209
+        back=gear.SongCape,waist="Obstinate Sash",legs="Chironic Hose",feet="Skaoi Boots"}
+    -- enf.skill=217, m.acc+734, mnd+204
     sets.midcast.Dispelga = set_combine(sets.midcast['Enfeebling Magic'], sets.dispelga)
 
     sets.midcast.Utsusemi = {main="Mafic Cudgel",sub="Genmei Shield",ammo="Staunch Tathlum +1",
@@ -428,7 +427,7 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
         end
 
         if state.Buff.Troubadour or state.Buff['Elemental Seal'] then
-            -- Some spells 
+            -- Some spells
             if S{'Lullaby','Threnody'}:contains(spellMap) then
                 equip(sets.midcast[spellMap].MaxDur)
             elseif spell.english == 'Pining Nocturne' then
@@ -464,11 +463,11 @@ function job_aftercast(spell, action, spellMap, eventArgs)
             eventArgs.handled = true
         elseif spell.english == 'Dia II' and state.DiaMsg.value then
             if spell.target.name and spell.target.type == 'MONSTER' then
-                send_command('@input /p '..spell.english..' /')
+                send_command('input /p Dia II /')
             end
         elseif spell.type == 'WeaponSkill' then
             if state.WSMsg.value then
-                send_command('@input /p '..spell.english)
+                send_command('input /p '..spell.english)
             end
         end
         if state.Buff.Troubadour and spell.type == 'BardSong' then
@@ -496,21 +495,22 @@ end
 -- buff == buff gained or lost
 -- gain == true if the buff was gained, false if it was lost.
 function job_buff_change(buff, gain)
-    if buff:lower() == 'sleep' and gain then
+    local lbuff = buff:lower()
+    if lbuff == 'sleep' and gain then
         if buffactive['Stoneskin'] then
             add_to_chat(123, 'cancelling stoneskin')
             send_command('cancel Stoneskin')
         end
-    elseif state.DefenseMode.value == 'None' and S{'stun','terror','petrification'}:contains(buff:lower()) then
+    elseif state.DefenseMode.value == 'None' and S{'stun','terror','petrification'}:contains(lbuff) then
         if gain then
             equip(sets.idle.PDT)
         elseif not midaction() then
             handle_equipping_gear(player.status)
         end
-    elseif buff:lower() == 'doom' and not midaction() then
+    elseif lbuff == 'doom' and not midaction() then
         handle_equipping_gear(player.status)
     end
-    if gain then
+    if gain and info.chat_notice_buffs:contains(lbuff) then
         add_to_chat(104, 'Gained ['..buff..']')
     end
 end
@@ -684,16 +684,16 @@ function job_self_command(cmdParams, eventArgs)
         if S{'1','2'}:contains(cmdParams[2]) then
             state.ExtraSongsMode:set('Dummy')
             if cmdParams[3] then
-                send_command('@input /ma ' .. state.DummySongs[cmdParams[2]] .. ' ' .. cmdParams[3])
+                send_command('input /ma ' .. state.DummySongs[cmdParams[2]] .. ' ' .. cmdParams[3])
             else
                 if state.Buff.Pianissimo then
                     if S{'SELF','PLAYER'}:contains(player.target.type) then
-                        send_command('@input /ma ' .. state.DummySongs[cmdParams[2]] .. ' ' .. player.target.name)
+                        send_command('input /ma ' .. state.DummySongs[cmdParams[2]] .. ' ' .. player.target.name)
                     else
-                        send_command('@input /ma ' .. state.DummySongs[cmdParams[2]] .. ' <stpc>')
+                        send_command('input /ma ' .. state.DummySongs[cmdParams[2]] .. ' <stpc>')
                     end
                 else
-                    send_command('@input /ma ' .. state.DummySongs[cmdParams[2]])
+                    send_command('input /ma ' .. state.DummySongs[cmdParams[2]])
                 end
             end
         else
@@ -930,7 +930,7 @@ function lullaby_timer(spell)
         dur = dur + 20
     end
 
-    send_command('@timers c "'..spell.english..' ['..spell.target.name..']" '..tostring(dur)..' down')
+    send_command('timers c "'..spell.english..' ['..spell.target.name..']" '..tostring(dur)..' down')
 end
 
 function init_state_text()

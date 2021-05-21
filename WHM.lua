@@ -31,7 +31,7 @@ end
 
 -- Setup vars that are user-dependent.  Can override this function in a sidecar file.
 function user_setup()
-    state.OffenseMode:options('None','Normal','Acc')                    -- Cycle with F9, will swap weapon
+    state.OffenseMode:options('None','Normal')                          -- Cycle with F9, will swap weapon
     state.HybridMode:options('Normal','PDef')                           -- Cycle with ^F9
     state.WeaponskillMode:options('Normal','Acc','NoDmg')
     state.CastingMode:options('Normal','Enmity')                        -- Cycle with F10
@@ -69,7 +69,6 @@ function user_setup()
         augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','"Dual Wield"+10','Phys. dmg. taken-10%'}}
     gear.WSCape  = {name="Alaunus's Cape",
         augments={'MND+20','Accuracy+20 Attack+20','MND+10','Weapon skill damage +10%','Phys. dmg. taken-10%'}}
-    gear.GrioEnf = {name="Grioavolr", augments={'Enfb.mag. skill +12','Mag. Acc.+30','"Mag.Atk.Bns."+20','Magic Damage +4'}}
     gear.chir_feet_ma = {name="Chironic Slippers", augments={'"Mag.Atk.Bns."+30','DEX+10','Mag. Acc.+14 "Mag.Atk.Bns."+14'}}
     gear.chir_feet_th = {name="Chironic Slippers",
         augments={'"Mag.Atk.Bns."+13','Accuracy+7','"Treasure Hunter"+1','Accuracy+19 Attack+19','Mag. Acc.+19 "Mag.Atk.Bns."+19'}}
@@ -204,11 +203,11 @@ function init_gear_sets()
     sets.precast.FC['Enhancing Magic'] = set_combine(sets.precast.FC, {waist="Siegel Sash"})
     sets.precast.FC['Healing Magic'] = set_combine(sets.precast.FC, {legs="Ebers Pantaloons +1"})
     sets.precast.FC.StatusRemoval = set_combine(sets.precast.FC['Healing Magic'], {main="Yagrush",sub="Genmei Shield"})
-    sets.precast.FC.Cure = set_combine(sets.precast.FC['Healing Magic'], {body="Heka's Kalasiris",feet="Hygieia Clogs +1"})
+    sets.precast.FC.Cure = set_combine(sets.precast.FC['Healing Magic'], {feet="Hygieia Clogs +1"})
     sets.precast.FC.CureSolace = set_combine(sets.precast.FC.Cure, {})
     sets.precast.FC.CureCheat = {main="Yagrush",sub="Genmei Shield",ammo="Sapience Orb",
         head="Piety Cap",neck="Orunmila's Torque",ear1="Malignance Earring",ear2="Mendicant's Earring",
-        body="Heka's Kalasiris",hands="Volte Gloves",ring1="Inyanga Ring",ring2="Kishar Ring",
+        body=empty,hands="Volte Gloves",ring1="Inyanga Ring",ring2="Kishar Ring",
         back=gear.FCCape,waist="Embla Sash",legs=empty,feet="Hygieia Clogs +1"}
     sets.precast.FC.Curaga = set_combine(sets.precast.FC.Cure, {})
     sets.impact = {head=empty,body="Twilight Cloak"}
@@ -220,9 +219,9 @@ function init_gear_sets()
     sets.precast.JA.Benediction = {body="Piety Briault +3"}
 
     sets.precast.WS = {ammo="Amar Cluster",
-        head="Ayanmo Zucchetto +2",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Telos Earring",
-        body="Ayanmo Corazza +2",hands="Ayanmo Manopolas +2",ring1="Ilabrat Ring",ring2="Rufescent Ring",
-        back=gear.WSCape,waist="Fotia Belt",legs="Ayanmo Cosciales +2",feet="Ayanmo Gambieras +2"}
+        head="Nyame Helm",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Telos Earring",
+        body="Nyame Mail",hands="Nyame Gauntlets",ring1="Ilabrat Ring",ring2="Rufescent Ring",
+        back=gear.WSCape,waist="Fotia Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"}
     sets.precast.WS['Hexa Strike'] = set_combine(sets.precast.WS, {ear1="Dignitary's Earring",ring2="Begrudging Ring",back=gear.TPCape})
     sets.precast.WS['Mystic Boon'] = set_combine(sets.precast.WS, {waist="Grunfeld Rope"})
     sets.precast.WS['Black Halo']  = set_combine(sets.precast.WS, {
@@ -230,9 +229,8 @@ function init_gear_sets()
     sets.precast.WS['Brainshaker'] = set_combine(sets.precast.WS, {neck="Sanctity Necklace",waist="Eschan Stone"})
     sets.precast.WS['Shell Crusher'] = set_combine(sets.precast.WS['Brainshaker'], {})
     sets.precast.WS['Flash Nova'] = set_combine(sets.precast.WS, {ammo="Pemphredo Tathlum",
-        head="Chironic Hat",neck="Sanctity Necklace",ear1="Malignance Earring",ear2="Friomisi Earring",
-        body="Witching Robe",hands="Chironic Gloves",ring1="Metamorph Ring +1",ring2="Freke Ring",
-        back="Izdubar Mantle",waist=gear.ElementalObi,legs="Chironic Hose",feet=gear.chir_feet_ma})
+        neck="Sanctity Necklace",ear1="Malignance Earring",ear2="Friomisi Earring",
+        ring1="Metamorph Ring +1",ring2="Freke Ring",waist=gear.ElementalObi,})
     sets.precast.WS['Earth Crusher'] = set_combine(sets.precast.WS['Flash Nova'], {ear1="Moonshade Earring"})
     sets.precast.WS['Cataclysm'] = set_combine(sets.precast.WS['Earth Crusher'], {head="Pixie Hairpin +1",ring1="Archon Ring"})
 
@@ -345,7 +343,7 @@ function init_gear_sets()
     sets.midcast.Gravity = set_combine(sets.midcast.Sleep, {})
     sets.midcast.Dispelga = set_combine(sets.midcast['Enfeebling Magic'], sets.dispelga)
     sets.midcast.MndEnfeebles = set_combine(sets.midcast['Enfeebling Magic'], {main="Daybreak",sub="Ammurapi Shield",
-        neck="Cleric's Torque +2",ring1="Metamorph Ring +1",waist="Luminary Sash"})
+        neck="Cleric's Torque +2",ring1="Metamorph Ring +1",waist="Obstinate Sash"})
     sets.midcast.IntEnfeebles = set_combine(sets.midcast.MndEnfeebles, {main="Maxentius",sub="Ammurapi Shield"})
 
     sets.midcast.Utsusemi = {waist="Kasiri Belt"}
@@ -374,9 +372,9 @@ function init_gear_sets()
         head="Ayanmo Zucchetto +2",neck="Combatant's Torque",ear1="Brutal Earring",ear2="Telos Earring",
         body="Ayanmo Corazza +2",hands="Ayanmo Manopolas +2",ring1="Ilabrat Ring",ring2="Petrov Ring",
         back=gear.TPCape,waist="Windbuffet Belt +1",legs="Ayanmo Cosciales +2",feet="Battlecast Gaiters"}
-    sets.engaged.Acc = set_combine(sets.engaged, {ear1="Dignitary's Earring",ring2="Cacoethic Ring +1"})
-    sets.engaged.PDef = set_combine(sets.engaged, {ring1="Vocane Ring +1",ring2="Defending Ring"})
-    sets.engaged.Acc.PDef = set_combine(sets.engaged.Acc, {ring1="Vocane Ring +1",ring2="Defending Ring"})
+    sets.engaged.PDef = set_combine(sets.engaged, {
+        head="Nyame Helm",body="Nyame Mail",hands="Nyame Gauntlets",
+        waist="Goading Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
     sets.dualwield = {back=gear.TPCapeDW} -- applied inside customize_melee_set
 
     -- Sets that depend upon idle sets
@@ -459,16 +457,16 @@ function job_aftercast(spell, action, spellMap, eventArgs)
             eventArgs.handled = true
         elseif spell.english == 'Dia II' and state.DiaMsg.value then
             if spell.target.name and spell.target.type == 'MONSTER' then
-                send_command('@input /p Dia II /')
+                send_command('input /p Dia II /')
             end
         elseif spell.type == 'WeaponSkill' and state.WSMsg.value then
             if state.WSMsg.value then
-                send_command('@input /p '..spell.english)
+                send_command('input /p '..spell.english)
             end
         elseif spell.english == 'Sleep' or spell.english == 'Sleepga' then
-            send_command('@timers c "'..spell.english..' ['..spell.target.name..']" 66 down')
+            send_command('timers c "'..spell.english..' ['..spell.target.name..']" 66 down')
         elseif spell.english == 'Sleep II' or spell.english == 'Repose' then
-            send_command('@timers c "'..spell.english..' ['..spell.target.name..']" 99 down')
+            send_command('timers c "'..spell.english..' ['..spell.target.name..']" 99 down')
         end
     end
 end
@@ -481,12 +479,13 @@ end
 -- buff == buff gained or lost
 -- gain == true if the buff was gained, false if it was lost.
 function job_buff_change(buff, gain)
-    if buff:lower() == 'sleep' and gain then
+    local lbuff = buff:lower()
+    if lbuff == 'sleep' and gain then
         if buffactive['Stoneskin'] then
             add_to_chat(123, 'cancelling stoneskin')
             send_command('cancel Stoneskin')
         end
-    elseif state.DefenseMode.value == 'None' and S{'stun','terror','petrification'}:contains(buff:lower()) then
+    elseif state.DefenseMode.value == 'None' and S{'stun','terror','petrification'}:contains(lbuff) then
         if gain then
             if state.IdleMode.value == 'MEVA' then
                 equip(sets.idle.MEVA)
@@ -497,7 +496,7 @@ function job_buff_change(buff, gain)
             handle_equipping_gear(player.status)
         end
     end
-    if gain then
+    if gain and info.chat_notice_buffs:contains(lbuff) then
         add_to_chat(104, 'Gained ['..buff..']')
     end
 end
@@ -869,7 +868,7 @@ function init_state_text()
     if hud then return end
 
     local mb_text_settings    = {flags={draggable=false,bold=true},bg={red=250,green=200,blue=0,alpha=150},text={stroke={width=2}}}
-    local ally_text_settings  = {pos={x=-178},flags={draggable=false,right=true},bg={alpha=150},text={font='Courier New',size=10}}
+    local ally_text_settings  = {pos={x=-178},flags={draggable=false,right=true,bold=true},bg={alpha=200},text={font='Courier New',size=10}}
     local hyb_text_settings   = {pos={x=130,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local def_text_settings   = {pos={x=172,y=716},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
     local off_text_settings   = {pos={x=172,y=697},flags={draggable=false},bg={alpha=150},text={font='Courier New',size=10}}
