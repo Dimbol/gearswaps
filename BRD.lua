@@ -27,7 +27,7 @@ function job_setup()
     state.Buff['Elemental Seal'] = buffactive['Elemental Seal'] or false
     state.Buff.doom              = buffactive.doom or false
 
-    windower.raw_register_event('logout', destroy_state_text)
+    logout_event_id = windower.raw_register_event('logout', destroy_state_text)
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -42,10 +42,10 @@ function user_setup()
     state.IdleMode:options('Normal','Refresh','PDT','MEVA')             -- Cycle with F11, reset with !F11
     state.CombatWeapon = M{['description']='Combat Weapon'}             -- Cycle with @F9
     if S{'DNC','NIN'}:contains(player.sub_job) then
-        state.CombatWeapon:options('CarnTern','AenBlur','AenTwash','TwashCent','NaegCent','NaegTern','Xoanon')
+        state.CombatWeapon:options('CarnTern','CarnGleti','AenBlur','AenTwash','TwashTP','TwashDW','TaurAE','NaegTP','NaegDW','Staff')
 		state.CombatForm:set('DW')
     else
-        state.CombatWeapon:options('Carn','Aeneas','Twashtar','Naegling','Xoanon')
+        state.CombatWeapon:options('Carn','Aeneas','Twashtar','Naegling','Staff')
 		state.CombatForm:reset()
     end
     state.ExtraSongsMode = M{['description']='Extra Songs','None','Dummy','FullHarp'}  -- Set/unset with !c/!@c
@@ -66,7 +66,7 @@ function user_setup()
 
     -- Mote-libs handle obis, gorgets, and other elemental things.
     -- These are default fallbacks if situationally appropriate gear is not available.
-    gear.default.obi_waist = "Flume Belt +1"                -- used in sets.midcast.Cure and friends
+    gear.default.obi_waist = "Platinum Moogle Belt"                     -- used in sets.midcast.Cure and friends
 
     -- Augmented items get variables for convenience and specificity
     gear.chir_feet_ma = {name="Chironic Slippers", augments={'"Mag.Atk.Bns."+30','DEX+10','Mag. Acc.+14 "Mag.Atk.Bns."+14'}}
@@ -74,15 +74,12 @@ function user_setup()
         augments={'"Mag.Atk.Bns."+13','Accuracy+7','"Treasure Hunter"+1','Accuracy+19 Attack+19','Mag. Acc.+19 "Mag.Atk.Bns."+19'}}
     gear.Lstikini = {name="Stikini Ring +1", bag="wardrobe2"}
     gear.Rstikini = {name="Stikini Ring +1", bag="wardrobe3"}
-    gear.SongCape = {name="Intarabus's Cape",
-        augments={'CHR+20','Mag. Acc+20 /Mag. Dmg.+20','Mag. Acc.+10','"Fast Cast"+10','Phys. dmg. taken-10%'}}
-    gear.TPCape   = {name="Intarabus's cape",
-        augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','"Dbl.Atk."+10','Phys. dmg. taken-10%'}}
-    gear.RudraCape   = {name="Intarabus's Cape",
-        augments={'DEX+20','Accuracy+20 Attack+20','DEX+10','Weapon skill damage +10%','Phys. dmg. taken-10%'}}
-    gear.RimeCape   = {name="Intarabus's Cape",
-        augments={'CHR+20','Accuracy+20 Attack+20','CHR+10','Weapon skill damage +10%','Phys. dmg. taken-10%'}}
-    gear.MEVACape = {name="Intarabus's Cape", augments={'MND+20','Eva.+20 /Mag. Eva.+20','Mag. Evasion+10','Phys. dmg. taken-10%'}}
+    gear.SongCape  = {name="Intarabus's Cape", augments={'CHR+20','Mag. Acc+20 /Mag. Dmg.+20','"Fast Cast"+10'}}
+    gear.TPCape    = {name="Intarabus's cape", augments={'DEX+20','Accuracy+20 Attack+20','"Dbl.Atk."+10'}}
+    gear.RudraCape = {name="Intarabus's Cape", augments={'DEX+20','Accuracy+20 Attack+20','Weapon skill damage +10%'}}
+    gear.RimeCape  = {name="Intarabus's Cape", augments={'CHR+20','Accuracy+20 Attack+20','Weapon skill damage +10%'}}
+    gear.SBCape    = {name="Intarabus's Cape", augments={'STR+20','Accuracy+20 Attack+20','Weapon skill damage +10%'}}
+    gear.MEVACape  = {name="Intarabus's Cape", augments={'MND+20','Eva.+20 /Mag. Eva.+20','Mag. Evasion+10'}}
 
     info.keybinds = make_keybind_list(job_keybinds())
     info.keybinds:bind()
@@ -95,21 +92,36 @@ function user_setup()
             'bind !^4|%4 input /ws "Exenterator"',
             'bind !^6|%6 input /ws "Aeolian Edge"',
             'bind !^7|%7 input /ws "Cyclone"',
+            'bind ~!^1|%~1 input /ws "Evisceration" <stnpc>',
+            'bind ~!^2|%~2 input /ws "Rudra\'s Storm" <stnpc>',
+            'bind ~!^3|%~3 input /ws "Mordant Rime" <stnpc>',
+            'bind ~!^4|%~4 input /ws "Exenterator" <stnpc>',
+            'bind ~!^6|%~6 input /ws "Aeolian Edge" <stnpc>',
+            'bind ~!^7|%~7 input /ws "Cyclone" <stnpc>',
             'bind !^d input /ws "Shadowstitch"'},
         ['Sword']=L{
             'bind !^1|%1 input /ws "Sanguine Blade"',
             'bind !^3|%3 input /ws "Savage Blade"',
             'bind !^6|%6 input /ws "Circle Blade"',
+            'bind ~!^1|%~1 input /ws "Sanguine Blade" <stnpc>',
+            'bind ~!^3|%~3 input /ws "Savage Blade" <stnpc>',
+            'bind ~!^6|%~6 input /ws "Circle Blade" <stnpc>',
             'bind !^d input /ws "Flat Blade"'},
         ['Staff']=L{
             'bind !^1|%1 input /ws "Shell Crusher"',
             'bind !^2|%2 input /ws "Shattersoul"',
             'bind !^3|%3 input /ws "Retribution"',
             'bind !^4|%4 input /ws "Spirit Taker"',
-            'bind !^6|%6 input /ws "Cataclysm"'}},
-        {['Carn']='Dagger',['CarnTern']='Dagger',['Twashtar']='Dagger',['TwashCent']='Dagger',
+            'bind !^6|%6 input /ws "Cataclysm"',
+            'bind ~!^1|%~1 input /ws "Shell Crusher" <stnpc>',
+            'bind ~!^2|%~2 input /ws "Shattersoul" <stnpc>',
+            'bind ~!^3|%~3 input /ws "Retribution" <stnpc>',
+            'bind ~!^4|%~4 input /ws "Spirit Taker" <stnpc>',
+            'bind ~!^6|%~6 input /ws "Cataclysm" <stnpc>'}},
+        {['Carn']='Dagger',['CarnTern']='Dagger',['CarnGleti']='Dagger',
          ['Aeneas']='Dagger',['AenTwash']='Dagger',['AenBlur']='Dagger',
-         ['Naegling']='Sword',['NaegCent']='Sword',['NaegTern']='Sword',['Xoanon']='Staff'})
+         ['Twashtar']='Dagger',['TwashTP']='Dagger',['TwashDW']='Dagger',
+         ['TaurAE']='Dagger',['Naegling']='Sword',['NaegTP']='Sword',['NaegDW']='Sword',['Staff']='Staff'})
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
 
@@ -122,7 +134,7 @@ function user_setup()
         info.recast_ids:append({name="E.Seal",id=38})
     end
 
-    select_default_macro_book()
+    --select_default_macro_book()
 end
 
 -- Called when this job file is unloaded (eg: job change)
@@ -140,19 +152,21 @@ function init_gear_sets()
 
     sets.weapons = {}
     sets.weapons.Carn      = {main="Carnwenhan",sub="Genmei Shield"}
-    sets.weapons.Aeneas    = {main="Aeneas",sub="Genmei Shield"}
-    sets.weapons.Twashtar  = {main="Twashtar",sub="Genmei Shield"}
-    sets.weapons.Tauret    = {main="Tauret",sub="Genmei Shield"}
     sets.weapons.CarnTern  = {main="Carnwenhan",sub="Ternion Dagger +1"}
+    sets.weapons.CarnGleti = {main="Carnwenhan",sub="Gleti's Knife"}
+    sets.weapons.Aeneas    = {main="Aeneas",sub="Genmei Shield"}
     sets.weapons.AenBlur   = {main="Aeneas",sub="Blurred Knife +1"}
     sets.weapons.AenTwash  = {main="Aeneas",sub="Twashtar"}
-    sets.weapons.TwashBlur = {main="Twashtar",sub="Blurred Knife +1"}
-    sets.weapons.TwashCent = {main="Twashtar",sub="Centovente"}
+    sets.weapons.Twashtar  = {main="Twashtar",sub="Genmei Shield"}
+    sets.weapons.TwashTP   = {main="Twashtar",sub="Centovente"}
+    sets.weapons.TwashDW   = {main="Twashtar",sub="Gleti's Knife"}
     sets.weapons.Naegling  = {main="Naegling",sub="Centovente"}
-    sets.weapons.NaegTern  = {main="Naegling",sub="Ternion Dagger +1"}
-    sets.weapons.NaegCent  = {main="Naegling",sub="Centovente"}
-    sets.weapons.Xoanon    = {main="Xoanon",sub="Bloodrain Strap"}
+    sets.weapons.NaegTP    = {main="Naegling",sub="Centovente"}
+    sets.weapons.NaegDW    = {main="Naegling",sub="Gleti's Knife"}
+    sets.weapons.Tauret    = {main="Tauret",sub="Genmei Shield"}
+    sets.weapons.TaurAE    = {main="Tauret",sub="Malevolence"}
     sets.weapons.Sari      = {main="Taming Sari",sub="Genmei Shield"}
+    sets.weapons.Staff     = {main="Xoanon",sub="Bloodrain Strap"}
     sets.TreasureHunter = {head="Volte Cap",waist="Chaac Belt",feet=gear.chir_feet_th}
 
     -- Precast Sets
@@ -174,32 +188,32 @@ function init_gear_sets()
     sets.precast.FC.Dispelga = set_combine(sets.precast.FC, sets.dispelga)
 
     sets.precast.Step = {range="Linos",
-        head="Ayanmo Zucchetto +2",neck="Combatant's Torque",ear1="Telos Earring",ear2="Dignitary's Earring",
-        body="Ayanmo Corazza +2",hands="Ayanmo Manopolas +2",ring1="Cacoethic Ring +1",ring2="Ilabrat Ring",
-        back=gear.TPCape,waist="Grunfeld Rope",legs="Ayanmo Cosciales +2",feet="Ayanmo Gambieras +2"}
-    sets.precast.JA['Violent Flourish'] = set_combine(sets.precast.Step, {
-        neck="Sanctity Necklace",ring1="Etana Ring",waist="Eschan Stone"})
+        head="Nyame Helm",neck="Combatant's Torque",ear1="Telos Earring",ear2="Dignitary's Earring",
+        body="Nyame Mail",hands="Nyame Gauntlets",ring1="Moonlight Ring",ring2="Ephramad's Ring",
+        back=gear.TPCape,waist="Eschan Stone",legs="Nyame Flanchard",feet="Nyame Sollerets"}
+    sets.precast.JA['Violent Flourish'] = set_combine(sets.precast.Step, {neck="Sanctity Necklace",ring1="Etana Ring"})
 
     sets.precast.WS = {range="Linos",
         head="Nyame Helm",neck="Bard's Charm +2",ear1="Telos Earring",ear2="Moonshade Earring",
-        body="Bihu Justaucorps +3",hands="Nyame Gauntlets",ring1="Hetairoi Ring",ring2="Ilabrat Ring",
+        body="Bihu Justaucorps +3",hands="Nyame Gauntlets",ring1="Hetairoi Ring",ring2="Ephramad's Ring",
         back=gear.TPCape,waist="Fotia Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"}
     sets.precast.WS['Evisceration'] = set_combine(sets.precast.WS, {})
     sets.precast.WS['Exenterator'] = set_combine(sets.precast.WS, {ear2="Brutal Earring"})
-    sets.precast.WS.Rudras = set_combine(sets.precast.WS, {ear1="Ishvara Earring",ring1="Petrov Ring",
-        back=gear.RudraCape,waist="Grunfeld Rope",legs="Lustratio Subligar +1",feet="Lustratio Leggings +1"})
+    sets.precast.WS.Rudras = set_combine(sets.precast.WS, {
+        ear1="Ishvara Earring",ring1="Epaminondas's Ring",back=gear.RudraCape,waist="Grunfeld Rope"})
     sets.precast.WS['Rudra\'s Storm'] = sets.precast.WS.Rudras
     sets.precast.WS['Savage Blade'] = {range="Linos",
         head="Nyame Helm",neck="Bard's Charm +2",ear1="Regal Earring",ear2="Moonshade Earring",
-        body="Bihu Justaucorps +3",hands="Nyame Gauntlets",ring1=gear.Lstikini,ring2="Rufescent Ring",
-        back=gear.RudraCape,waist="Sailfi Belt +1",legs="Nyame Flanchard",feet="Nyame Sollerets"}
+        body="Nyame Mail",hands="Nyame Gauntlets",ring1="Epaminondas's Ring",ring2="Ephramad's Ring",
+        back=gear.SBCape,waist="Sailfi Belt +1",legs="Nyame Flanchard",feet="Nyame Sollerets"}
     sets.precast.WS['Mordant Rime'] = {range="Linos",
         head="Bihu Roundlet +3",neck="Bard's Charm +2",ear1="Telos Earring",ear2="Regal Earring",
-        body="Bihu Justaucorps +3",hands="Bihu Cuffs +3",ring1="Metamorph Ring +1",ring2="Ilabrat Ring",
+        body="Bihu Justaucorps +3",hands="Bunzi's Gloves",ring1="Ilabrat Ring",ring2="Ephramad's Ring",
         back=gear.RimeCape,waist="Sailfi Belt +1",legs="Bihu Cannions +3",feet="Bihu Slippers +3"}
-    sets.precast.WS['Aeolian Edge'] = set_combine(sets.precast.WS, {
-        neck="Fotia Gorget",ear1="Friomisi Earring",ear2="Hecate's Earring",
-        ring1="Metamorph Ring +1",ring2="Ilabrat Ring",back=gear.RudraCape,waist="Fotia Belt"})
+    sets.precast.WS['Aeolian Edge'] = {range="Linos",
+        head="Nyame Helm",neck="Fotia Gorget",ear1="Regal Earring",ear2="Moonshade Earring",
+        body="Nyame Mail",hands="Nyame Gauntlets",ring1="Epaminondas's Ring",ring2="Ilabrat Ring",
+        back=gear.RudraCape,waist="Fotia Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"}
     sets.precast.WS['Cyclone'] = set_combine(sets.precast.WS['Aeolian Edge'], {})
     sets.precast.WS['Cataclysm'] = set_combine(sets.precast.WS['Aeolian Edge'], {head="Pixie Hairpin +1",ring2="Archon Ring"})
     sets.precast.WS['Energy Drain'] = set_combine(sets.precast.WS['Cataclysm'], {})
@@ -212,22 +226,23 @@ function init_gear_sets()
     sets.midcast.SongEffect = {main="Carnwenhan",sub="Genmei Shield",range="Gjallarhorn",
         head="Fili Calot +1",neck="Moonbow Whistle +1",ear1="Genmei Earring",ear2="Etiolation Earring",
         body="Fili Hongreline +1",hands="Fili Manchettes +1",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.SongCape,waist="Flume Belt +1",legs="Inyanga Shalwar +2",feet="Brioso Slippers +3"}                     -- dur+169
+        back=gear.SongCape,waist="Platinum Moogle Belt",legs="Inyanga Shalwar +2",feet="Brioso Slippers +3"}              -- dur+169
 
     sets.midcast.Madrigal = set_combine(sets.midcast.SongEffect, {
-        head="Fili Calot +1",body="Inyanga Jubbah +2",back=gear.SongCape,feet="Fili Cothurnes +1"})                       -- dur+162
+        head="Fili Calot +1",body="Nyame Mail",back=gear.SongCape,feet="Fili Cothurnes +1"})                              -- dur+162
     sets.midcast.Prelude  = set_combine(sets.midcast.SongEffect, {
-        body="Inyanga Jubbah +2",back=gear.SongCape,legs="Inyanga Shalwar"})                                              -- dur+162
+        body="Nyame Mail",back=gear.SongCape,legs="Inyanga Shalwar"})                                                     -- dur+162
     sets.midcast.March    = set_combine(sets.midcast.SongEffect, {
-        body="Inyanga Jubbah +2",hands="Fili Manchettes +1",legs="Inyanga Shalwar"})                                      -- dur+162
+        body="Nyame Mail",hands="Fili Manchettes +1",legs="Inyanga Shalwar"})                                             -- dur+162
     sets.midcast.Minuet   = set_combine(sets.midcast.SongEffect, {body="Aoidos' Hongreline +2",feet="Fili Cothurnes +1"}) -- dur+162
-    sets.midcast.Minne    = set_combine(sets.midcast.SongEffect, {body="Inyanga Jubbah +2",legs="Mousai Seraweels +1"})   -- dur+160 *
+    sets.midcast.Minne    = set_combine(sets.midcast.SongEffect, {body="Nyame Mail",legs="Mousai Seraweels +1"})          -- dur+160 *
+    sets.midcast.Mambo    = set_combine(sets.midcast.SongEffect, {body="Nyame Mail",feet="Mousai Crackows +1"})           -- dur+162
     sets.midcast.Carol    = set_combine(sets.midcast.SongEffect, {
-        body="Inyanga Jubbah +2",hands="Mousai Gages +1",feet="Fili Cothurnes +1"})                                       -- dur+162
+        body="Nyame Mail",hands="Mousai Gages +1",feet="Fili Cothurnes +1"})                                              -- dur+162
     sets.midcast.Etude    = set_combine(sets.midcast.SongEffect, {body="Aoidos' Hongreline +2",legs="Inyanga Shalwar"})   -- dur+162
     sets.midcast.Ballad   = set_combine(sets.midcast.SongEffect, {legs="Fili Rhingrave +1"})                              -- dur+162
     sets.midcast.Paeon    = set_combine(sets.midcast.SongEffect, {
-        head="Brioso Roundlet +3",body="Inyanga Jubbah +2",feet="Fili Cothurnes +1"})                                     -- dur+162
+        head="Brioso Roundlet +3",body="Nyame Mail",feet="Fili Cothurnes +1"})                                            -- dur+162
     sets.midcast['Honor March'] = set_combine(sets.midcast.SongEffect, {range="Marsyas",
         body="Brioso Justaucorps +3",hands="Fili Manchettes +1",ring1=gear.Lstikini,feet="Fili Cothurnes +1"})            -- dur+162
     sets.midcast['Sentinel\'s Scherzo'] = set_combine(sets.midcast.SongEffect, {
@@ -236,7 +251,9 @@ function init_gear_sets()
 
     sets.midcast.Prelude.FullHarp = set_combine(sets.midcast.Prelude, {range="Daurdabla",feet="Inyanga Crackows +2"})
     sets.midcast.March.FullHarp   = set_combine(sets.midcast.March,   {range="Daurdabla",feet="Inyanga Crackows +2"})
-    sets.midcast.Minne.FullHarp   = set_combine(sets.midcast.Minne,   {range="Daurdabla",feet="Inyanga Crackows +2"})
+    sets.midcast.Minuet.FullHarp  = set_combine(sets.midcast.Minuet,  {range="Daurdabla",body="Fili Hongreline +1",legs="Inyanga Shalwar"})
+    sets.midcast.Minne.FullHarp   = set_combine(sets.midcast.Minne,   {range="Daurdabla"})
+    sets.midcast.Mambo.FullHarp   = set_combine(sets.midcast.Mambo,   {range="Daurdabla",legs="Inyanga Shalwar"})
     sets.midcast.Etude.FullHarp   = set_combine(sets.midcast.Etude,   {range="Daurdabla",feet="Inyanga Crackows +2"})
     sets.midcast.Ballad.FullHarp  = set_combine(sets.midcast.Ballad,  {range="Daurdabla",feet="Inyanga Crackows +2"})
 
@@ -244,7 +261,8 @@ function init_gear_sets()
     sets.midcast.LongPrelude         = set_combine(sets.midcast.SongEffect, {back=gear.SongCape})                         -- dur+179
     sets.midcast.LongMarch           = set_combine(sets.midcast.SongEffect, {hands="Fili Manchettes +1"})                 -- dur+179
     sets.midcast.LongMinuet          = set_combine(sets.midcast.SongEffect, {body="Fili Hongreline +1"})                  -- dur+179
-    sets.midcast.LongMinne           = set_combine(sets.midcast.SongEffect, {})                                           -- dur+169
+    sets.midcast.LongMinne           = set_combine(sets.midcast.SongEffect, {legs="Mousai Seraweels +1"})                 -- dur+172
+    sets.midcast.LongMambo           = set_combine(sets.midcast.SongEffect, {feet="Mousai Crackows +1"})                  -- dur+174
     sets.midcast.LongCarol           = set_combine(sets.midcast.SongEffect, {hands="Mousai Gages +1"})                    -- dur+189
     sets.midcast.LongEtude           = set_combine(sets.midcast.SongEffect, {})                                           -- dur+169
     sets.midcast.LongBallad          = set_combine(sets.midcast.SongEffect, {legs="Fili Rhingrave +1"})                   -- dur+162
@@ -254,7 +272,7 @@ function init_gear_sets()
     sets.midcast.LongBardSong = sets.midcast.SongEffect                                                                   -- dur+169
 
     sets.midcast.Mazurka = set_combine(sets.midcast.SongEffect, {range="Daurdabla"})
-    sets.midcast.DummySong = {range="Daurdabla",legs="Ayanmo Cosciales +2"} -- Handled in job_post_midcast()
+    sets.midcast.DummySong = {range="Daurdabla",legs="Nyame Flanchard"} -- Handled in job_post_midcast()
 
     sets.midcast.SongDebuff = {main="Carnwenhan",sub="Ammurapi Shield",range="Gjallarhorn",
         head="Brioso Roundlet +3",neck="Moonbow Whistle +1",ear1="Regal Earring",ear2="Dignitary's Earring",
@@ -290,7 +308,7 @@ function init_gear_sets()
     sets.midcast.Cure = {main="Daybreak",sub="Genmei Shield",
         head="Vanya Hood",neck="Loricate Torque +1",ear1="Genmei Earring",ear2="Mendicant's Earring",
         body="Chironic Doublet",hands="Inyanga Dastanas +2",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back="Moonbeam Cape",waist=gear.ElementalObi,legs="Ayanmo Cosciales +2",feet="Vanya Clogs"}
+        back="Moonbeam Cape",waist=gear.ElementalObi,legs="Nyame Flanchard",feet="Vanya Clogs"}
     -- cure potency +50
     sets.midcast.Curaga = sets.midcast.Cure
     sets.midcast.StatusRemoval = {}
@@ -320,16 +338,16 @@ function init_gear_sets()
     sets.midcast.Dispelga = set_combine(sets.midcast['Enfeebling Magic'], sets.dispelga)
 
     sets.midcast.Utsusemi = {main="Mafic Cudgel",sub="Genmei Shield",ammo="Staunch Tathlum +1",
-        head="Ayanmo Zucchetto +2",neck="Loricate Torque +1",ear1="Genmei Earring",ear2="Etiolation Earring",
-        body="Ashera Harness",hands="Ayanmo Manopolas +2",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back="Moonbeam Cape",waist="Flume Belt +1",legs="Ayanmo Cosciales +2",feet="Ayanmo Gambieras +2"}
+        head="Nyame Helm",neck="Loricate Torque +1",ear1="Genmei Earring",ear2="Etiolation Earring",
+        body="Ashera Harness",hands="Bunzi's Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
+        back="Moonbeam Cape",waist="Cornelia's Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"}
 
     -- Sets to return to when not performing an action.
 
     sets.idle = {main="Daybreak",sub="Genmei Shield",
         head="Inyanga Tiara +2",neck="Loricate Torque +1",ear1="Genmei Earring",ear2="Etiolation Earring",
         body="Inyanga Jubbah +2",hands="Volte Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Flume Belt +1",legs="Inyanga Shalwar +2",feet="Fili Cothurnes +1"}
+        back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Inyanga Shalwar +2",feet="Fili Cothurnes +1"}
     -- refresh+3, pdt-50, mdt-50, meva+627
     sets.idle.PDT = set_combine(sets.idle, {legs="Brioso Cannions +3",feet="Inyanga Crackows +2"})
     -- refresh+3, pdt-50, mdt-50, meva+647
@@ -337,10 +355,10 @@ function init_gear_sets()
         neck="Warder's Charm +1",ear1="Eabani Earring",ring1="Inyanga Ring",feet="Inyanga Crackows +2"})
     -- refresh+5, pdt-34, mdt-43, meva+707
     sets.idle.Refresh = set_combine(sets.idle.MEVA, {main="Daybreak",sub="Genmei Shield",
-        ring1="Inyanga Ring",ring2=gear.Rstikini})
-    -- refresh+8, pdt-24, mdt-27, meva+724
+        neck="Sibyl Scarf",ring1="Inyanga Ring",ring2=gear.Rstikini})
+    -- refresh+9, pdt-24, mdt-27, meva+724
     sets.latent_refresh = {waist="Fucho-no-obi"}
-    sets.zendik = {body="Zendik Robe"}
+    sets.zendik = {body="Gyve Doublet"}
     sets.buff.doom = {neck="Nicander's Necklace",ring1="Eshmun's Ring",waist="Gishdubar Sash"}
 
     sets.defense.PDT = sets.idle.PDT
@@ -348,14 +366,16 @@ function init_gear_sets()
     sets.Kiting = {feet="Fili Cothurnes +1"}
 
     sets.engaged = {range="Linos",
-        head="Ayanmo Zucchetto +2",neck="Bard's Charm +2",ear1="Telos Earring",ear2="Brutal Earring",
-        body="Ashera Harness",hands="Volte Mittens",ring1="Moonlight Ring",ring2="Ilabrat Ring",
-        back=gear.TPCape,waist="Windbuffet Belt +1",legs="Ayanmo Cosciales +2",feet="Battlecast Gaiters"}
-    sets.engaged.Acc = set_combine(sets.engaged, {body="Ayanmo Corazza +2",ear2="Dignitary's Earring",feet="Ayanmo Gambieras +2"})
-    sets.engaged.PDef = set_combine(sets.engaged, {hands="Ayanmo Manopolas +2",ring2="Defending Ring"})
-    sets.engaged.Acc.PDef = sets.engaged.PDef
+        head="Nyame Helm",neck="Bard's Charm +2",ear1="Telos Earring",ear2="Brutal Earring",
+        body="Ashera Harness",hands="Bunzi's Gloves",ring1="Moonlight Ring",ring2="Chirich Ring +1",
+        back=gear.TPCape,waist="Windbuffet Belt +1",legs="Volte Tights",feet="Battlecast Gaiters"}
+    sets.engaged.Acc = set_combine(sets.engaged, {
+        head="Ayanmo Zucchetto +2",ear2="Crepuscular Earring",
+        body="Ayanmo Corazza +2", hands="Ayanmo Manopolas +2",ring2="Ephramad's Ring",
+        legs="Ayanmo Cosciales +2",feet="Ayanmo Gambieras +2"})
+    sets.engaged.PDef        = set_combine(sets.engaged,          {feet="Nyame Sollerets"})
+    sets.engaged.Acc.PDef    = set_combine(sets.engaged.Acc,      {ring2="Defending Ring"})
 	sets.engaged.DW          = set_combine(sets.engaged,          {ear1="Eabani Earring",waist="Reiki Yotai"})
-    -- aen/blur: acc~1166/1142, haste+26, stp+59, da+18, qa+6, dw+11, pdt-33, mdt-20
 	sets.engaged.DW.Acc      = set_combine(sets.engaged.Acc,      {ear2="Eabani Earring",waist="Reiki Yotai"})
 	sets.engaged.DW.PDef     = set_combine(sets.engaged.PDef,     {ear1="Eabani Earring",waist="Reiki Yotai"})
 	sets.engaged.DW.Acc.PDef = set_combine(sets.engaged.Acc.PDef, {ear2="Eabani Earring",waist="Reiki Yotai"})
@@ -496,22 +516,17 @@ end
 -- gain == true if the buff was gained, false if it was lost.
 function job_buff_change(buff, gain)
     local lbuff = buff:lower()
-    if lbuff == 'sleep' and gain then
-        if buffactive['Stoneskin'] then
-            add_to_chat(123, 'cancelling stoneskin')
-            send_command('cancel Stoneskin')
-        end
-    elseif state.DefenseMode.value == 'None' and S{'stun','terror','petrification'}:contains(lbuff) then
-        if gain then
-            equip(sets.idle.PDT)
-        elseif not midaction() then
-            handle_equipping_gear(player.status)
-        end
-    elseif lbuff == 'doom' and not midaction() then
+    if lbuff == 'doom' and not midaction() then
         handle_equipping_gear(player.status)
     end
-    if gain and info.chat_notice_buffs:contains(lbuff) then
-        add_to_chat(104, 'Gained ['..buff..']')
+    if gain then
+        if buffactive.Stoneskin and lbuff == 'sleep' then
+            add_to_chat(123, 'cancelling stoneskin')
+            send_command('cancel stoneskin')
+        end
+        if info.chat_notice_buffs:contains(lbuff) then
+            add_to_chat(104, 'Gained ['..buff..']')
+        end
     end
 end
 
@@ -587,9 +602,6 @@ function customize_idle_set(idleSet)
             idleSet = set_combine(idleSet, sets.Fishing)
         end
     end
-    if has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
-        idleSet = set_combine(sets.defense.PDT, {})
-    end
     if state.Buff.doom then
         idleSet = set_combine(idleSet, sets.buff.doom)
     end
@@ -600,9 +612,6 @@ end
 function customize_melee_set(meleeSet)
     if state.DefenseMode.value == 'None' then
         meleeSet = set_combine(meleeSet, sets.weapons[state.CombatWeapon.value])
-    end
-    if has_any_buff_of(S{'petrification','sleep','stun','terror'}) then
-        meleeSet = set_combine(sets.defense.PDT, {})
     end
     if state.Buff.doom then
         meleeSet = set_combine(meleeSet, sets.buff.doom)
@@ -707,14 +716,6 @@ function job_self_command(cmdParams, eventArgs)
         save_self_command(cmdParams)
     elseif cmdParams[1] == 'rebind' then
         info.keybinds:bind()
-    --elseif cmdParams[1] == 'mooglehp' then
-    --    equip({neck="Sanctity Necklace",ear1="Thureous Earring",ear2="Etiolation Earring",
-    --    ring1="Etana Ring",ring2="Ilabrat Ring",back="Moonbeam Cape"})
-    --    disable('neck','ear1','ear2','ring1','ring2','back')
-    --    if cmdParams[2] and cmdParams[2] == 'off' then
-    --        enable('neck','ear1','ear2','ring1','ring2','back')
-    --        handle_equipping_gear(player.status)
-    --    end
     else
         eventArgs.handled = false
     end
@@ -729,14 +730,14 @@ end
 -------------------------------------------------------------------------------------------------------------------
 
 -- Select default macro book on initial load or subjob change.
-function select_default_macro_book()
-    set_macro_page(1, 11)
-    send_command('bind !^l input /lockstyleset 11')
-end
+--function select_default_macro_book()
+--    set_macro_page(1, 11)
+--end
 
 -- returns a list for use with make_keybind_list
 function job_keybinds()
     local bind_command_list = L{
+        'bind !^l input /lockstyleset 3',
         'bind %`|F12 gs c update user',
         'bind F9   gs c cycle OffenseMode',
         'bind !F9  gs c reset OffenseMode',
@@ -749,13 +750,18 @@ function job_keybinds()
         'bind !space gs c set DefenseMode Physical',
         'bind @space gs c set DefenseMode Magical',
         'bind !@space gs c reset DefenseMode',
-        'bind !w  gs c   set OffenseMode Normal',
-        'bind !@w gs c reset OffenseMode',
-        'bind !^q gs c weap Carn',
-        'bind !^w gs c weap Aen',
-        'bind ^@w gs c set CombatWeapon Xoanon',
-        'bind !^e gs c weap Twash',
-        'bind !^r gs c weap Naeg',
+        'bind  !w  gs c   set OffenseMode Normal',
+        'bind  !@w gs c reset OffenseMode',
+        'bind  !^q gs c weap Carn',
+        'bind ~!^q gs c set CombatWeapon CarnGleti',
+        'bind  !^w gs c weap Aen',
+        'bind ~!^w gs c set CombatWeapon AenTwash',
+        'bind  ^@w gs c set CombatWeapon Staff',
+        'bind ~^@w gs c weap Taur',
+        'bind  !^e gs c weap Twash',
+        'bind ~!^e gs c set CombatWeapon TwashDW',
+        'bind  !^r gs c weap Naeg',
+        'bind ~!^r gs c set CombatWeapon NaegDW',
         'bind ^\\\\ gs c toggle WSMsg',
         'bind ^@\\\\ gs c toggle DiaMsg',
         'bind !F12 gs c cycle TreasureMode',
@@ -831,6 +837,7 @@ function job_keybinds()
             'bind !2 input /ma "Cure IV" <stpc>',
             'bind !@1 input /ma Curaga',
             'bind !@2 input /ma "Curaga II"',
+            'bind !@3 input /ma "Curaga III"',
             'bind !d input /ma Flash',
             'bind !@g input /ma Stoneskin <me>',
             'bind @c input /ma Blink <me>',
@@ -930,7 +937,7 @@ function lullaby_timer(spell)
         dur = dur + 20
     end
 
-    send_command('timers c "'..spell.english..' ['..spell.target.name..']" '..tostring(dur)..' down')
+    send_command('timers c "%s [%s]" %d down':format(spell.english, spell.target.name, dur))
 end
 
 function init_state_text()

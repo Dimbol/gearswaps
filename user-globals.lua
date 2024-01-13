@@ -31,12 +31,12 @@ function handle_stratagems(cmdParams)
     local stratagem = cmdParams[2]
 
     if stratagem == 'light' then
-        if buffactive['Light Arts'] then        send_command('input /ja "Addendum: White" <me>')
+        if state.Buff['Light Arts'] then        send_command('input /ja "Addendum: White" <me>')
         else                                    send_command('input /ja "Light Arts" <me>') end
     elseif stratagem == 'dark' then
-        if buffactive['Dark Arts'] then         send_command('input /ja "Addendum: Black" <me>')
+        if state.Buff['Dark Arts'] then         send_command('input /ja "Addendum: Black" <me>')
         else                                    send_command('input /ja "Dark Arts" <me>') end
-    elseif buffactive['Light Arts'] or buffactive['Addendum: White'] then
+    elseif state.Buff['Light Arts'] or state.Buff['Addendum: White'] then
         if stratagem == 'cost' then             send_command('input /ja Penury <me>')
         elseif stratagem == 'speed' then        send_command('input /ja Celerity <me>')
         elseif stratagem == 'aoe' then          send_command('input /ja Accession <me>')
@@ -46,7 +46,7 @@ function handle_stratagems(cmdParams)
         elseif stratagem == 'enmity' then       send_command('input /ja Tranquility <me>')
         elseif stratagem == 'addendum' then     send_command('input /ja "Addendum: White" <me>')
         else add_to_chat(123,'Error: Unknown stratagem ['..stratagem..']') end
-    elseif buffactive['Dark Arts'] or buffactive['Addendum: Black'] then
+    elseif state.Buff['Dark Arts'] or state.Buff['Addendum: Black'] then
         if stratagem == 'cost' then             send_command('input /ja Parsimony <me>')
         elseif stratagem == 'speed' then        send_command('input /ja Alacrity <me>')
         elseif stratagem == 'aoe' then          send_command('input /ja Manifestation <me>')
@@ -122,13 +122,15 @@ function interrupted_message(spell)
         add_to_chat(123, 'Status prevents using '..spell.english)
     elseif pet.isvalid and (spell.english:startswith('Geo-') or spell.type == 'SummonerPact') then
         add_to_chat(123, 'Existing pet prevents using '..spell.english)
-    elseif spell.english == 'Arise' and state.AriseTold then
-        if spell.target.isallymember and spell.target.distance < 20.5 and spell.target.hpp < 2 then
-            if not (state.AriseTold.has_value and state.AriseTold.value == spell.target.name) then
-                state.AriseTold:set(spell.target.name)
-                send_command('input /t '..spell.target.name..' cancel rr')
-            end
-        end
+    elseif S{'Poisonga','Shockwave'}:contains(spell.english) then
+        add_to_chat(123, spell.english..' Interrupted!')
+    --elseif spell.english == 'Arise' and state.AriseTold then
+    --    if spell.target.isallymember and spell.target.distance < 20.5 and spell.target.hpp < 2 then
+    --        if not (state.AriseTold.has_value and state.AriseTold.value == spell.target.name) then
+    --            state.AriseTold:set(spell.target.name)
+    --            send_command('input /t '..spell.target.name..' cancel rr')
+    --        end
+    --    end
     end
 end
 
@@ -193,8 +195,13 @@ function report_ja_recasts(recast_ids, show_available, n)
             if ability.id == stratagems_id then
                 local max_strats, charge_time
                 if player.sub_job == 'SCH' then
-                    max_strats = 2
-                    charge_time = 120
+                    if player.sub_job_level >= 50 then
+                        max_strats = 3
+                        charge_time = 80
+                    else
+                        max_strats = 2
+                        charge_time = 120
+                    end
                 elseif player.main_job == 'SCH' then
                     max_strats = 5
                     charge_time = (windower.ffxi.get_player().job_points.sch.jp_spent >= 550) and 33 or 48
@@ -341,6 +348,7 @@ function custom_auto_change_target(spell, action, spellMap, eventArgs)
 end
 
 function destroy_state_text()
+    if logout_event_id then windower.unregister_event(logout_event_id) end
     if hud then
         if hud.prerender_event_id then windower.unregister_event(hud.prerender_event_id) end
         for text in hud.texts:it() do
