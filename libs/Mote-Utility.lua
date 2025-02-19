@@ -48,12 +48,11 @@ function cancel_conflicting_buffs(spell, action, spellMap, eventArgs)
                     send_command('cancel Liement')
                 end
             end
-        elseif spell.english == 'Sneak' and spell.target.type == 'SELF' and buffactive.sneak then
+        elseif (spell.english == 'Sneak' or spell.english == 'Monomi: Ichi')
+        and spell.target.type == 'SELF' and buffactive.sneak then
             send_command('cancel sneak')
         elseif spell.english == ('Stoneskin') then
-            send_command('@wait 1.0;cancel stoneskin')
-        elseif spell.english == 'Monomi: Ichi' and buffactive.sneak then
-            send_command('cancel sneak')
+            send_command('cancel stoneskin')
         elseif spell.english == 'Utsusemi: Ichi' and player.main_job ~= 'NIN' then
             send_command('cancel copy image,copy image (2)')
         elseif (spell.english == 'Trance' or spell.type=='Waltz') and buffactive['saber dance'] then
@@ -470,12 +469,14 @@ function set_elemental_obi_cape_ring(spell)
     if obi_name then
         if player.inventory['Twilight Cape']
         or player.wardrobe['Twilight Cape'] or player.wardrobe2['Twilight Cape']
-        or player.wardrobe3['Twilight Cape'] or player.wardrobe4['Twilight Cape'] then
+        or player.wardrobe3['Twilight Cape'] or player.wardrobe4['Twilight Cape']
+        or player.wardrobe5['Twilight Cape'] or player.wardrobe6['Twilight Cape'] then
             gear.ElementalCape.name = "Twilight Cape"
         end
         if (player.inventory['Zodiac Ring']
             or player.wardrobe['Zodiac Ring'] or player.wardrobe2['Zodiac Ring']
-            or player.wardrobe3['Zodiac Ring'] or player.wardrobe4['Zodiac Ring'])
+            or player.wardrobe3['Zodiac Ring'] or player.wardrobe4['Zodiac Ring']
+            or player.wardrobe5['Zodiac Ring'] or player.wardrobe6['Zodiac Ring'])
         and spell.english ~= 'Impact'
         and not S{'Divine Magic','Dark Magic','Healing Magic'}:contains(spell.skill) then
             gear.ElementalRing.name = "Zodiac Ring"
@@ -523,6 +524,7 @@ function get_elemental_item_name(item_type, valid_elements, restricted_to_elemen
         and (player.inventory[item_map[element]]
              or player.wardrobe[item_map[element]] or player.wardrobe2[item_map[element]]
              or player.wardrobe3[item_map[element]] or player.wardrobe4[item_map[element]]
+             or player.wardrobe5[item_map[element]] or player.wardrobe6[item_map[element]]
         ) then
             return item_map[element]
         end
@@ -549,11 +551,11 @@ function set_macro_page(set,book)
             add_to_chat(123,'Error setting macro page: book is not a valid number ('..tostring(book)..').')
             return
         end
-        if book < 1 or book > 20 then
-            add_to_chat(123,'Error setting macro page: Macro book ('..tostring(book)..') must be between 1 and 20.')
+        if book < 1 or book > 40 then
+            add_to_chat(123,'Error setting macro page: Macro book ('..tostring(book)..') must be between 1 and 40.')
             return
         end
-        send_command('@input /macro book '..tostring(book)..';wait .1;input /macro set '..tostring(set))
+        send_command('@input /macro book '..tostring(book)..';wait 1.1;input /macro set '..tostring(set))
     else
         send_command('@input /macro set '..tostring(set))
     end

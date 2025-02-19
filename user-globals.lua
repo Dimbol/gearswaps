@@ -347,6 +347,11 @@ function custom_auto_change_target(spell, action, spellMap, eventArgs)
     end
 end
 
+-- make consistent debuff timers for sleep and other predictable spells
+function debuff_timer(spell, dur)
+    send_command('timers c "%s [%s:\\cs(180,180,180)%.3X\\cr]" %d down':format(spell.english, spell.target.name, spell.target.id % 0x1000, dur))
+end
+
 function destroy_state_text()
     if logout_event_id then windower.unregister_event(logout_event_id) end
     if hud then

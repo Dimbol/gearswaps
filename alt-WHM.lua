@@ -54,7 +54,7 @@ function user_setup()
     state.WSMsg      = M(false, 'WS Message')                           -- Toggle with ^\
     state.DiaMsg     = M(false, 'Dia Message')                          -- Toggle with ^@\
     state.AriseTold  = M{['description']='Arise Tells',['string']=''}   -- Holds name of last person pestered to avoid spamming.
-    state.AllyBinds  = M(false, 'Ally Cure Keybinds')                   -- Toggle with !^numpad0
+    state.AllyBinds  = M(false, 'Ally Cure Keybinds')                   -- Toggle with !^delete
     state.MagicBurst = M(false, 'Magic Burst')                          -- Toggle with !z
     init_state_text()
     hud_update_on_state_change()
@@ -79,49 +79,43 @@ function user_setup()
     info.keybinds:bind()
 
     info.ally_keybinds = make_keybind_list(L{
-        'bind %~numpad1 input /ma "Cure IV" <p0>',
-        'bind %~numpad2 input /ma "Cure IV" <p1>',
-        'bind %~numpad3 input /ma "Cure IV" <p2>',
-        'bind %~numpad4 input /ma "Cure IV" <p3>',
-        'bind %~numpad5 input /ma "Cure IV" <p4>',
-        'bind %~numpad6 input /ma "Cure IV" <p5>',
-        'bind ^numpad1 input /ma "Cure IV" <a10>',
-        'bind ^numpad2 input /ma "Cure IV" <a11>',
-        'bind ^numpad3 input /ma "Cure IV" <a12>',
-        'bind ^numpad4 input /ma "Cure IV" <a13>',
-        'bind ^numpad5 input /ma "Cure IV" <a14>',
-        'bind ^numpad6 input /ma "Cure IV" <a15>',
-        'bind !numpad1 input /ma "Cure IV" <a20>',
-        'bind !numpad2 input /ma "Cure IV" <a21>',
-        'bind !numpad3 input /ma "Cure IV" <a22>',
-        'bind !numpad4 input /ma "Cure IV" <a23>',
-        'bind !numpad5 input /ma "Cure IV" <a24>',
-        'bind !numpad6 input /ma "Cure IV" <a25>',
-        'bind %~^numpad1 input /ma "Cure V" <p0>',
-        'bind %~^numpad2 input /ma "Cure V" <p1>',
-        'bind %~^numpad3 input /ma "Cure V" <p2>',
-        'bind %~^numpad4 input /ma "Cure V" <p3>',
-        'bind %~^numpad5 input /ma "Cure V" <p4>',
-        'bind %~^numpad6 input /ma "Cure V" <p5>',
-        'bind ^@numpad1 input /ma "Cure V" <a10>',
-        'bind ^@numpad2 input /ma "Cure V" <a11>',
-        'bind ^@numpad3 input /ma "Cure V" <a12>',
-        'bind ^@numpad4 input /ma "Cure V" <a13>',
-        'bind ^@numpad5 input /ma "Cure V" <a14>',
-        'bind ^@numpad6 input /ma "Cure V" <a15>',
-        'bind !@numpad1 input /ma "Cure V" <a20>',
-        'bind !@numpad2 input /ma "Cure V" <a21>',
-        'bind !@numpad3 input /ma "Cure V" <a22>',
-        'bind !@numpad4 input /ma "Cure V" <a23>',
-        'bind !@numpad5 input /ma "Cure V" <a24>',
-        'bind !@numpad6 input /ma "Cure V" <a25>',
-        'bind ^numpad7 input /ma Paralyna  <a10>',
-        'bind ^numpad8 input /ma Silena    <a10>',
-        'bind ^numpad9 input /ma Cursna    <a10>',
-        'bind !numpad7 input /ma Paralyna  <a20>',
-        'bind !numpad8 input /ma Silena    <a20>',
-        'bind !numpad9 input /ma Cursna    <a20>'})
-    send_command('bind !^numpad0 gs c toggle AllyBinds')
+        'bind %~delete    input /ma "Cure IV" <p0>',
+        'bind %~end       input /ma "Cure IV" <p1>',
+        'bind %~pagedown  input /ma "Cure IV" <p2>',
+        'bind %~insert    input /ma "Cure IV" <p3>',
+        'bind %~home      input /ma "Cure IV" <p4>',
+        'bind %~pageup    input /ma "Cure IV" <p5>',
+        'bind ^delete     input /ma "Cure IV" <a10>',
+        'bind ^end        input /ma "Cure IV" <a11>',
+        'bind ^pagedown   input /ma "Cure IV" <a12>',
+        'bind ^insert     input /ma "Cure IV" <a13>',
+        'bind ^home       input /ma "Cure IV" <a14>',
+        'bind ^pageup     input /ma "Cure IV" <a15>',
+        'bind !delete     input /ma "Cure IV" <a20>',
+        'bind !end        input /ma "Cure IV" <a21>',
+        'bind !pagedown   input /ma "Cure IV" <a22>',
+        'bind !insert     input /ma "Cure IV" <a23>',
+        'bind !home       input /ma "Cure IV" <a24>',
+        'bind !pageup     input /ma "Cure IV" <a25>',
+        'bind %~^delete   input /ma "Cure V" <p0>',
+        'bind %~^end      input /ma "Cure V" <p1>',
+        'bind %~^pagedown input /ma "Cure V" <p2>',
+        'bind %~^insert   input /ma "Cure V" <p3>',
+        'bind %~^home     input /ma "Cure V" <p4>',
+        'bind %~^pageup   input /ma "Cure V" <p5>',
+        'bind ^@delete    input /ma "Cure V" <a10>',
+        'bind ^@end       input /ma "Cure V" <a11>',
+        'bind ^@pagedown  input /ma "Cure V" <a12>',
+        'bind ^@insert    input /ma "Cure V" <a13>',
+        'bind ^@home      input /ma "Cure V" <a14>',
+        'bind ^@pageup    input /ma "Cure V" <a15>',
+        'bind !@delete    input /ma "Cure V" <a20>',
+        'bind !@end       input /ma "Cure V" <a21>',
+        'bind !@pagedown  input /ma "Cure V" <a22>',
+        'bind !@insert    input /ma "Cure V" <a23>',
+        'bind !@home      input /ma "Cure V" <a24>',
+        'bind !@pageup    input /ma "Cure V" <a25>'})
+    send_command('bind !^delete gs c toggle AllyBinds')
 
     info.ws_binds = make_keybind_list(T{
         ['Club']=L{
@@ -160,7 +154,7 @@ function user_unload()
     info.keybinds:unbind()
 
     if state.AllyBinds.value then info.ally_keybinds:unbind() end
-    send_command('unbind !^numpad0')
+    send_command('unbind !^delete')
 
     info.ws_binds:unbind()
     send_command('unbind %\\\\')
@@ -180,17 +174,17 @@ function init_gear_sets()
 
     -- Precast Sets
 
-    sets.precast.FC = {main="Sucellus",sub="Chanter's Shield",ammo="Sapience Orb",
-        head="Nahtirah Hat",neck="Voltsurge Torque",ear1="Malignance Earring",ear2="Etiolation Earring",
-        body="Inyanga Jubbah +2",hands=gear.tel_hand_enh,ring2="Kishar Ring",
-        back=gear.MACape,waist="Shinjutsu-no-Obi +1",legs="Pinga Pants +1",feet="Regal Pumps +1"}
-    sets.precast.FC.StatusRemoval = set_combine(sets.precast.FC, {legs="Ebers Pantaloons +1"})
-    sets.precast.FC.Cure = set_combine(sets.precast.FC, {head="Theophany Cap +2",ear2="Nourishing Earring +1",feet="Vanya Clogs"})
+    sets.precast.FC = {main="Sucellus",sub="Chanter's Shield",ammo="Impatiens",
+        head="Nahtirah Hat",neck="Orunmila's Torque",ear1="Malignance Earring",ear2="Etiolation Earring",
+        body="Inyanga Jubbah +2",hands=gear.tel_hand_enh,ring1="Lebeche Ring",ring2="Medada's Ring",
+        back=gear.MACape,waist="Witful Belt",legs="Pinga Pants +1",feet="Regal Pumps +1"}
+    sets.precast.FC.StatusRemoval = set_combine(sets.precast.FC, {back="Perimede Cape",legs="Ebers Pantaloons +1"})
+    sets.precast.FC.Cure = set_combine(sets.precast.FC, {back="Perimede Cape",feet="Vanya Clogs"})
     sets.precast.FC.CureSolace = sets.precast.FC.Cure
     sets.precast.FC.Curaga     = sets.precast.FC.Cure
     sets.precast.FC.CureCheat = {main="Ababinili +1",sub="Clemency Grip",ammo="Sapience Orb",
-        head=empty,neck="Voltsurge Torque",ear1="Malignance Earring",ear2="Nourishing Earring +1",
-        body=empty,hands=empty,ring1="Vocane Ring +1",ring2="Kishar Ring",
+        head=empty,neck="Orunmila's Torque",ear1="Malignance Earring",ear2="Nourishing Earring +1",
+        body=empty,hands=empty,ring1="Patricius Ring",ring2="Kishar Ring",
         back=gear.MACape,waist="Embla Sash",legs=empty,feet="Regal Pumps +1"}
     sets.impact = {head=empty,body="Twilight Cloak"}
     sets.precast.FC.Impact = set_combine(sets.precast.FC, sets.impact)
@@ -203,11 +197,11 @@ function init_gear_sets()
     sets.precast.WS = {ammo="Amar Cluster",
         head="Blistering Sallet +1",neck="Fotia Gorget",ear1="Telos Earring",ear2="Zennaroi Earring",
         body="Ayanmo Corazza +2",hands="Bunzi's Gloves",ring1="Patricius Ring",ring2="Rufescent Ring",
-        back="Aurist's Cape +1",waist="Fotia Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"}
+        back="Null Shawl",waist="Fotia Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"}
     sets.precast.WS['Hexa Strike'] = set_combine(sets.precast.WS, {})
     sets.precast.WS['Mystic Boon'] = set_combine(sets.precast.WS, {})
     sets.precast.WS['Black Halo']  = set_combine(sets.precast.WS, {})
-    sets.precast.WS['Brainshaker'] = set_combine(sets.precast.WS, {})
+    sets.precast.WS['Brainshaker'] = set_combine(sets.precast.WS, {neck="Null Loop",waist="Null Belt"})
     sets.precast.WS['Shell Crusher'] = set_combine(sets.precast.WS['Brainshaker'], {})
     sets.precast.WS['Flash Nova'] = {ammo="Pemphredo Tathlum",
         head=empty,neck="Sanctity Necklace",ear1="Malignance Earring",ear2="Crematio Earring",
@@ -221,13 +215,13 @@ function init_gear_sets()
 
     sets.midcast.Cure = {main="Daybreak",sub="Genmei Shield",ammo="Pemphredo Tathlum",
         head="Vanya Hood",neck="Loricate Torque +1",ear1="Glorious Earring",ear2="Nourishing Earring +1",
-        body="Zendik Robe",hands="Bunzi's Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
+        body="Zendik Robe",hands="Bunzi's Gloves",ring1="Patricius Ring",ring2="Defending Ring",
         back=gear.IdleCape,waist="Shinjutsu-no-Obi +1",legs="Ebers Pantaloons +1",feet="Bunzi's Sabots"}
     sets.midcast.Curaga = set_combine(sets.midcast.Cure, {})
     sets.midcast.CureSolace = set_combine(sets.midcast.Cure, {body="Ebers Bliaut +1"})
     sets.midcast.CureMelee = {main="Mafic Cudgel",sub="Genmei Shield",ammo="Crepuscular Pebble",
         head="Vanya Hood",neck="Loricate Torque +1",ear1="Glorious Earring",ear2="Nourishing Earring +1",
-        body="Vanya Robe",hands=gear.tel_hand_enh,ring1="Vocane Ring +1",ring2="Defending Ring",
+        body="Vanya Robe",hands=gear.tel_hand_enh,ring1="Patricius Ring",ring2="Defending Ring",
         back=gear.IdleCape,waist="Shinjutsu-no-Obi +1",legs="Ebers Pantaloons +1",feet="Vanya Clogs"}
     sets.midcast.CureCheat = {main="Daybreak",sub="Culminus",ammo="Pemphredo Tathlum",
         head="Vanya Hood",neck="Nodens Gorget",ear1="Eabani Earring",ear2="Etiolation Earring",
@@ -240,7 +234,7 @@ function init_gear_sets()
     sets.midcast.Erase = set_combine(sets.midcast.StatusRemoval, {neck="Cleric's Torque"})
     sets.midcast.Raise = {main="Mafic Cudgel",sub="Genmei Shield",ammo="Pemphredo Tathlum",
         head="Nahtirah Hat",neck="Loricate Torque +1",ear1="Malignance Earring",ear2="Calamitous Earring",
-        body="Inyanga Jubbah +2",hands="Inyanga Dastanas +2",ring1="Vocane Ring +1",ring2="Defending Ring",
+        body="Inyanga Jubbah +2",hands="Inyanga Dastanas +2",ring1="Patricius Ring",ring2="Defending Ring",
         back=gear.MACape,waist="Shinjutsu-no-Obi +1",legs="Inyanga Shalwar +2",feet="Regal Pumps +1"}
     sets.midcast.Reraise = set_combine(sets.midcast.Raise, {})
     sets.midcast.Esuna   = set_combine(sets.midcast.Raise, {main="Piety Wand",sub="Genmei Shield",
@@ -259,9 +253,10 @@ function init_gear_sets()
         body=gear.tel_body_enh,hands="Inyanga Dastanas +2",ring1="Stikini Ring +1",ring2="Defending Ring",
         back="Fi Follet Cape",waist="Olympus Sash",feet="Theophany Duckbills +2"})
     sets.midcast.Auspice   = set_combine(sets.midcast.EnhancingDuration, {feet="Ebers Duckbills +1"})
-    sets.midcast.Stoneskin = set_combine(sets.midcast.EnhancingDuration, {neck="Nodens Gorget",legs="Shedir Seraweels"})
+    sets.midcast.Stoneskin = set_combine(sets.midcast.EnhancingDuration, {
+        neck="Nodens Gorget",ear2="Earthcry Earring",waist="Siegel Sash",legs="Shedir Seraweels"})
     sets.midcast.Aquaveil  = set_combine(sets.midcast.EnhancingDuration, {main="Vadose Rod",sub="Ammurapi Shield",
-        head="Chironic Hat",legs="Shedir Seraweels"})
+        head="Chironic Hat",waist="Emphatikos Rope",legs="Shedir Seraweels"})
     sets.midcast.Phalanx   = set_combine(sets.midcast['Enhancing Magic'], {head=gear.tel_head_enh})
     sets.midcast.StatBoost = set_combine(sets.midcast.Phalanx, {hands=gear.tel_hand_enh,waist="Embla Sash"})
     sets.midcast.StatBoost.NoGrimoire = set_combine(sets.midcast.Phalanx, {})
@@ -274,16 +269,17 @@ function init_gear_sets()
     sets.midcast.FixedPotencyEnhancing = set_combine(sets.midcast.EnhancingDuration, {})
 
     sets.midcast['Enfeebling Magic'] = {main="Maxentius",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
-        head="Theophany Cap +2",neck="Erra Pendant",ear1="Malignance Earring",ear2="Dignitary's Earring",
-        body="Theophany Bliaut +2",hands="Inyanga Dastanas +2",ring1="Stikini Ring +1",ring2="Metamorph Ring +1",
-        back="Aurist's Cape +1",waist="Luminary Sash",legs=gear.chir_legs_ma,feet="Theophany Duckbills +2"}
+        head="Null Masque",neck="Null Loop",ear1="Malignance Earring",ear2="Dignitary's Earring",
+        body="Theophany Bliaut +2",hands="Inyanga Dastanas +2",ring1="Metamorph Ring +1",ring2="Medada's Ring",
+        back="Null Shawl",waist="Null Belt",legs=gear.chir_legs_ma,feet="Theophany Duckbills +2"}
     sets.midcast.Dispelga = set_combine(sets.midcast['Enfeebling Magic'], sets.dispelga)
-    sets.midcast.MndEnfeebles = set_combine(sets.midcast['Enfeebling Magic'], {main="Daybreak",sub="Ammurapi Shield"})
-    sets.midcast.IntEnfeebles = set_combine(sets.midcast['Enfeebling Magic'], {})
+    sets.midcast.MndEnfeebles = set_combine(sets.midcast['Enfeebling Magic'], {main="Daybreak",sub="Ammurapi Shield",
+        back="Aurist's Cape +1",waist="Luminary Sash"})
+    sets.midcast.IntEnfeebles = set_combine(sets.midcast['Enfeebling Magic'], {back="Aurist's Cape +1"})
 
     sets.midcast['Divine Magic'] = {main="Daybreak",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
         head=empty,neck="Sanctity Necklace",ear1="Malignance Earring",ear2="Regal Earring",
-        body="Cohort Cloak +1",hands=gear.chir_hand_ma,ring1="Freke Ring",ring2="Metamorph Ring +1",
+        body="Cohort Cloak +1",hands=gear.chir_hand_ma,ring1="Metamorph Ring +1",ring2="Medada's Ring",
         back=gear.MACape,waist="Sacro Cord",legs="Bunzi's Pants",feet=gear.chir_feet_ma}
     sets.midcast['Divine Magic'].MB = set_combine(sets.midcast['Divine Magic'], {
         neck="Mizukage-no-Kubikazari",hands="Bunzi's Gloves",ring1="Mujin Band",ring2="Locus Ring",feet="Bunzi's Sabots"})
@@ -296,7 +292,7 @@ function init_gear_sets()
     sets.midcast.Flash = {}
 
     sets.midcast.Drain = set_combine(sets.midcast['Enfeebling Magic'], {main="Rubicundity",sub="Ammurapi Shield",
-        head="Pixie Hairpin +1",ring1="Archon Ring",ring2="Evanescence Ring",waist="Fucho-no-Obi"})
+        head="Pixie Hairpin +1",neck="Erra Pendant",ring1="Archon Ring",ring2="Evanescence Ring",waist="Fucho-no-Obi"})
     sets.midcast.Aspir = sets.midcast.Drain
     sets.drain_belt = {waist="Fucho-no-Obi"}
 
@@ -309,12 +305,12 @@ function init_gear_sets()
     -- Sets to return to when not performing an action.
 
     sets.idle = {main="Mafic Cudgel",sub="Genmei Shield",ammo="Homiliary",
-        head="Inyanga Tiara +2",neck="Loricate Torque +1",ear1="Eabani Earring",ear2="Etiolation Earring",
-        body="Theophany Bliaut +2",hands="Inyanga Dastanas +2",ring1="Inyanga Ring",ring2="Defending Ring",
-        back=gear.IdleCape,waist="Embla Sash",legs="Inyanga Shalwar +2",feet="Herald's Gaiters"}
-    sets.idle.PDT  = set_combine(sets.idle, {ring1="Vocane Ring +1",feet="Inyanga Crackows +2"})
+        head="Null Masque",neck="Loricate Torque +1",ear1="Eabani Earring",ear2="Etiolation Earring",
+        body="Shamash Robe",hands="Inyanga Dastanas +2",ring1="Shneddick Ring +1",ring2="Defending Ring",
+        back=gear.IdleCape,waist="Embla Sash",legs="Inyanga Shalwar +2",feet="Inyanga Crackows +2"}
+    sets.idle.PDT  = set_combine(sets.idle, {ring1="Shadow Ring",waist="Platinum Moogle Belt"})
     sets.idle.MEVA = set_combine(sets.idle, {main="Daybreak",sub="Genmei Shield",
-        body="Inyanga Jubbah +2",legs="Inyanga Shalwar +2",feet="Inyanga Crackows +2"})
+        neck="Warder's Charm +1",ring1="Shadow Ring",legs="Inyanga Shalwar +2",feet="Inyanga Crackows +2"})
     sets.idle.Rf   = set_combine(sets.idle, {main="Daybreak",sub="Genmei Shield",feet="Inyanga Crackows +2"})
     sets.latent_refresh = {waist="Fucho-no-obi"}
     sets.buff.doom = {neck="Nicander's Necklace",ring1="Saida Ring",waist="Gishdubar Sash"}
@@ -326,9 +322,9 @@ function init_gear_sets()
     sets.Kiting = {feet="Herald's Gaiters"}
 
     sets.engaged = {ammo="Amar Cluster",
-        head="Blistering Sallet +1",neck="Lissome Necklace",ear1="Telos Earring",ear2="Zennaroi Earring",
-        body="Ayanmo Corazza +2",hands="Bunzi's Gloves",ring1="Chirich Ring +1",ring2="Pernicious Ring",
-        back="Aurist's Cape +1",waist="Goading Belt",legs="Bunzi's Pants",feet="Nyame Sollerets"}
+        head="Null Masque",neck="Null Loop",ear1="Telos Earring",ear2="Zennaroi Earring",
+        body="Nyame Mail",hands="Bunzi's Gloves",ring1="Chirich Ring +1",ring2="Pernicious Ring",
+        back="Null Shawl",waist="Goading Belt",legs="Bunzi's Pants",feet="Nyame Sollerets"}
     sets.engaged.PDef     = set_combine(sets.engaged, {ring2="Defending Ring"})
     --sets.dualwield = {back=gear.TPCapeDW} -- applied inside customize_melee_set
 
@@ -416,10 +412,14 @@ function job_aftercast(spell, action, spellMap, eventArgs)
             if state.WSMsg.value then
                 send_command('input /p '..spell.english)
             end
+        elseif spell.english == 'Impact' then
+            debuff_timer(spell, 180)
+        elseif spell.english == 'Repose' then
+            debuff_timer(spell, 90)
         elseif spell.english == 'Sleep' or spell.english == 'Sleepga' then
-            send_command('timers c "'..spell.english..' ['..spell.target.name..']" 66 down')
-        elseif spell.english == 'Sleep II' or spell.english == 'Repose' then
-            send_command('timers c "'..spell.english..' ['..spell.target.name..']" 99 down')
+            debuff_timer(spell, 66)
+        elseif spell.english == 'Sleep II' or spell.english == 'Sleepga II' then
+            debuff_timer(spell, 99)
         end
     end
 end
@@ -655,7 +655,7 @@ end
 function job_keybinds()
     local bind_command_list = L{
         'bind !^l input /lockstyleset 2',
-        'bind %`|F12 gs c update user',
+        'bind %`   gs c update user',
         'bind F9   gs c cycle OffenseMode',
         'bind !F9  gs c reset OffenseMode',
         'bind @F9  gs c cycle CombatWeapon',

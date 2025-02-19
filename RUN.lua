@@ -105,6 +105,7 @@ function job_setup()
     state.Buff.Vallation = buffactive.Vallation or false
     state.Buff.Liement = buffactive.Liement or false
     state.Buff.Embolden = buffactive.Embolden or false
+    state.Buff.Battuta = buffactive.Battuta or false
     state.Buff['Light Arts']      = buffactive['Light Arts'] or false
     state.Buff['Addendum: White'] = buffactive['Addendum: White'] or false
     state.Buff['Dark Arts']       = buffactive['Dark Arts'] or false
@@ -126,8 +127,8 @@ function user_setup()
     state.WeaponskillMode:options('Tank','Normal')          -- Cycle with @F9
     state.CastingMode:options('Tank','MAcc')                -- Cycle with F10, reset with !F10, set with ^c, !@c
     state.IdleMode:options('Normal','Refresh','Kite')       -- Cycle with F11, reset with !F11
-    state.PhysicalDefenseMode:options('Parry','VParry','TParry','Eva','Kite') -- Cycle with !z, reset with !@z
-    state.MagicalDefenseMode:options('MEVA')                -- Cycle with @z
+    state.PhysicalDefenseMode:options('Parry','VParry','Eva','Kite') -- Cycle with !z, reset with !@z
+    state.MagicalDefenseMode:options('MEVA','MDT','MDB')    -- Cycle with @z
     state.StatusDefenseMode = M{['description']='Status Defense Mode'}
     state.StatusDefenseMode:options('None','Knockback','Charm','Death','Stun')  -- Set with !7..!-
     state.CombatWeapon = M{['description']='Combat Weapon'}
@@ -141,11 +142,12 @@ function user_setup()
 
     state.WSMsg = M(false, 'WS Message')                        -- Toggle with ^\ (also chat for JAs)
     state.SIRD  = M(false, 'SIRD Casting')                      -- Toggle with !c
+    state.TParry = M(false, 'Tactical Parry')                   -- Toggle with ~^z
     state.LowEnmRG = M(false, 'Low Enmity R/G')
     init_state_text()
     hud_update_on_state_change()
 
-    info.sird_spells = S{'Aquaveil','Crusade','Foil','Stoneskin',
+    info.sird_spells = S{'Aquaveil','Crusade','Foil',
         'Cocoon','Healing Breeze','Wild Carrot','Sheep Song','Frightful Roar','Geist Wall'}
 
     -- Augmented items get variables for convenience and specificity
@@ -153,6 +155,7 @@ function user_setup()
     gear.ResoCape  = {name="Ogma's cape", augments={'STR+20','Accuracy+20 Attack+20','"Dbl.Atk."+10'}}
     gear.DimiCape  = {name="Ogma's cape", augments={'DEX+20','Accuracy+20 Attack+20','Weapon skill damage +10%'}}
     gear.MEVACape  = {name="Ogma's cape", augments={'HP+60','Enmity+10','Phys. dmg. taken-10%'}, priority=60}
+    gear.IntCape   = {name="Ogma's cape", augments={'INT+20','INT+10'}}
     gear.ParryCape = {name="Ogma's cape", augments={'HP+60','Enmity+10','Parrying rate+5%'}, priority=60}
     gear.FCCape    = {name="Ogma's cape", augments={'HP+60','HP+20','"Fast Cast"+10'}, priority=80}
     gear.taeon_head_phlx  = {name="Taeon Chapeau", augments={'Phalanx +3'}}
@@ -162,20 +165,14 @@ function user_setup()
     gear.taeon_feet_phlx  = {name="Taeon Boots", augments={'Phalanx +3'}}
     gear.adh_body_ta = {name="Adhemar Jacket +1", augments={'Accuracy+20'}, priority=63}
     gear.adh_body_fc = {name="Adhemar Jacket +1", augments={'"Fast Cast"+10'}, priority=168}
-    gear.herc_head_ma  = {name="Herculean Helm", augments={'"Mag.Atk.Bns."+23','Mag. Acc.+16','Mag. Acc.+12 "Mag.Atk.Bns."+12'}}
-    gear.herc_hands_ma = {name="Herculean Gloves", augments={'Mag. Acc.+18 "Mag.Atk.Bns."+18','Mag. Acc.+12','"Mag.Atk.Bns."+10'}}
-    gear.herc_legs_ma  = {name="Herculean Trousers", augments={'"Mag.Atk.Bns."+30','Accuracy+14 Attack+14','Mag. Acc.+16 "Mag.Atk.Bns."+16'}}
-    gear.herc_feet_ma  = {name="Herculean Boots", augments={'Mag. Acc.+19 "Mag.Atk.Bns."+19','Mag. Acc.+4','"Mag.Atk.Bns."+15'}}
-    gear.herc_head_wsd = {name="Herculean Helm", augments={'Weapon skill damage +9%'}}
-    gear.herc_body_wsd = {name="Herculean Vest", augments={'Weapon skill damage +8%'}}
-    gear.herc_hands_wsd = {name="Herculean Gloves", augments={'Weapon skill damage +8%'}}
-    gear.herc_feet_wsd = {name="Herculean Boots", augments={'Weapon skill damage +9%'}}
     gear.herc_feet_ta  = {name="Herculean Boots", augments={'"Triple Atk."+4'}}
-    gear.herc_head_rf  = {name="Herculean Helm", augments={'"Refresh"+2'}}
     gear.herc_hands_rf = {name="Herculean Gloves", augments={'"Refresh"+2'}}
     gear.herc_legs_rf  = {name="Herculean Trousers", augments={'"Refresh"+2'}}
-    gear.herc_hands_dt = {name="Herculean Gloves", augments={'Damage taken-4%'}}
     gear.herc_legs_th  = {name="Herculean Trousers", augments={'"Treasure Hunter"+2'}}
+    gear.herc_body_phlx  = {name="Herculean Vest", augments={'Phalanx +5'}}
+    gear.herc_hands_phlx = {name="Herculean Gloves", augments={'Phalanx +5'}}
+    gear.herc_legs_phlx  = {name="Herculean Trousers", augments={'Phalanx +4'}}
+    gear.herc_feet_phlx  = {name="Herculean Boots", augments={'Phalanx +5'}}
     gear.Lstikini = {name="Stikini Ring +1", bag="wardrobe2"}
     gear.Rstikini = {name="Stikini Ring +1", bag="wardrobe3"}
 
@@ -204,6 +201,7 @@ function user_setup()
     gear.hp["Ethereal Earring"] = 15
     gear.hp["Etiolation Earring"] = 50
     gear.hp["Futhark Bandeau +3"] = 56
+    gear.hp["Futhark Boots +3"] = 33
     gear.hp["Futhark Coat +3"] = 119
     gear.hp["Futhark Mitons +3"] = 45
     gear.hp["Futhark Torque +2"] = 60
@@ -214,6 +212,8 @@ function user_setup()
     gear.hp["Kasiri Belt"] = 30
     gear.hp["Moonbeam Cape"] = 250
     gear.hp["Moonlight Ring"] = 110
+    gear.hp["Null Masque"] = 100
+    gear.hp["Null Loop"] = 50
     gear.hp["Nyame Helm"] = 91
     gear.hp["Nyame Mail"] = 136
     gear.hp["Nyame Gauntlets"] = 91
@@ -230,8 +230,6 @@ function user_setup()
     gear.hp["Runeist Mitons +3"] = 85
     gear.hp["Runeist Trousers +3"] = 80
     gear.hp["Sacro Gorget"] = 50
-    gear.hp["Sanctity Necklace"] = 35
-    gear.hp["Skaoi Boots"] = 65
     gear.hp["Supershear Ring"] = 30
     gear.hp["Turms Cap +1"] = 94
     gear.hp["Turms Leggings +1"] = 76
@@ -342,19 +340,19 @@ function init_gear_sets()
     sets.weapons.Lionheart = {main="Lionheart",sub="Utu Grip"}
     sets.weapons.Hepatizon = {main="Hepatizon Axe +1",sub="Utu Grip"}
     sets.weapons.GreatAxe  = {main="Lycurgos",sub="Utu Grip"}
-    sets.weapons.Axe       = {main="Dolichenus",sub=empty}
+    sets.weapons.Axe       = {main="Dolichenus",sub="Chanter's Shield"}
     sets.weapons.AxeDW     = {main="Dolichenus",sub="Reikiko"}
-    --sets.weapons.Sword     = {main="Naegling",sub=empty}
-    sets.weapons.Sword     = {main="Reikiko",sub=empty}
+    --sets.weapons.Sword     = {main="Naegling",sub="Chanter's Shield"}
+    sets.weapons.Sword     = {main="Reikiko",sub="Chanter's Shield"}
     sets.weapons.SwordDW   = {main="Naegling",sub="Reikiko"}
 
     -- Precast Sets
-    sets.Enmity = prioritize({main="Epeolatry",sub="Balarama Grip",ammo="Aqreqaq Bomblet",
+    sets.Enmity = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Aqreqaq Bomblet",
         head="Halitus Helm",neck="Futhark Torque +2",ear1="Trux Earring",ear2="Cryptic Earring",
         body="Emet Harness +1",hands="Kurys Gloves",ring1="Eihwaz Ring",ring2="Supershear Ring",
         back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
     -- enm+85, pdt-40, inqu+5, mdt-12,  bdt-12,  meva+478, 2696 hp /drk
-    sets.Enmity.Tank = prioritize({main="Epeolatry",sub="Balarama Grip",ammo="Staunch Tathlum +1",
+    sets.Enmity.Tank = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
         head="Halitus Helm",neck="Unmoving Collar +1",ear1="Odnowa Earring +1",ear2="Cryptic Earring",
         body="Emet Harness +1",hands="Kurys Gloves",ring1="Moonlight Ring",ring2="Defending Ring",
         back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
@@ -376,7 +374,7 @@ function init_gear_sets()
     sets.precast.JA.Pflug = prioritize({feet="Runeist Bottes +3"})
     sets.precast.JA.Swordplay = prioritize({hands="Futhark Mitons +3"})
     sets.precast.JA.Gambit = prioritize({hands="Runeist Mitons +3"})
-    sets.precast.JA.Rayke = prioritize({feet="Futhark Boots"})
+    sets.precast.JA.Rayke = prioritize({feet="Futhark Boots +3"})
 
     sets.precast.JA['Vivacious Pulse'] = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
         head="Erilaz Galea +2",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Cryptic Earring",
@@ -384,7 +382,7 @@ function init_gear_sets()
         back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Turms Leggings +1"})
     -- pdt-50, mdt-50, bdt-49, 3375 hp /drk
 
-    sets.precast.JA.Lunge = prioritize({main="Epeolatry",sub="Niobid Strap",ammo="Seething Bomblet +1",
+    sets.precast.JA.Lunge = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Seething Bomblet +1",
         head="Nyame Helm",neck="Warder's Charm +1",ear1="Friomisi Earring",ear2="Hecate's Earring",
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Mujin Band",ring2="Locus Ring",
         back="Evasionist's Cape",waist="Orpheus's Sash",legs="Nyame Flanchard",feet="Nyame Sollerets"})
@@ -392,13 +390,13 @@ function init_gear_sets()
     sets.dark_dmg  = prioritize({head="Pixie Hairpin +1",ring2="Archon Ring"})
     sets.orpheus   = {waist="Orpheus's Sash"}
     sets.ele_obi   = {waist="Hachirin-no-Obi"}
-    sets.nuke_belt = {waist="Eschan Stone"}
+    sets.nuke_belt = {waist="Null Belt"}
 
     sets.precast.Step = prioritize({ammo="Yamarang",
         head="Erilaz Galea +2",neck="Unmoving Collar +1",ear1="Odr Earring",ear2="Telos Earring",
         body="Erilaz Surcoat +2",hands="Erilaz Gauntlets +2",ring1="Moonlight Ring",ring2="Ephramad's Ring",
         back=gear.TPCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
-    sets.precast.JA['Violent Flourish'] = prioritize(set_combine(sets.precast.Step, {ear1="Dignitary's Earring"}))
+    sets.precast.JA['Violent Flourish'] = prioritize(set_combine(sets.precast.Step, {ear1="Dignitary's Earring",back="Null Shawl"}))
 
     sets.precast.WS = prioritize({ammo="Knobkierrie",
         head="Adhemar Bonnet +1",neck="Fotia Gorget",ear1="Sherida Earring",ear2="Moonshade Earring",
@@ -429,13 +427,13 @@ function init_gear_sets()
     sets.precast.WS['Vorpal Blade'] = set_combine(sets.precast.WS.Crit, {})
     sets.precast.WS.Rampage = set_combine(sets.precast.WS.Crit, {})
 
-    sets.precast.WS.Magical = set_combine(sets.precast.JA.Lunge, {ring1="Regal Ring",ring2="Metamorph Ring +1"})
+    sets.precast.WS.Magical = set_combine(sets.precast.JA.Lunge, {ring1="Metamorph Ring +1",ring2="Regal Ring"})
     sets.precast.WS['Sanguine Blade'] = set_combine(sets.precast.WS.Magical, sets.dark_dmg)
 
     sets.precast.WS.AddEffect = prioritize({ammo="Yamarang",
-        head="Nyame Helm",neck="Sanctity Necklace",ear1="Moonshade Earring",ear2="Erilaz Earring +1",
+        head="Nyame Helm",neck="Null Loop",ear1="Moonshade Earring",ear2="Erilaz Earring +1",
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Moonlight Ring",ring2="Ephramad's Ring",
-        back=gear.TPCape,waist="Eschan Stone",legs="Nyame Flanchard",feet="Nyame Sollerets"})
+        back="Null Shawl",waist="Null Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
     sets.precast.WS.Shockwave = prioritize({ammo="Yamarang",
         head="Nyame Helm",neck="Unmoving Collar +1",ear1="Dignitary's Earring",ear2="Erilaz Earring +1",
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Moonlight Ring",ring2="Defending Ring",
@@ -458,12 +456,12 @@ function init_gear_sets()
     --sets.precast.FC.Utsusemi = set_combine(sets.precast.FC, {neck="Magoraga Beads"})
 
     -- Midcast Sets
-    sets.SIRD = prioritize({main="Epeolatry",sub="Balarama Grip",ammo="Staunch Tathlum +1",
+    sets.SIRD = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
         head="Erilaz Galea +2",neck="Moonlight Necklace",ear1="Odnowa Earring +1",ear2="Halasz Earring",
         body=gear.taeon_body_phlx,hands="Rawhide Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.MEVACape,waist="Audumbla Sash",legs="Carmine Cuisses +1",feet=gear.taeon_feet_phlx})
     -- sir-102, pdt-38, mdt-26, bdt-24, enm+26, 2755 hp /drk FIXME DT feet after galea+3
-    sets.SIRD.Choral = prioritize({main="Epeolatry",sub="Balarama Grip",ammo="Staunch Tathlum +1",
+    sets.SIRD.Choral = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
         head="Erilaz Galea +2",neck="Moonlight Necklace",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
         body="Futhark Coat +3",hands="Nyame Gauntlets",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.MEVACape,waist="Audumbla Sash",legs="Carmine Cuisses +1",feet="Erilaz Greaves +2"})
@@ -481,13 +479,13 @@ function init_gear_sets()
     -- skill=522, dur+40, pdt-50, mdt-42, bdt-42, 3181 hp /drk FIXME
     sets.midcast.Phalanx = prioritize({main="Deacon Sword",sub=empty,ammo="Staunch Tathlum +1",
         head="Futhark Bandeau +3",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Mimir Earring",
-        body=gear.taeon_body_phlx,hands=gear.taeon_hands_phlx,ring1="Moonlight Ring",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Platinum Moogle Belt",legs=gear.taeon_legs_phlx,feet=gear.taeon_feet_phlx})
+        body=gear.herc_body_phlx,hands=gear.herc_hands_phlx,ring1="Moonlight Ring",ring2="Defending Ring",
+        back=gear.MEVACape,waist="Platinum Moogle Belt",legs=gear.herc_legs_phlx,feet=gear.herc_feet_phlx})
     -- phalanx+17~21, skill=472, dur+0, pdt-47, mdt-33, bdt-31, 3082 hp /drk (tiers at 443, 472, 500 skill)
     sets.PhalanxIncoming = prioritize({main="Deacon Sword",sub=empty,ammo="Staunch Tathlum +1",
-        head="Futhark Bandeau +3",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
-        body=gear.taeon_body_phlx,hands=gear.taeon_hands_phlx,ring1="Vocane Ring +1",ring2="Defending Ring",
-        back="Evasionist's Cape",waist="Platinum Moogle Belt",legs=gear.taeon_legs_phlx,feet=gear.taeon_feet_phlx})
+        head="Futhark Bandeau +3",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Erilaz Earring +1",
+        body=gear.herc_body_phlx,hands=gear.herc_hands_phlx,ring1="Vocane Ring +1",ring2="Defending Ring",
+        back="Evasionist's Cape",waist="Platinum Moogle Belt",legs=gear.herc_legs_phlx,feet=gear.herc_feet_phlx})
 
     sets.midcast.FixedPotencyEnhancing = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
         head="Erilaz Galea +2",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
@@ -496,13 +494,20 @@ function init_gear_sets()
     sets.midcast.Refresh = set_combine(sets.midcast.FixedPotencyEnhancing, {})
     sets.midcast['Regen IV'] = prioritize(set_combine(sets.midcast.FixedPotencyEnhancing, {
         head="Runeist Bandeau +3",neck="Sacro Gorget",ear2="Erilaz Earring +1",feet="Nyame Sollerets"}))
+    sets.midcast.Stoneskin = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Seething Bomblet +1",
+        head="Runeist Bandeau +3",neck="Stone Gorget",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
+        body="Erilaz Surcoat +2",hands="Erilaz Gauntlets +2",ring1="Moonlight Ring",ring2="Defending Ring",
+        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Turms Leggings +1"})
+    sets.midcast.Stoneskin.Potency = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Seething Bomblet +1",
+        head="Runeist Bandeau +3",neck="Stone Gorget",ear1="Odnowa Earring +1",ear2="Erilaz Earring +1",
+        body="Erilaz Surcoat +2",hands="Erilaz Gauntlets +2",ring1="Moonlight Ring",ring2="Defending Ring",
+        back=gear.FCCape,waist="Siegel Sash",legs="Haven Hose",feet="Erilaz Greaves +2"})
     sets.midcast.Blink = {}
-    sets.midcast.Stoneskin = {}
 
     sets.midcast['Enfeebling Magic'] = prioritize({main="Epeolatry",sub="Kaja Grip",ammo="Yamarang",
-        head="Erilaz Galea +2",neck="Erra Pendant",ear1="Dignitary's Earring",ear2="Erilaz Earring +1",
+        head="Erilaz Galea +2",neck="Null Loop",ear1="Dignitary's Earring",ear2="Erilaz Earring +1",
         body="Nyame Mail",hands="Erilaz Gauntlets +2",ring1=gear.Lstikini,ring2=gear.Rstikini,
-        back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
+        back="Null Shawl",waist="Null Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
     sets.midcast.Poisonga = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Perfect Lucky Egg",
         head="Volte Cap",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
         body="Nyame Mail",hands="Turms Mittens +1",ring1="Vocane Ring +1",ring2="Defending Ring",
@@ -515,7 +520,7 @@ function init_gear_sets()
     sets.midcast['Blue Magic'] = {}
 
     sets.midcast.Cure = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
-        head="Nyame Helm",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Cryptic Earring",
+        head="Null Masque",neck="Sacro Gorget",ear1="Odnowa Earring +1",ear2="Erilaz Earring +1",
         body="Erilaz Surcoat +2",hands="Turms Mittens +1",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.ParryCape,waist="Gishdubar Sash",legs="Erilaz Leg Guards +2",feet="Turms Leggings +1"})
 
@@ -547,13 +552,13 @@ function init_gear_sets()
     sets.midcast.Soporific.MAcc         = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast.Jettatura.MAcc         = set_combine(sets.midcast['Enfeebling Magic'], {})
 
-    sets.buff.doom = {neck="Nicander's Necklace",ring1="Eshmun's Ring",ring2="Defending Ring",waist="Gishdubar Sash"}
-    sets.buff.doom.PDef = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
-        head="Nyame Helm",neck="Nicander's Necklace",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
-        body="Nyame Mail",hands="Turms Mittens +1",ring1="Eshmun's Ring",ring2="Defending Ring",
-        back=gear.ParryCape,waist="Gishdubar Sash",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
-    sets.buff.Sleep = {head="Frenzy Sallet"}
+    sets.buff.doom = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
+        head="Null Masque",neck="Nicander's Necklace",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
+        body="Nyame Mail",hands="Erilaz Gauntlets +2",ring1="Eshmun's Ring",ring2="Purity Ring",
+        back=gear.MEVACape,waist="Gishdubar Sash",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
+    sets.buff.sleep = {head="Frenzy Sallet"}
     sets.buff.Embolden = {back="Evasionist's Cape"}
+    sets.buff.Battuta = {feet="Futhark Boots +3"}
 
     -- Idle and tanking sets
     sets.idle = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
@@ -561,7 +566,7 @@ function init_gear_sets()
         body="Runeist Coat +3",hands="Nyame Gauntlets",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Carmine Cuisses +1",feet="Erilaz Greaves +2"})
     sets.idle.Refresh = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Homiliary",
-        head=gear.herc_head_rf,neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
+        head="Null Masque",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
         body="Runeist Coat +3",hands=gear.herc_hands_rf,ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.MEVACape,waist="Platinum Moogle Belt",legs=gear.herc_legs_rf,feet="Erilaz Greaves +2"})
     sets.idle.Kite = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Homiliary",
@@ -572,18 +577,18 @@ function init_gear_sets()
     sets.defense.Kite = set_combine(sets.idle.Kite, {})
 
     sets.defense.Parry = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
-        head="Nyame Helm",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Cryptic Earring",
+        head="Null Masque",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Cryptic Earring",
         body="Erilaz Surcoat +2",hands="Turms Mittens +1",ring1="Moonlight Ring",ring2="Defending Ring",
         back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Turms Leggings +1"})
     sets.defense.VParry = set_combine(sets.defense.Parry, {ring1="Vocane Ring +1"})
-    sets.defense.TParry = set_combine(sets.defense.Parry, prioritize({head="Turms Cap +1",body="Nyame Mail"}))
+    --sets.defense.RGParry = set_combine(sets.defense.Parry, prioritize({head="Turms Cap +1",body="Nyame Mail"}))
     sets.defense.Eva = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Yamarang",
-        head="Nyame Helm",neck="Bathy Choker +1",ear1="Eabani Earring",ear2="Ethereal Earring",
+        head="Null Masque",neck="Bathy Choker +1",ear1="Eabani Earring",ear2="Infused Earring",
         body="Nyame Mail",hands="Turms Mittens +1",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Kasiri Belt",legs="Nyame Flanchard",feet="Turms Leggings +1"})
+        back=gear.MEVACape,waist="Null Belt",legs="Nyame Flanchard",feet="Hippomenes Socks +1"})
 
     sets.defense.HPdown = {main="Epeolatry",sub="Kaja Grip",ammo="Staunch Tathlum +1",
-        head="Ayanmo Zucchetto +2",neck="Loricate Torque +1",ear1="Hearty Earring",ear2="Telos Earring",
+        head="Ayanmo Zucchetto +2",neck="Loricate Torque +1",ear1="Sherida Earring",ear2="Telos Earring",
         body="Ayanmo Corazza +2",hands="Ayanmo Manopolas +2",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.TPCape,waist="Gishdubar Sash",legs="Ayanmo Cosciales +2",feet="Ayanmo Gambieras +2"}
     sets.defense.HPup = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
@@ -593,21 +598,33 @@ function init_gear_sets()
 
     sets.defense.MEVA = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Yamarang",
         head="Turms Cap +1",neck="Futhark Torque +2",ear1="Eabani Earring",ear2="Erilaz Earring +1",
-        body="Nyame Mail",hands="Nyame Gauntlets",ring1="Vocane Ring +1",ring2="Defending Ring",
+        body="Nyame Mail",hands="Nyame Gauntlets",ring1="Vocane Ring +1",ring2="Shadow Ring",
         back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Erilaz Greaves +2"})
+
+    sets.defense.MDT = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
+        head="Turms Cap +1",neck="Warder's Charm +1",ear1="Odnowa Earring +1",ear2="Erilaz Earring +1",
+        body="Erilaz Surcoat +2",hands="Erilaz Gauntlets +2",ring1="Vocane Ring +1",ring2="Shadow Ring",
+        --back="Repulse Mantle",waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
+        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
+    sets.defense.MT = set_combine(sets.defense.MDT, prioritize({body="Erilaz Surcoat +2",back=gear.ParryCape}))
+
+    sets.defense.MDB = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Pemphredo Tathlum",
+        head="Null Masque",neck="Sibyl Scarf",ear1="Odnowa Earring +1",ear2="Erilaz Earring +1",
+        body="Nyame Mail",hands="Futhark Mitons +3",ring1="Metamorph Ring +1",ring2="Shadow Ring",
+        back=gear.IntCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
 
     sets.defense.Knockback = {ring1="Vocane Ring +1",back="Repulse Mantle"}
     sets.defense.Charm     = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
-        head="Nyame Helm",neck="Unmoving Collar +1",ear1="Hearty Earring",ear2="Arete del Luna +1",
-        body="Erilaz Surcoat +2",hands="Turms Mittens +1",ring1="Moonlight Ring",ring2="Defending Ring",
-        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
+        head="Null Masque",neck="Unmoving Collar +1",ear1="Hearty Earring",ear2="Arete del Luna +1",
+        body="Erilaz Surcoat +2",hands="Erilaz Gauntlets +2",ring1="Moonlight Ring",ring2="Defending Ring",
+        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Runeist Bottes +3"})
     sets.defense.Death = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
-        head="Nyame Helm",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Cryptic Earring",
+        head="Null Masque",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Erilaz Earring +1",
         body="Samnuha Coat",hands="Erilaz Gauntlets +2",ring1="Eihwaz Ring",ring2="Shadow Ring",
-        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
+        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Runeist Bottes +3"})
     sets.defense.Stun = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
         head="Volte Cap",neck="Anu Torque",ear1="Arete del Luna",ear2="Arete del Luna +1",
-        body="Runeist Coat +3",hands="Erilaz Gauntlets +2",ring1="Vocane Ring +1",ring2="Defending Ring",
+        body="Nyame Mail",hands="Erilaz Gauntlets +2",ring1="Vocane Ring +1",ring2="Shadow Ring",
         back="Repulse Mantle",waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
     sets.Kiting = {legs="Carmine Cuisses +1"}
 
@@ -649,6 +666,12 @@ function job_precast(spell, action, spellMap, eventArgs)
     elseif spell.english == 'Valiance' then
         if state.Buff.Liement then send_command('cancel Liement')
         elseif state.Buff.Vallation then send_command('cancel Vallation') end
+    elseif spell.english == 'Light Arts' or spell.english == 'Addendum: White' then
+        state.Buff['Dark Arts']       = false
+        state.Buff['Addendum: Black'] = false
+    elseif spell.english == 'Dark Arts'  or spell.english == 'Addendum: Black' then
+        state.Buff['Light Arts']      = false
+        state.Buff['Addendum: White'] = false
     end
     if S{'Ward','Effusion','JobAbility'}:contains(spell.type) then
         if sets.precast.JA[spell.english] then
@@ -699,9 +722,21 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
     if spell.target.type == 'SELF' then
         if spell.english == 'Cursna' then
             equip(sets.buff.doom)
+        elseif spell.english == 'Stoneskin' then
+            if player.hp < 3100
+            or (state.DefenseMode.value == 'Magical' and state.MagicalDefenseMode.value == 'MDB') then
+                -- better stoneskins for Aminon
+                equip(sets.midcast.Stoneskin.Potency)
+            end
         end
         if state.Buff.Embolden and spell.skill == 'Enhancing Magic' and spell.english ~= 'Erase' then
             equip(sets.buff.Embolden)
+        end
+    elseif spell.skill == 'Elemental Magic' then
+        if spell.target.name == 'Aminon' then
+            equip(sets.defense.Death)
+        else
+            equip(sets.precast.JA.Lunge)
         end
     end
 end
@@ -756,7 +791,7 @@ function job_buff_change(buff, gain)
     if lbuff == 'sleep' then
         if gain then
             if player.hp > 100 and player.status == 'Engaged' then
-                equip(sets.buff.Sleep)
+                equip(sets.buff.sleep)
             end
             add_to_chat(123, 'cancelling stoneskin')
             send_command('cancel stoneskin')
@@ -831,7 +866,7 @@ function customize_idle_set(idleSet)
         end
     end
     if state.Buff.doom then
-        idleSet = set_combine(sets.buff.doom.PDef, {})
+        idleSet = set_combine(sets.buff.doom, {})
     end
     if state.Buff.Embolden then
         idleSet = set_combine(idleSet, sets.buff.Embolden)
@@ -844,9 +879,13 @@ function customize_defense_set(defenseSet)
     if player.status ~= 'Engaged'
     and state.DefenseMode.value == 'Physical' and state.PhysicalDefenseMode.value:endswith('Parry') then
         defenseSet = sets.defense.Kite
+    elseif state.TParry.value and state.Buff.Battuta and player.status == 'Engaged'
+    and (state.DefenseMode.value == 'Physical' and state.PhysicalDefenseMode.value:endswith('Parry')
+    or   state.DefenseMode.value == 'None') then
+        defenseSet = set_combine(defenseSet, sets.buff.Battuta)
     end
     if state.Buff.doom then
-        defenseSet = set_combine(defenseSet, sets.buff.doom.PDef)
+        defenseSet = set_combine(defenseSet, sets.buff.doom)
     end
     if state.Buff.Embolden then
         defenseSet = set_combine(defenseSet, sets.buff.Embolden)
@@ -868,14 +907,17 @@ function customize_melee_set(meleeSet)
             if player.inventory["Dashing Subligar"] then meleeSet = set_combine(meleeSet, {legs="Dashing Subligar"}) end
         end
     end
+    if state.TParry.value and state.Buff.Battuta then
+        meleeSet = set_combine(meleeSet, sets.buff.Battuta)
+    end
     if state.Buff.doom then
-        meleeSet = set_combine(sets.buff.doom.PDef, {})
+        meleeSet = set_combine(sets.buff.doom, {})
     end
     if state.Buff.Embolden then
         meleeSet = set_combine(meleeSet, sets.buff.Embolden)
     end
     if state.Buff.sleep then
-        meleeSet = set_combine(meleeSet, sets.buff.Sleep)
+        meleeSet = set_combine(meleeSet, sets.buff.sleep)
     end
     return meleeSet
 end
@@ -902,6 +944,9 @@ function display_current_job_state(eventArgs)
     end
     if state.StatusDefenseMode.value ~= 'None' then
         msg = msg .. ' ST[' .. state.StatusDefenseMode.value .. ']'
+    end
+    if state.TParry.value then
+        msg = msg .. ' TParry'
     end
     if state.SIRD.value then
         msg = msg .. ' SIRD'
@@ -967,7 +1012,7 @@ end
 function job_keybinds()
     local bind_command_list = L{
         'bind !^l input /lockstyleset 7',
-        'bind %`|F12 gs c update user',
+        'bind %`   gs c update user',
         'bind F9   gs c cycle OffenseMode',
         'bind @F9  gs c cycle WeaponskillMode',
         'bind !F9  gs c reset OffenseMode',
@@ -988,9 +1033,11 @@ function job_keybinds()
         'bind  !^e gs c weap Axe',
         'bind ~!^e gs c weap Sword',
         'bind ^z gs c set HybridMode PDef2',
+        'bind ~^z gs c toggle TParry',
         'bind !z gs c cycle PhysicalDefenseMode',
         'bind @z gs c cycle MagicalDefenseMode',
         'bind !@z gs c reset PhysicalDefenseMode',
+        'bind %~z gs c toggle Kiting',
         'bind !c  gs c toggle SIRD',
         'bind ^c  gs c set CastingMode Tank',
 
@@ -1113,10 +1160,13 @@ function job_keybinds()
             'bind ~^3 input /ma Sleep <stnpc>',
             'bind !4  input /ma "Cure III" <stpc>', -- Cure IV at ML30
             'bind !5  input /ma Erase <me>',
-            'bind !6  input /ma Aurorastorm <me>',
-            'bind @e  gs c scholar light',
-            'bind !e  gs c scholar dark',
-            'bind !@e gs c scholar aoe'})
+            'bind !6  input /ja Sublimation <me>',
+            'bind @e   gs c scholar light',
+            'bind !e   gs c scholar dark',
+            'bind !@q  gs c scholar speed',
+            'bind ~!@q gs c scholar cost',
+            'bind !@e  gs c scholar aoe',
+            'bind ~!@e gs c scholar power'})
     elseif player.sub_job == 'DNC' then
         bind_command_list:extend(L{
             'bind ^1 input /ja "Animated Flourish"',           -- (1/1000-1500)
