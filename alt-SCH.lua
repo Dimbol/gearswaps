@@ -1,7 +1,4 @@
 -- Modified from 'https://github.com/Kinematics/GearSwap-Jobs/blob/master/SCH.lua'
--- TODO skillchain with impact for fun
--- TODO monkey patch filter_pretarget for stratagem usage
--- TODO refactor monkey patches to user_globals.lua
 
 -- notes:
 -- shattersoul has mdef-10 like vidohunir
@@ -89,7 +86,7 @@ function user_setup()
     state.IdleMode:options('Normal','MRf')                                  -- Cycle with F11
     state.MagicalDefenseMode:options('MDT','MRf')                           -- Cycle with @z
     state.CombatWeapon = M{['description']='Combat Weapon'}
-    state.CombatWeapon:options('Marin','Akademos','Musa','Pole','Khat','Bunzi','Dagger')   -- Cycle with @F9
+    state.CombatWeapon:options('Marin','Musa','Pole','Khat','Bunzi','Dagger')   -- Cycle with @F9
 
     state.SphereIdle = M(false, 'Sphere Sphere')        -- Toggle with ^z
     state.AllyBinds  = M(false, 'Ally Cure Keybinds')   -- Toggle with !^delete
@@ -266,7 +263,7 @@ function user_setup()
             'bind !^3 input /ws "Gust Slash"',
             'bind !^4 input /ws "Shadowstitch"',
             'bind !^6 input /ws "Aeolian Edge"'}},
-        {['Akademos']='Staff',['Marin']='Staff',['Musa']='Staff',['Pole']='Staff',['Khat']='Staff',
+        {['Marin']='Staff',['Musa']='Staff',['Pole']='Staff',['Khat']='Staff',
          ['Bunzi']='Club',['Club']='Club',['Dagger']='Dagger'})
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
@@ -286,10 +283,15 @@ function user_setup()
     local monkey_env = {state=state}
     setmetatable(monkey_env, {__index = gearswap})
     gearswap.setfenv(monkey_check_spell, monkey_env)
+    gearswap.setfenv(monkey_filter_pretarget, monkey_env)
 
     -- monkey patch gearswap.check_spell
     gearswap_check_spell = gearswap_check_spell or gearswap.check_spell
     gearswap.check_spell = monkey_check_spell
+
+    -- monkey patch gearswap.filter_pretarget
+    gearswap_filter_pretarget = gearswap_filter_pretarget or gearswap.filter_pretarget
+    gearswap.filter_pretarget = monkey_filter_pretarget
 end
 
 -- Called when this job file is unloaded (eg: job change)
@@ -306,6 +308,10 @@ function user_unload()
 
     if gearswap.check_spell == monkey_check_spell then
         gearswap.check_spell = gearswap_check_spell
+    end
+
+    if gearswap.filter_pretarget == monkey_filter_pretarget then
+        gearswap.filter_pretarget = gearswap_filter_pretarget
     end
 end
 
@@ -449,7 +455,7 @@ function init_gear_sets()
         back=gear.RegenCape,waist="Embla Sash",legs=gear.tel_legs_enh,feet=gear.tel_feet_enh}
     sets.midcast.Klimaform = set_combine(sets.midcast.Raise, {})
 
-    sets.midcast['Elemental Magic'] = {main="Marin Staff +1",sub="Enki Strap",ammo="Ghastly Tathlum +1",
+    sets.midcast['Elemental Magic'] = {main="Wizard's Rod",sub="Ammurapi Shield",ammo="Ghastly Tathlum +1",
         head="Pedagogy Mortarboard +3",neck="Argute Stole +2",ear1="Malignance Earring",ear2="Regal Earring",
         body="Arbatel Gown +3",hands="Amalric Gages +1",ring1="Freke Ring",ring2="Medada's Ring",
         back=gear.NukeCape,waist="Sacro Cord",legs="Arbatel Pants +3",feet="Arbatel Loafers +3"}
@@ -461,8 +467,8 @@ function init_gear_sets()
         body="Seidr Cotehardie",hands=gear.mer_hand_oa,ring1="Chirich Ring +1",ring2="Medada's Ring",
         back=gear.NukeCape,waist="Oneiros Rope",legs="Perdition Slops",feet=gear.mer_feet_oa}
 
-    sets.midcast['Elemental Magic'].MB = {main="Bunzi's Rod",sub="Ammurapi Shield",ammo="Ghastly Tathlum +1",
-        head="Pedagogy Mortarboard +3",neck="Argute Stole +2",ear1="Malignance Earring",ear2="Regal Earring",
+    sets.midcast['Elemental Magic'].MB = {main="Wizard's Rod",sub="Ammurapi Shield",ammo="Ghastly Tathlum +1",
+        head="Pedagogy Mortarboard +3",neck="Argute Stole +2",ear1="Malignance Earring",ear2="Static Earring",
         body="Agwu's Robe",hands="Arbatel Bracers +3",ring1="Mujin Band",ring2="Medada's Ring",
         back=gear.NukeCape,waist="Sacro Cord",legs="Arbatel Pants +3",feet="Arbatel Loafers +3"}
     sets.midcast['Elemental Magic'].MAcc.MB = set_combine(sets.midcast['Elemental Magic'].MB, {
@@ -470,24 +476,20 @@ function init_gear_sets()
     sets.midcast['Elemental Magic'].LowMP.MB = set_combine(sets.midcast['Elemental Magic'].MB, {
         body="Seidr Cotehardie",legs="Agwu's Slops"})
 
-    sets.midcast['Elemental Magic'].MB.Locked = {main="Marin Staff +1",sub="Enki Strap",ammo="Ghastly Tathlum +1",
-        head="Pedagogy Mortarboard +3",neck="Argute Stole +2",ear1="Malignance Earring",ear2="Regal Earring",
-        body="Agwu's Robe",hands="Arbatel Bracers +3",ring1="Mujin Band",ring2="Medada's Ring",
-        back=gear.NukeCape,waist="Sacro Cord",legs="Agwu's Slops",feet="Arbatel Loafers +3"}
-    sets.midcast['Elemental Magic'].MAcc.MB.Locked = set_combine(sets.midcast['Elemental Magic'].MB.Locked, {
-        ammo="Pemphredo Tathlum",ring1="Metamorph Ring +1",waist="Acuity Belt +1"})
-    sets.midcast['Elemental Magic'].LowMP.MB.Locked = set_combine(sets.midcast['Elemental Magic'].MB.Locked, {
-        body="Seidr Cotehardie",ear2="Static Earring"})
+    sets.marin = {main="Marin Staff +1",sub="Enki Strap"}
+    sets.midcast['Elemental Magic'].Marin = set_combine(sets.midcast['Elemental Magic'],                   sets.marin)
+    sets.midcast['Elemental Magic'].MB.Marin = set_combine(sets.midcast['Elemental Magic'].MB,             sets.marin)
+    sets.midcast['Elemental Magic'].MAcc.MB.Marin = set_combine(sets.midcast['Elemental Magic'].MAcc.MB,   sets.marin)
+    sets.midcast['Elemental Magic'].LowMP.MB.Marin = set_combine(sets.midcast['Elemental Magic'].LowMP.MB, sets.marin)
 
-    sets.midcast.Helix = {main="Bunzi's Rod",sub="Culminus",ammo="Ghastly Tathlum +1",
+    sets.midcast.Helix = {main="Wizard's Rod",sub="Culminus",ammo="Ghastly Tathlum +1",
         head="Arbatel Bonnet +3",neck="Argute Stole +2",ear1="Malignance Earring",ear2="Regal Earring",
         body="Arbatel Gown +3",hands="Arbatel Bracers +3",ring1="Metamorph Ring +1",ring2="Medada's Ring",
         back=gear.NukeCape,waist="Sacro Cord",legs="Arbatel Pants +3",feet="Arbatel Loafers +3"}
-    sets.midcast.Helix.MAcc = set_combine(sets.midcast.Helix, {main="Bunzi's Rod",sub="Ammurapi Shield",waist="Acuity Belt +1"})
-    sets.midcast.Helix.MB = set_combine(sets.midcast.Helix, {body="Agwu's Robe",back=gear.HDurCape})
-    sets.midcast.Helix.MAcc.MB = set_combine(sets.midcast.Helix.MAcc, {body="Agwu's Robe",back=gear.HDurCape})
-    sets.midcast.Helix.MB.Locked = set_combine(sets.midcast.Helix.MB, {main="Marin Staff +1",sub="Enki Strap",ear2="Static Earring"})
-    sets.midcast.Helix.MAcc.MB.Locked = set_combine(sets.midcast.Helix.MB, {head="Agwu's Cap",waist="Acuity Belt +1"})
+    sets.midcast.Helix.MAcc = set_combine(sets.midcast.Helix, {main="Wizard's Rod",sub="Ammurapi Shield",waist="Acuity Belt +1"})
+    sets.midcast.Helix.MB = set_combine(sets.midcast.Helix, {ear2="Static Earring",body="Agwu's Robe",back=gear.HDurCape})
+    sets.midcast.Helix.MAcc.MB = set_combine(sets.midcast.Helix.MB, {main="Wizard's Rod",sub="Ammurapi Shield",waist="Acuity Belt +1"})
+    sets.midcast.Helix.MB.Marin = set_combine(sets.midcast.Helix.MB, sets.marin)
     sets.midcast.Helix.NoDmg = {main="Malignance Pole",sub="Khonsu",ammo="Sapience Orb",
         head=empty,neck="Orunmila's Torque",ear1="Gifted Earring",ear2="Lugalbanda Earring",
         body=empty,hands="Gazu Bracelets +1",ring1="Shneddick Ring +1",ring2="Defending Ring",
@@ -501,24 +503,20 @@ function init_gear_sets()
 
     sets.midcast['Luminohelix'] = set_combine(sets.midcast.Helix, {main="Daybreak",sub="Culminus"})
     sets.midcast['Luminohelix'].MAcc = set_combine(sets.midcast.Helix.MAcc, {main="Daybreak",sub="Ammurapi Shield"})
-    sets.midcast['Luminohelix'].MB = set_combine(sets.midcast.Helix.MB.Locked, {main="Daybreak",sub="Culminus"})
-    sets.midcast['Luminohelix'].MAcc.MB = set_combine(sets.midcast.Helix.MAcc.MB.Locked, {main="Daybreak",sub="Ammurapi Shield"})
-    sets.midcast['Luminohelix'].MB.Locked = sets.midcast['Luminohelix'].MB
-    sets.midcast['Luminohelix'].MAcc.MB.Locked = sets.midcast['Luminohelix'].MAcc.MB
+    sets.midcast['Luminohelix'].MB = set_combine(sets.midcast.Helix.MB, {main="Daybreak",sub="Culminus"})
+    sets.midcast['Luminohelix'].MAcc.MB = set_combine(sets.midcast.Helix.MAcc.MB, {main="Daybreak",sub="Ammurapi Shield"})
     sets.midcast['Luminohelix II'] = sets.midcast['Luminohelix']
 
     sets.midcast['Noctohelix'] = set_combine(sets.midcast.Helix, {head="Pixie Hairpin +1",ring1="Archon Ring"})
     sets.midcast['Noctohelix'].MAcc = set_combine(sets.midcast.Helix.MAcc, {head="Pixie Hairpin +1"})
     sets.midcast['Noctohelix'].MB = set_combine(sets.midcast.Helix.MB, {head="Pixie Hairpin +1",ring1="Archon Ring"})
     sets.midcast['Noctohelix'].MAcc.MB = set_combine(sets.midcast.Helix.MAcc.MB, {head="Pixie Hairpin +1"})
-    sets.midcast['Noctohelix'].MB.Locked = set_combine(sets.midcast.Helix.MB.Locked, {head="Pixie Hairpin +1"})
-    sets.midcast['Noctohelix'].MAcc.MB.Locked = set_combine(sets.midcast.Helix.MAcc.MB.Locked, {})
     sets.midcast['Noctohelix II'] = sets.midcast['Noctohelix']
 
-    sets.midcast.Kaustra = {main="Bunzi's Rod",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
-        head="Pixie Hairpin +1",neck="Argute Stole +2",ear1="Malignance Earring",ear2="Regal Earring",
+    sets.midcast.Kaustra = {main="Wizard's Rod",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
+        head="Pixie Hairpin +1",neck="Argute Stole +2",ear1="Malignance Earring",ear2="Static Earring",
         body="Agwu's Robe",hands="Arbatel Bracers +3",ring1="Archon Ring",ring2="Medada's Ring",
-        back=gear.NukeCape,waist="Sacro Cord",legs="Pedagogy Pants +3",feet="Arbatel Loafers +3"}
+        back=gear.NukeCape,waist="Sacro Cord",legs="Arbatel Pants +3",feet="Arbatel Loafers +3"}
     sets.midcast.Kaustra.MAcc = set_combine(sets.midcast.Kaustra, {ring1="Metamorph Ring +1",waist="Acuity Belt +1"})
 
     sets.midcast.Impact    = set_combine(sets.midcast['Elemental Magic'].MAcc, sets.impact)
@@ -690,9 +688,8 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
                 spell_set = spell_set.MB or spell_set
             end
 
-            if spell.element == 'Wind'
-            or state.OffenseMode.value ~= 'None' and not S{'Bunzi','Akademos'}:contains(state.CombatWeapon.value) then
-                spell_set = spell_set.Locked or spell_set
+            if spell.element == 'Wind' then
+                spell_set = spell_set.Marin or spell_set
             end
 
             equip(spell_set)
@@ -1079,7 +1076,8 @@ function job_keybinds()
         'bind ~!^c gs c set SCMode Manual',
         'bind !@c  gs c sc restart',
         'bind ~!@c gs c sc reset',
-        'bind !c|%c gs c sc next', -- also sets SCMode to Manual
+        'bind !c gs c sc next', -- also sets SCMode to Manual
+        'bind %c gs c sc next', -- also sets SCMode to Manual
         'bind ^\\\\  gs c toggle DiaMsg',
         'bind !\\\\  gs c toggle SCDmg',
         'bind @\\\\  gs c toggle SCHelix',
@@ -1202,12 +1200,19 @@ function job_keybinds()
         'bind  !9 input /ma "Blizzard IV"',
         'bind  !0 input /ma "Thunder IV"',
 
-        'bind ~!@8|%~8 input /ma "Stone V"',
-        'bind ~!@9|%~9 input /ma "Water V"',
-        'bind ~!@0|%~0 input /ma "Aero V"',
-        'bind  !@8|%8  input /ma "Fire V"',
-        'bind  !@9|%9  input /ma "Blizzard V"',
-        'bind  !@0|%0  input /ma "Thunder V"'}
+        'bind ~!@8 input /ma "Stone V"',
+        'bind ~!@9 input /ma "Water V"',
+        'bind ~!@0 input /ma "Aero V"',
+        'bind  !@8 input /ma "Fire V"',
+        'bind  !@9 input /ma "Blizzard V"',
+        'bind  !@0 input /ma "Thunder V"',
+
+        'bind %~8 input /ma "Stone V"',
+        'bind %~9 input /ma "Water V"',
+        'bind %~0 input /ma "Aero V"',
+        'bind  %8 input /ma "Fire V"',
+        'bind  %9 input /ma "Blizzard V"',
+        'bind  %0 input /ma "Thunder V"'}
 
     if     player.sub_job == 'RDM' then
         bind_command_list:extend(L{
@@ -1279,6 +1284,41 @@ function monkey_check_spell(available_spells,spell)
         end
     end
     return true
+end
+
+-- monkey-patch filter_pretarget to pass all stratagems
+function monkey_filter_pretarget(action)
+    local category = outgoing_action_category_table[unify_prefix[action.prefix]]
+    local bool = true
+    local err
+    if world.in_mog_house then
+        msg.debugging("Unable to execute commands. Currently in a Mog House zone.")
+        return false
+    elseif category == 3 then
+        local available_spells = windower.ffxi.get_spells()
+        bool,err = check_spell(available_spells,action)
+    elseif category == 7 then
+        local available = windower.ffxi.get_abilities().weapon_skills
+        if not table.contains(available,action.id) then
+            bool,err = false,"Unable to execute command. You do not have access to that weapon skill."
+        end
+    elseif category == 9 and action.type ~= 'Scholar' then
+        local available = windower.ffxi.get_abilities().job_abilities
+        if not table.contains(available,action.id) then
+            bool,err = false,"Unable to execute command. You do not have access to that job ability."
+        end
+    elseif category == 25 and (not player.main_job_id == 23 or not windower.ffxi.get_mjob_data().species or
+        not res.monstrosity[windower.ffxi.get_mjob_data().species] or not res.monstrosity[windower.ffxi.get_mjob_data().species].tp_moves[action.id] or
+        not (res.monstrosity[windower.ffxi.get_mjob_data().species].tp_moves[action.id] <= player.main_job_level)) then
+        -- Monstrosity filtering
+        msg.debugging("Unable to execute command. You do not have access to that monsterskill ("..(res.monster_skills[action.id][language] or action.id)..")")
+        return false
+    end
+
+    if err then
+        msg.debugging(err)
+    end
+    return bool
 end
 
 -- update state.skillchain with skillchain step and hud information

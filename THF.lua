@@ -64,7 +64,7 @@ function user_setup()
                                'GandCent','GandGleti','NaegTern','NaegCent')
 
     state.WSMsg     = M(false, 'WS Message')                    -- Toggle with ^\
-    state.THAeolian = M(false, 'TH Aeolian')                    -- Toggle with ^z
+    state.THAeolian = M(false, 'TH Aeolian')                    -- Toggle with %z
     state.SCB       = M(false, 'WS SCB')                        -- Toggle with %c
     init_state_text()
     hud_update_on_state_change()
@@ -86,7 +86,6 @@ function user_setup()
     gear.adh_body_fc = {name="Adhemar Jacket +1", augments={'"Fast Cast"+10'}}
     gear.herc_hands_rf = {name="Herculean Gloves", augments={'"Refresh"+2'}}
     gear.herc_legs_rf  = {name="Herculean Trousers", augments={'"Refresh"+2'}}
-    gear.herc_legs_th = {name="Herculean Trousers", augments={'"Treasure Hunter"+2'}}
     gear.herc_head_fc = {name="Herculean Helm", augments={'"Fast Cast"+6'}}
     gear.herc_legs_fc = {name="Herculean Trousers", augments={'"Fast Cast"+7'}}
     gear.herc_feet_fc = {name="Herculean Boots", augments={'"Fast Cast"+6'}}
@@ -108,32 +107,32 @@ function user_setup()
 
     info.ws_binds = make_keybind_list(T{
         ['Dagger']=L{
-            'bind ^1|%1   input /ws "Evisceration"',
-            'bind ^2|%2   input /ws "Rudra\'s Storm"',
-            'bind ^3|%3   input /ws "Mandalic Stab"',
-            'bind ^4|%4   input /ws "Shark Bite"',
-            'bind ^5|%5   input /ws "Exenterator"',
-            'bind ^6|%6   input /ws "Aeolian Edge"',
-            'bind ~^1|%~1 input /ws "Evisceration" <stnpc>',
-            'bind ~^2|%~2 input /ws "Rudra\'s Storm" <stnpc>',
-            'bind ~^3|%~3 input /ws "Mandalic Stab" <stnpc>',
-            'bind ~^4|%~4 input /ws "Shark Bite" <stnpc>',
-            'bind ~^5|%~5 input /ws "Exenterator" <stnpc>',
-            'bind ~^6|%~6 input /ws "Cyclone" <stnpc>',
+            'bind %1   input /ws "Evisceration"',
+            'bind %2   input /ws "Rudra\'s Storm"',
+            'bind %3   input /ws "Mandalic Stab"',
+            'bind %4   input /ws "Shark Bite"',
+            'bind %5   input /ws "Exenterator"',
+            'bind %6   input /ws "Aeolian Edge"',
+            'bind %~1 input /ws "Evisceration" <stnpc>',
+            'bind %~2 input /ws "Rudra\'s Storm" <stnpc>',
+            'bind %~3 input /ws "Mandalic Stab" <stnpc>',
+            'bind %~4 input /ws "Shark Bite" <stnpc>',
+            'bind %~5 input /ws "Exenterator" <stnpc>',
+            'bind %~6 input /ws "Cyclone" <stnpc>',
             'bind !^d     input /ws "Shadowstitch"'},
         ['Sword']=L{
-            'bind ^1|%1 input /ws "Sanguine Blade"',
-            'bind ^2|%2 input /ws "Vorpal Blade"',
-            'bind ^3|%3 input /ws "Savage Blade"',
-            'bind ^4|%4 input /ws "Red Lotus Blade"',
-            'bind ^5|%5 input /ws "Seraph Blade"',
-            'bind ^6|%6 input /ws "Circle Blade"',
-            'bind ~^1|%~1 input /ws "Sanguine Blade" <stnpc>',
-            'bind ~^2|%~2 input /ws "Vorpal Blade" <stnpc>',
-            'bind ~^3|%~3 input /ws "Savage Blade" <stnpc>',
-            'bind ~^4|%~4 input /ws "Red Lotus Blade" <stnpc>',
-            'bind ~^5|%~5 input /ws "Seraph Blade" <stnpc>',
-            'bind ~^6|%~6 input /ws "Circle Blade" <stnpc>',
+            'bind %1 input /ws "Sanguine Blade"',
+            'bind %2 input /ws "Vorpal Blade"',
+            'bind %3 input /ws "Savage Blade"',
+            'bind %4 input /ws "Red Lotus Blade"',
+            'bind %5 input /ws "Seraph Blade"',
+            'bind %6 input /ws "Circle Blade"',
+            'bind %~1 input /ws "Sanguine Blade" <stnpc>',
+            'bind %~2 input /ws "Vorpal Blade" <stnpc>',
+            'bind %~3 input /ws "Savage Blade" <stnpc>',
+            'bind %~4 input /ws "Red Lotus Blade" <stnpc>',
+            'bind %~5 input /ws "Seraph Blade" <stnpc>',
+            'bind %~6 input /ws "Circle Blade" <stnpc>',
             'bind !^d   input /ws "Flat Blade"'}},
         {['TwashCent']='Dagger',['TwashGleti']='Dagger',
          ['TaurTwash']='Dagger',['TaurShijo']='Dagger',['AenTwash']='Dagger',
@@ -174,11 +173,7 @@ function init_gear_sets()
     sets.weapons.NaegTern  = {main="Naegling",sub="Ternion Dagger +1"}
     sets.weapons.NaegCent  = {main="Naegling",sub="Centovente"}
 
-    sets.TreasureHunter1 = {ammo="Perfect Lucky Egg"}                               -- for gandring/sari
-    sets.TreasureHunter2 = {feet="Skulker's Poulaines +2"}                          -- for gandring/X
-    sets.TreasureHunter4 = {feet="Skulker's Poulaines +2"}                          -- for X/sari
-    sets.TreasureHunter5 = {ammo="Perfect Lucky Egg",feet="Skulker's Poulaines +2"} -- default
-    sets.TreasureHunter  = set_combine(sets.TreasureHunter5, {})
+    sets.TreasureHunter = {feet="Skulker's Poulaines +3"}
     sets.buff['Sneak Attack'] = {hands="Skulker's Armlets +1"}
     sets.buff['Trick Attack'] = {body="Plunderer's Vest +3"}
     --sets.buff['Trick Attack'] = {body="Plunderer's Vest +3",hands="Pillager's Armlets +3"}
@@ -200,14 +195,14 @@ function init_gear_sets()
     sets.precast.JA.Souleater            = set_combine(sets.Enmity, {})
     sets.precast.JA['Last Resort']       = set_combine(sets.Enmity, {})
 
-    sets.precast.JA.Collaborator     = {head="Skulker's Bonnet +1"}
-    sets.precast.JA.Accomplice       = {head="Skulker's Bonnet +1"}
+    sets.precast.JA.Collaborator     = {head="Skulker's Bonnet +3"}
+    sets.precast.JA.Accomplice       = {head="Skulker's Bonnet +3"}
     --sets.precast.JA.Conspirator      = {body="Skulker's Vest +1"}
     sets.precast.JA['Perfect Dodge'] = {hands="Plunderer's Armlets +3"}
     sets.precast.JA.Flee             = {ammo="Dart",feet="Pillager's Poulaines +3"}
     sets.precast.JA.Hide             = {ammo="Dart",body="Pillager's Vest +3"}
     sets.precast.JA.Steal            = {ammo="Barathrum",head="Plunderer's Bonnet +3",feet="Pillager's Poulaines +3"}
-    sets.precast.JA.Despoil          = {ammo="Barathrum",legs="Skulker's Culottes +1",feet="Skulker's Poulaines +2"}
+    sets.precast.JA.Despoil          = {ammo="Barathrum",legs="Skulker's Culottes +1",feet="Skulker's Poulaines +3"}
     sets.precast.JA.Mug = {ammo="Cath Palug Stone",
         head="Malignance Chapeau",neck="Assassin's Gorget +2",ear1="Sherida Earring",ear2="Odr Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1="Regal Ring",ring2="Defending Ring",
@@ -234,7 +229,7 @@ function init_gear_sets()
     sets.precast.JA['Violent Flourish'] = set_combine(sets.precast.Step, {ring1="Etana Ring"})
 
     sets.precast.WS = {ammo="Oshasha's Treatise",
-        head="Adhemar Bonnet +1",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Skulker's Earring +1",
+        head="Skulker's Bonnet +3",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Skulker's Earring +1",
         body="Pillager's Vest +3",hands="Nyame Gauntlets",ring1="Ephramad's Ring",ring2="Regal Ring",
         back=gear.TPCape,waist="Fotia Belt",legs="Pillager's Culottes +3",feet="Plunderer's Poulaines +3"}
 
@@ -272,9 +267,9 @@ function init_gear_sets()
     sets.precast.WS['Vorpal Blade']   = set_combine(sets.precast.WS.Evisceration, {})
 
     sets.precast.WS.Shadowstitch = {ammo="Yamarang",
-        head="Malignance Chapeau",neck="Null Loop",ear1="Telos Earring",ear2="Crepuscular Earring",
+        head="Skulker's Bonnet +3",neck="Null Loop",ear1="Telos Earring",ear2="Crepuscular Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1="Ephramad's Ring",ring2="Etana Ring",
-        back="Null Shawl",waist="Null Belt",legs="Malignance Tights",feet="Malignance Boots"}
+        back="Null Shawl",waist="Null Belt",legs="Malignance Tights",feet="Skulker's Poulaines +3"}
     sets.precast.WS['Flat Blade'] = set_combine(sets.precast.WS.Shadowstitch, {})
 
     sets.precast.WS['Aeolian Edge'] = {ammo="Sroda Tathlum",
@@ -311,9 +306,9 @@ function init_gear_sets()
         ring1=gear.Lstikini,ring2=gear.Rstikini,waist="Olympus Sash"}
     sets.midcast.Phalanx = set_combine(sets.phlx, sets.midcast.BarElement)  -- tiers every 10 skill up to 300
     sets.midcast['Enfeebling Magic'] = {ammo="Yamarang",
-        head="Malignance Chapeau",neck="Null Loop",ear1="Dignitary's Earring",ear2="Crepuscular Earring",
+        head="Skulker's Bonnet +3",neck="Null Loop",ear1="Dignitary's Earring",ear2="Crepuscular Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1=gear.Lstikini,ring2=gear.Rstikini,
-        back="Null Shawl",waist="Null Belt",legs="Malignance Tights",feet="Malignance Boots"}
+        back="Null Shawl",waist="Null Belt",legs="Malignance Tights",feet="Skulker's Poulaines +3"}
     sets.midcast.Repose = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast.Absorb = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast.Refresh = {waist="Gishdubar Sash"}
@@ -402,7 +397,7 @@ function init_gear_sets()
     sets.engaged.TaurShijo.Crit.PDef = set_combine(sets.engaged.TaurShijo.PDef, {})
 
     sets.engaged.Acc = set_combine(sets.engaged, {ammo="Yamarang",
-        head="Plunderer's Bonnet +3",body="Pillager's Vest +3",ring1="Ephramad's Ring",
+        head="Skulker's Bonnet +3",body="Pillager's Vest +3",ring1="Ephramad's Ring",
         waist="Reiki Yotai",legs="Pillager's Culottes +3",feet="Plunderer's Poulaines +3"})
     -- TwashCent: acc~1342/1116, haste+26, dw+7, stp+34, da+6, ta+36, pdt-10, eva~1088, meva+413
     sets.engaged.DW30.Acc = set_combine(sets.engaged.Acc, {
@@ -608,18 +603,6 @@ function job_state_change(stateField, newValue, oldValue)
             end
             disable('main','sub')
         end
-        if     sets.weapons[state.CombatWeapon.value].main == "Gandring" then
-            if sets.weapons[state.CombatWeapon.value].sub == "Taming Sari" then
-                sets.TreasureHunter = set_combine(sets.TreasureHunter1, {})
-            else
-                sets.TreasureHunter = set_combine(sets.TreasureHunter2, {})
-            end
-        elseif sets.weapons[state.CombatWeapon.value].sub == "Taming Sari" then
-            sets.TreasureHunter = set_combine(sets.TreasureHunter4, {})
-        else
-            sets.TreasureHunter = set_combine(sets.TreasureHunter5, {})
-        end
-        update_th_sets(sets.TreasureHunter)
     elseif stateField == 'Defense Mode' then
         if newValue ~= 'None' then
             handle_equipping_gear(player.status)
@@ -805,13 +788,6 @@ function check_buff(buff_name, eventArgs)
     end
 end
 
--- update sets that use sets.TreasureHunter as it changes with weapon swaps
-function update_th_sets(treasure_set)
-    for spell in info.th_gearsets:it() do
-        sets.midcast[spell] = set_combine(sets.midcast.Utsusemi, treasure_set)
-    end
-end
-
 -- Select default macro book on initial load or subjob change.
 --function select_default_macro_book()
 --    set_macro_page(1,8)
@@ -854,7 +830,7 @@ function job_keybinds()
         'bind ~!^e gs c set CombatWeapon TwashGleti',
         'bind !^r  gs c set CombatWeapon NaegCent',
         'bind ~!^r gs c set CombatWeapon NaegTern',
-        'bind ^z gs c toggle THAeolian',
+        'bind %z gs c toggle THAeolian',
         'bind !z gs c cycle PhysicalDefenseMode',
         'bind @z gs c cycle MagicalDefenseMode',
         'bind ^\\\\  gs c toggle WSMsg',

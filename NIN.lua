@@ -80,13 +80,13 @@ function user_setup()
     state.RangedMode:options('Shuriken','Tathlum','Blink')               -- Cycle with !F9, set with !-, !=, !backspace
     state.WeaponskillMode:options('Normal','Acc','NoDmg')                -- Cycle with @F9
     state.CastingMode:options('Enmity','Normal')                         -- Cycle with F10, @z
-    state.IdleMode:options('Normal','Rf')                                -- Cycle with F11, reset with !F11
+    state.IdleMode:options('Normal','Rf','BloodAggro')                   -- Cycle with F11, reset with !F11
     state.PhysicalDefenseMode:options('PDT','EvaPDT')                    -- Cycle with !z
     state.MagicalDefenseMode:options('MDT')
     state.CombatWeapon = M{['description']='Combat Weapon'}              -- Set with !^q through !^r and others
-    state.CombatWeapon:options('Heishi','HeiTsu','HeiFudo','HeiSB','HeishiTP','Gokotai','GokoBow','FudoCBow',
+    state.CombatWeapon:options('Heishi','HeiYag','HeiFudo','HeiSB','HeishiTP','Gokotai','GokoBow','FudoCBow',
                                'Nagi','NagiTP','Kannagi','Kikoku','FudoB','FudoBTP','FudoC','FudoCTP',
-                               'AEDagger','SCDagger','GKatana','GKGekko','Club','H2H','Naeg','NaegTP')
+                               'AEDagger','SCDagger','GKatana','GKGekko','GSword','Club','H2H','Naeg','NaegTP')
 
     state.MagicBurst = M(true,  'Magic Burst')                  -- Toggle with ^z
     state.WSMsg      = M(false, 'WS Message')                   -- Toggle with ^\
@@ -163,8 +163,8 @@ function user_setup()
     gear.hp["Gavialis Helm"] = 115
     gear.hp["Gelatinous Ring +1"] = 120
     gear.hp["Genmei Kabuto"] = 191
-    gear.hp["Hachiya Hatsuburi +3"] = 64
-    gear.hp["Hachiya Kyahan +3"] = 29
+    gear.hp["Hachiya Hatsuburi +4"] = 74
+    gear.hp["Hachiya Kyahan +4"] = 39
     gear.hp["Hizamaru Haramaki +2"] = 100
     gear.hp["Hizamaru Sune-Ate +2"] = 30
     gear.hp["Ilabrat Ring"] = 60
@@ -221,138 +221,141 @@ function user_setup()
 
     info.ws_binds = make_keybind_list(T{
         ['Katana']=L{
-            'bind ^1|%1 input /ws "Blade: Hi"',
-            'bind ^2|%2 input /ws "Blade: Shun"',
-            'bind ^3|%3 input /ws "Blade: Ten"',
-            'bind ^4|%4 input /ws "Blade: Kamu"',
-            'bind ^5|%5 input /ws "Blade: Jin"',
-            'bind ^6|%6 input /ws "Blade: Ku"',
+            'bind %1 input /ws "Blade: Hi"',
+            'bind %2 input /ws "Blade: Shun"',
+            'bind %3 input /ws "Blade: Ten"',
+            'bind %4 input /ws "Blade: Kamu"',
+            'bind %5 input /ws "Blade: Jin"',
+            'bind %6 input /ws "Blade: Ku"',
             'bind !^1   input /ws "Blade: Ei"',
             'bind !^2   input /ws "Blade: Chi"',
             'bind !^3   input /ws "Blade: To"',
             'bind !^4   input /ws "Blade: Teki"',
             'bind !^5   input /ws "Blade: Yu"',
-            'bind ~^1|%~1 input /ws "Blade: Hi" <stnpc>',
-            'bind ~^2|%~2 input /ws "Blade: Shun" <stnpc>',
-            'bind ~^3|%~3 input /ws "Blade: Ten" <stnpc>',
-            'bind ~^4|%~4 input /ws "Blade: Kamu" <stnpc>',
-            'bind ~^5|%~5 input /ws "Blade: Jin" <stnpc>',
-            'bind ~^6|%~6 input /ws "Blade: Ku" <stnpc>',
+            'bind %~1 input /ws "Blade: Hi" <stnpc>',
+            'bind %~2 input /ws "Blade: Shun" <stnpc>',
+            'bind %~3 input /ws "Blade: Ten" <stnpc>',
+            'bind %~4 input /ws "Blade: Kamu" <stnpc>',
+            'bind %~5 input /ws "Blade: Jin" <stnpc>',
+            'bind %~6 input /ws "Blade: Ku" <stnpc>',
             'bind ~!^1    input /ws "Blade: Ei" <stnpc>',
             'bind ~!^2    input /ws "Blade: Chi" <stnpc>',
             'bind ~!^3    input /ws "Blade: To" <stnpc>',
             'bind ~!^4    input /ws "Blade: Teki" <stnpc>',
             'bind ~!^5    input /ws "Blade: Yu" <stnpc>'},
         ['RKatana']=L{
-            'bind ^1|%1 input /ws "Blade: Hi"',
-            'bind ^2|%2 input /ws "Blade: Shun"',
-            'bind ^3|%3 input /ws "Blade: Ten"',
-            'bind ^4|%4 input /ws "Blade: Metsu"',
-            'bind ^5|%5 input /ws "Blade: Jin"',
-            'bind ^6|%6 input /ws "Blade: Ku"',
+            'bind %1 input /ws "Blade: Hi"',
+            'bind %2 input /ws "Blade: Shun"',
+            'bind %3 input /ws "Blade: Ten"',
+            'bind %4 input /ws "Blade: Metsu"',
+            'bind %5 input /ws "Blade: Jin"',
+            'bind %6 input /ws "Blade: Ku"',
             'bind !^1   input /ws "Blade: Ei"',
             'bind !^2   input /ws "Blade: Chi"',
             'bind !^3   input /ws "Blade: To"',
             'bind !^4   input /ws "Blade: Teki"',
             'bind !^5   input /ws "Blade: Yu"',
-            'bind ~^1|%~1 input /ws "Blade: Hi" <stnpc>',
-            'bind ~^2|%~2 input /ws "Blade: Shun" <stnpc>',
-            'bind ~^3|%~3 input /ws "Blade: Ten" <stnpc>',
-            'bind ~^4|%~4 input /ws "Blade: Metsu" <stnpc>',
-            'bind ~^5|%~5 input /ws "Blade: Jin" <stnpc>',
-            'bind ~^6|%~6 input /ws "Blade: Ku" <stnpc>',
+            'bind %~1 input /ws "Blade: Hi" <stnpc>',
+            'bind %~2 input /ws "Blade: Shun" <stnpc>',
+            'bind %~3 input /ws "Blade: Ten" <stnpc>',
+            'bind %~4 input /ws "Blade: Metsu" <stnpc>',
+            'bind %~5 input /ws "Blade: Jin" <stnpc>',
+            'bind %~6 input /ws "Blade: Ku" <stnpc>',
             'bind ~!^1    input /ws "Blade: Ei" <stnpc>',
             'bind ~!^2    input /ws "Blade: Chi" <stnpc>',
             'bind ~!^3    input /ws "Blade: To" <stnpc>',
             'bind ~!^4    input /ws "Blade: Teki" <stnpc>',
             'bind ~!^5    input /ws "Blade: Yu" <stnpc>'},
         ['BowKatana']=L{
-            'bind ^1|%1 input /ws "Blade: Hi"',
-            'bind ^2|%2 input /ws "Empyreal Arrow"',
-            'bind ^3|%3 input /ws "Blade: Ten"',
-            'bind ^4|%4 input /ws "Blade: Kamu"',
-            'bind ^5|%5 input /ws "Flaming Arrow"',
-            'bind ^6|%6 input /ws "Blade: Ku"',
+            'bind %1 input /ws "Blade: Hi"',
+            'bind %2 input /ws "Empyreal Arrow"',
+            'bind %3 input /ws "Blade: Ten"',
+            'bind %4 input /ws "Blade: Kamu"',
+            'bind %5 input /ws "Flaming Arrow"',
+            'bind %6 input /ws "Blade: Ku"',
             'bind !^1   input /ws "Blade: Ei"',
             'bind !^2   input /ws "Blade: Chi"',
             'bind !^3   input /ws "Blade: To"',
             'bind !^4   input /ws "Blade: Teki"',
             'bind !^5   input /ws "Blade: Yu"',
-            'bind ~^1|%~1 input /ws "Blade: Hi" <stnpc>',
-            'bind ~^2|%~2 input /ws "Blade: Shun" <stnpc>',
-            'bind ~^3|%~3 input /ws "Blade: Ten" <stnpc>',
-            'bind ~^4|%~4 input /ws "Blade: Kamu" <stnpc>',
-            'bind ~^5|%~5 input /ws "Blade: Jin" <stnpc>',
-            'bind ~^6|%~6 input /ws "Blade: Ku" <stnpc>',
+            'bind %~1 input /ws "Blade: Hi" <stnpc>',
+            'bind %~2 input /ws "Blade: Shun" <stnpc>',
+            'bind %~3 input /ws "Blade: Ten" <stnpc>',
+            'bind %~4 input /ws "Blade: Kamu" <stnpc>',
+            'bind %~5 input /ws "Blade: Jin" <stnpc>',
+            'bind %~6 input /ws "Blade: Ku" <stnpc>',
             'bind ~!^1    input /ws "Blade: Ei" <stnpc>',
             'bind ~!^2    input /ws "Blade: Chi" <stnpc>',
             'bind ~!^3    input /ws "Blade: To" <stnpc>',
             'bind ~!^4    input /ws "Blade: Teki" <stnpc>',
             'bind ~!^5    input /ws "Blade: Yu" <stnpc>'},
         ['Dagger']=L{
-            'bind ^1|%1 input /ws "Evisceration"',
-            'bind ^2|%2 input /ws "Wasp Sting"',
-            'bind ^3|%3 input /ws "Gust Slash"',
-            'bind ^4|%4 input /ws "Exenterator"',
-            'bind ^6|%6 input /ws "Aeolian Edge"',
-            'bind ^7|%7 input /ws "Cyclone"',
-            'bind ~^1|%~1 input /ws "Evisceration" <stnpc>',
-            'bind ~^2|%~2 input /ws "Wasp Sting" <stnpc>',
-            'bind ~^3|%~3 input /ws "Gust Slash" <stnpc>',
-            'bind ~^4|%~4 input /ws "Exenterator" <stnpc>',
-            'bind ~^6|%~6 input /ws "Aeolian Edge" <stnpc>',
-            'bind ~^7|%~7 input /ws "Cyclone" <stnpc>'},
+            'bind %1 input /ws "Evisceration"',
+            'bind %2 input /ws "Wasp Sting"',
+            'bind %3 input /ws "Gust Slash"',
+            'bind %4 input /ws "Exenterator"',
+            'bind %6 input /ws "Aeolian Edge"',
+            'bind %7 input /ws "Cyclone"',
+            'bind %~1 input /ws "Evisceration" <stnpc>',
+            'bind %~2 input /ws "Wasp Sting" <stnpc>',
+            'bind %~3 input /ws "Gust Slash" <stnpc>',
+            'bind %~4 input /ws "Exenterator" <stnpc>',
+            'bind %~6 input /ws "Aeolian Edge" <stnpc>',
+            'bind %~7 input /ws "Cyclone" <stnpc>'},
         ['GKatana']=L{
-            'bind ^1|%1 input /ws "Tachi: Ageha"',
-            'bind ^2|%2 input /ws "Tachi: Kasha"',
-            'bind ^3|%3 input /ws "Tachi: Jinpu"',
-            'bind ^4|%4 input /ws "Tachi: Kagero"',
-            'bind ^5|%5 input /ws "Tachi: Koki"',
-            'bind ~^1|%~1 input /ws "Tachi: Ageha" <stnpc>',
-            'bind ~^2|%~2 input /ws "Tachi: Kasha" <stnpc>',
-            'bind ~^3|%~3 input /ws "Tachi: Jinpu" <stnpc>',
-            'bind ~^4|%~4 input /ws "Tachi: Kagero" <stnpc>',
-            'bind ~^5|%~5 input /ws "Tachi: Koki" <stnpc>',
+            'bind %1 input /ws "Tachi: Ageha"',
+            'bind %2 input /ws "Tachi: Kasha"',
+            'bind %3 input /ws "Tachi: Jinpu"',
+            'bind %4 input /ws "Tachi: Kagero"',
+            'bind %5 input /ws "Tachi: Koki"',
+            'bind %~1 input /ws "Tachi: Ageha" <stnpc>',
+            'bind %~2 input /ws "Tachi: Kasha" <stnpc>',
+            'bind %~3 input /ws "Tachi: Jinpu" <stnpc>',
+            'bind %~4 input /ws "Tachi: Kagero" <stnpc>',
+            'bind %~5 input /ws "Tachi: Koki" <stnpc>',
             'bind !^d   input /ws "Tachi: Hobaku"'},
+        ['GSword']=L{
+            'bind %1 input /ws "Freezebite"',
+            'bind %6 input /ws "Shockwave"'},
         ['Sword']=L{
-            'bind ^1|%1 input /ws "Sanguine Blade"',
-            'bind ^2|%2 input /ws "Vorpal Blade"',
-            'bind ^3|%3 input /ws "Savage Blade"',
-            'bind ^4|%4 input /ws "Red Lotus Blade"',
-            'bind ^5|%5 input /ws "Seraph Blade"',
-            'bind ^6|%6 input /ws "Circle Blade"',
-            'bind ~^1|%~1 input /ws "Sanguine Blade" <stnpc>',
-            'bind ~^2|%~2 input /ws "Vorpal Blade" <stnpc>',
-            'bind ~^3|%~3 input /ws "Savage Blade" <stnpc>',
-            'bind ~^4|%~4 input /ws "Red Lotus Blade" <stnpc>',
-            'bind ~^5|%~5 input /ws "Seraph Blade" <stnpc>',
-            'bind ~^6|%~6 input /ws "Circle Blade" <stnpc>',
+            'bind %1 input /ws "Sanguine Blade"',
+            'bind %2 input /ws "Vorpal Blade"',
+            'bind %3 input /ws "Savage Blade"',
+            'bind %4 input /ws "Red Lotus Blade"',
+            'bind %5 input /ws "Seraph Blade"',
+            'bind %6 input /ws "Circle Blade"',
+            'bind %~1 input /ws "Sanguine Blade" <stnpc>',
+            'bind %~2 input /ws "Vorpal Blade" <stnpc>',
+            'bind %~3 input /ws "Savage Blade" <stnpc>',
+            'bind %~4 input /ws "Red Lotus Blade" <stnpc>',
+            'bind %~5 input /ws "Seraph Blade" <stnpc>',
+            'bind %~6 input /ws "Circle Blade" <stnpc>',
             'bind !^d   input /ws "Flat Blade"'},
         ['Club']=L{
-            'bind ^1|%1 input /ws "Flash Nova"',
-            'bind ^2|%2 input /ws "Judgment"',
-            'bind ^3|%3 input /ws "True Strike"',
-            'bind ~^1|%~1 input /ws "Flash Nova" <stnpc>',
-            'bind ~^2|%~2 input /ws "Judgment" <stnpc>',
-            'bind ~^3|%~3 input /ws "True Strike" <stnpc>',
+            'bind %1 input /ws "Flash Nova"',
+            'bind %2 input /ws "Judgment"',
+            'bind %3 input /ws "True Strike"',
+            'bind %~1 input /ws "Flash Nova" <stnpc>',
+            'bind %~2 input /ws "Judgment" <stnpc>',
+            'bind %~3 input /ws "True Strike" <stnpc>',
             'bind !^d   input /ws "Brainshaker"'},
         ['H2H']=L{
-            'bind ^1|%1 input /ws "Raging Fists"',
-            'bind ^2|%2 input /ws "Asuran Fists"',
-            'bind ^3|%3 input /ws "Tornado Kick"',
-            'bind ^6|%6 input /ws "Spinning Attack"',
-            'bind ~^1|%~1 input /ws "Raging Fists" <stnpc>',
-            'bind ~^2|%~2 input /ws "Asuran Fists" <stnpc>',
-            'bind ~^3|%~3 input /ws "Tornado Kick" <stnpc>',
-            'bind ~^6|%~6 input /ws "Spinning Attack" <stnpc>',
+            'bind %1 input /ws "Raging Fists"',
+            'bind %2 input /ws "Asuran Fists"',
+            'bind %3 input /ws "Tornado Kick"',
+            'bind %6 input /ws "Spinning Attack"',
+            'bind %~1 input /ws "Raging Fists" <stnpc>',
+            'bind %~2 input /ws "Asuran Fists" <stnpc>',
+            'bind %~3 input /ws "Tornado Kick" <stnpc>',
+            'bind %~6 input /ws "Spinning Attack" <stnpc>',
             'bind !^d   input /ws "Shoulder Tackle"'}},
-        {['Heishi']='Katana',['HeiTsu']='Katana',['HeiFudo']='Katana',['HeiSB']='Katana',['HeishiTP']='Katana',
+        {['Heishi']='Katana',['HeiYag']='Katana',['HeiFudo']='Katana',['HeiSB']='Katana',['HeishiTP']='Katana',
          ['Nagi']='Katana',['NagiTP']='Katana',['Kannagi']='Katana',['Kikoku']='RKatana',
          ['FudoB']='Katana',['FudoBTP']='Katana',['FudoC']='Katana',['FudoCTP']='Katana',
          ['Gokotai']='Katana',['GokoBow']='BowKatana',
          ['FudoCBow']='BowKatana',['KannaBow']='BowKatana',['KaKuBow']='BowKatana',
          ['AEDagger']='Dagger',['SCDagger']='Dagger',['Naeg']='Sword',['NaegTP']='Sword',
-         ['GKatana']='GKatana',['GKGekko']='GKatana',['Club']='Club',['H2H']='H2H'})
+         ['GKatana']='GKatana',['GKGekko']='GKatana',['Club']='Club',['H2H']='H2H',['GSword']='GSword'})
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
 
@@ -389,13 +392,13 @@ function init_gear_sets()
     sets.weapons.Heishi   = {main="Heishi Shorinken",sub="Kunimitsu"}
     sets.weapons.HeishiTP = {main="Heishi Shorinken",sub="Hitaki"}
     sets.weapons.HeiSB    = {main="Heishi Shorinken",sub="Gleti's Knife"}
-    sets.weapons.HeiTsu   = {main="Heishi Shorinken",sub="Tsuru"}
+    sets.weapons.HeiYag   = {main="Heishi Shorinken",sub="Yagyu Darkblade"}
     sets.weapons.HeiFudo  = {main="Heishi Shorinken",sub=gear.fudoB}
-    sets.weapons.Nagi     = {main="Nagi",sub="Tsuru"}
+    sets.weapons.Nagi     = {main="Nagi",sub="Yagyu Darkblade"}
     sets.weapons.NagiTP   = {main="Nagi",sub="Hitaki"}
     sets.weapons.FudoB    = {main=gear.fudoB,sub="Gleti's Knife"}
     sets.weapons.FudoBTP  = {main=gear.fudoB,sub="Hitaki"}
-    sets.weapons.FudoC    = {main=gear.fudoC,sub="Tsuru"}
+    sets.weapons.FudoC    = {main=gear.fudoC,sub="Yagyu Darkblade"}
     sets.weapons.FudoCTP  = {main=gear.fudoC,sub="Hitaki"}
     sets.weapons.Kannagi  = {main="Kannagi",sub="Gleti's Knife"}
     sets.weapons.Kikoku   = {main="Kikoku",sub="Kunimitsu"}
@@ -408,7 +411,8 @@ function init_gear_sets()
     sets.weapons.SCDagger = {main="Tauret",sub="Gleti's Knife"}
     sets.weapons.GKatana  = {main="Hachimonji",sub="Bloodrain Strap"}
     sets.weapons.GKGekko  = {main="Beryllium Tachi",sub="Bloodrain Strap"}
-    sets.weapons.Naeg     = {main="Naegling",sub="Kunimitsu"}
+    sets.weapons.GSword   = {main="Irradiance Blade",sub="Bloodrain Strap"}
+    sets.weapons.Naeg     = {main="Naegling",sub="Yagyu Darkblade"}
     sets.weapons.NaegTP   = {main="Naegling",sub="Hitaki"}
     sets.weapons.Club     = {main="Mafic Cudgel",sub="Hitaki"}
     sets.weapons.H2H      = {main="Karambit",sub=empty}
@@ -460,7 +464,7 @@ function init_gear_sets()
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Epaminondas's Ring",ring2="Ephramad's Ring",
         back=gear.TenCape,waist="Sailfi Belt +1",legs="Nyame Flanchard",feet="Nyame Sollerets"})
     sets.precast.WS['Blade: Metsu'] = prioritize({ammo="Cath Palug Stone",
-        head="Hachiya Hatsuburi +3",neck="Ninja Nodowa +2",ear1="Lugra Earring +1",ear2="Hattori Earring +1",
+        head="Hachiya Hatsuburi +4",neck="Ninja Nodowa +2",ear1="Lugra Earring +1",ear2="Hattori Earring +1",
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Epaminondas's Ring",ring2="Ephramad's Ring",
         back=gear.MetsuCape,waist="Fotia Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
     sets.precast.WS['Blade: Kamu'] = prioritize({ammo="Oshasha's Treatise",
@@ -468,7 +472,7 @@ function init_gear_sets()
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Gere Ring",ring2="Ephramad's Ring",
         back=gear.TenCape,waist="Fotia Belt",legs="Nyame Flanchard",feet=gear.herc_feet_ta})
     sets.precast.WS['Blade: Hi'] = prioritize({ammo="Yetshila +1",
-        head="Hachiya Hatsuburi +3",neck="Ninja Nodowa +2",ear1="Odr Earring",ear2="Hattori Earring +1",
+        head="Hachiya Hatsuburi +4",neck="Ninja Nodowa +2",ear1="Odr Earring",ear2="Hattori Earring +1",
         body="Kendatsuba Samue +1",hands="Mummu Wrists +2",ring1="Epaminondas's Ring",ring2="Ephramad's Ring",
         back=gear.HiCape,waist="Windbuffet Belt +1",legs="Mummu Kecks +2",feet="Mummu Gamashes +2"})
     sets.precast.WS['Blade: Jin'] = prioritize(set_combine(sets.precast.WS['Blade: Hi'], {
@@ -496,6 +500,7 @@ function init_gear_sets()
     sets.precast.WS['Red Lotus Blade'] = set_combine(sets.precast.WS['Aeolian Edge'], {})
     sets.precast.WS['Seraph Blade']    = set_combine(sets.precast.WS['Aeolian Edge'], {})
     sets.precast.WS['Flash Nova']      = set_combine(sets.precast.WS['Aeolian Edge'], {})
+    sets.precast.WS['Freezebite']      = set_combine(sets.precast.WS['Aeolian Edge'], {})
 
     sets.precast.WS['Blade: To'] = prioritize({ammo="Oshasha's Treatise",
         head="Mochizuki Hatsuburi +3",neck="Ninja Nodowa +2",ear1="Moonshade Earring",ear2="Hattori Earring +1",
@@ -513,6 +518,7 @@ function init_gear_sets()
     sets.precast.WS['Tachi: Gekko']  = set_combine(sets.precast.WS['Blade: Retsu'], {})
     sets.precast.WS['Tachi: Hobaku'] = set_combine(sets.precast.WS['Blade: Retsu'], {})
     sets.precast.WS['Flat Blade']    = set_combine(sets.precast.WS['Blade: Retsu'], {})
+    sets.precast.WS['Shockwave']     = set_combine(sets.precast.WS['Blade: Retsu'], {})
 
     sets.precast.WS['Empyreal Arrow'] = prioritize({ammo=gear.arrow_ws,
         head="Nyame Helm",neck="Null Loop",ear1="Moonshade Earring",ear2="Hattori Earring +1",
@@ -561,39 +567,39 @@ function init_gear_sets()
         back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
     sets.midcast['Migawari: Ichi'] = set_combine(sets.midcast.Ninjutsu, {back=gear.FCCape})
 
-    sets.midcast.Utsusemi = prioritize(set_combine(sets.midcast.Ninjutsu, {hands="Nyame Gauntlets",feet="Hattori Kyahan +2"}))
-    sets.midcast.Utsusemi.Enmity = prioritize({main=gear.fudoC,sub="Tsuru",ammo="Date Shuriken",
+    sets.midcast.Utsusemi = prioritize(set_combine(sets.midcast.Ninjutsu, {hands="Nyame Gauntlets",feet="Hattori Kyahan +3"}))
+    sets.midcast.Utsusemi.Enmity = prioritize({main=gear.fudoC,sub="Yagyu Darkblade",ammo="Date Shuriken",
         head="Genmei Kabuto",neck="Moonlight Necklace",ear1="Trux Earring",ear2="Cryptic Earring",
         body="Emet Harness +1",hands="Kurys Gloves",ring1="Eihwaz Ring",ring2="Defending Ring",
-        back=gear.EnmCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Hattori Kyahan +2"})
+        back=gear.EnmCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Hattori Kyahan +3"})
     -- enm+64, pdt-44, dt-23
     sets.midcast.Utsusemi.NoCancel = prioritize({ring2="Supershear Ring",feet="Nyame Sollerets"})
     sets.midcast.Utsusemi.Enmity.NoCancel = {feet="Ahosi Leggings"}
-    sets.midcast.Utsusemi.EvaPDT = prioritize({main=gear.fudoC,sub="Tsuru",ammo="Date Shuriken",
+    sets.midcast.Utsusemi.EvaPDT = prioritize({main=gear.fudoC,sub="Yagyu Darkblade",ammo="Date Shuriken",
         head="Null Masque",neck="Bathy Choker +1",ear1="Eabani Earring",ear2="Infused Earring",
         body="Mpaca's Doublet",hands="Nyame Gauntlets",ring1="Hizamaru Ring",ring2="Defending Ring",
         back=gear.ParryCape,waist="Kasiri Belt",legs="Mpaca's Hose",feet="Nyame Sollerets"})
     sets.midcast.Utsusemi.SIRD = prioritize({main="Tancho +1",sub="Tancho",ammo="Date Shuriken",
         head="Null Masque",neck="Moonlight Necklace",ear1="Eabani Earring",ear2="Odnowa Earring +1",
         body="Mpaca's Doublet",hands="Rawhide Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.ParryCape,waist="Audumbla Sash",legs="Nyame Flanchard",feet="Hattori Kyahan +2"})
+        back=gear.ParryCape,waist="Audumbla Sash",legs="Nyame Flanchard",feet="Hattori Kyahan +3"})
     -- enm+32, pdt-50, dt-36, sird+105
 
     sets.midcast.ElementalNinjutsu = prioritize({main="Gokotai",sub="Kunimitsu",ammo="Pemphredo Tathlum",
         head="Mochizuki Hatsuburi +3",neck="Sibyl Scarf",ear1="Lugra Earring +1",ear2="Friomisi Earring",
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Dingir Ring",ring2="Metamorph Ring +1",
         back=gear.NukeCape,waist="Eschan Stone",legs="Nyame Flanchard",feet="Mochizuki Kyahan +3"})
-    sets.midcast.ElementalNinjutsu.MB = set_combine(sets.midcast.ElementalNinjutsu, {neck="Warder's Charm +1",ring1="Mujin Band"})
-    sets.buff.Futae = {hands="Hattori Tekko +2"}
+    sets.midcast.ElementalNinjutsu.MB = set_combine(sets.midcast.ElementalNinjutsu, {hands="Hattori Tekko +3"})
+    sets.buff.Futae = {hands="Hattori Tekko +3"}
     sets.orpheus    = {waist="Orpheus's Sash"}
     sets.ele_obi    = {waist="Hachirin-no-Obi"}
     sets.nuke_belt  = {waist="Eschan Stone"}
     sets.donargun   = {range="Donar Gun",ammo=empty}
 
     sets.midcast.EnfeeblingNinjutsu = prioritize({main="Nagi",sub="Gokotai",ammo="Yamarang",
-        head="Hachiya Hatsuburi +3",neck="Null Loop",ear1="Crepuscular Earring",ear2="Hattori Earring +1",
-        body="Malignance Tabard",hands="Malignance Gloves",ring1=gear.Lstikini,ring2="Metamorph Ring +1",
-        back=gear.NukeCape,waist="Null Belt",legs="Malignance Tights",feet="Hachiya Kyahan +3"})
+        head="Hachiya Hatsuburi +4",neck="Null Loop",ear1="Crepuscular Earring",ear2="Hattori Earring +1",
+        body="Malignance Tabard",hands="Hattori Tekko +3",ring1=gear.Lstikini,ring2="Metamorph Ring +1",
+        back=gear.NukeCape,waist="Null Belt",legs="Malignance Tights",feet="Hachiya Kyahan +4"})
     sets.kajabow = {range="Ullr",ammo=empty}
 
     sets.midcast['Enfeebling Magic'] = set_combine(sets.midcast.EnfeeblingNinjutsu, {})
@@ -624,7 +630,7 @@ function init_gear_sets()
     sets.idle = prioritize({main=gear.fudoC,sub="Tsuru",ammo="Yamarang",
         head="Null Masque",neck="Bathy Choker +1",ear1="Eabani Earring",ear2="Infused Earring",
         body="Hizamaru Haramaki +2",hands="Nyame Gauntlets",ring1="Gelatinous Ring +1",ring2="Defending Ring",
-        back=gear.EnmCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Hachiya Kyahan +3"})
+        back=gear.EnmCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Hachiya Kyahan +4"})
     sets.idle.Rf  = prioritize(set_combine(sets.idle, {
         neck="Sibyl Scarf",
         body="Mekosuchinae Harness",hands=gear.herc_hands_rf,ring1=gear.Lstikini,ring2=gear.Rstikini,
@@ -633,6 +639,10 @@ function init_gear_sets()
         head="Ryuo Somen +1",neck="Null Loop",ear1="Eabani Earring",ear2="Suppanomimi",
         body="Mochizuki Chainmail +3",hands="Floral Gauntlets",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.DWCape,waist="Reiki Yotai",legs="Mochizuki Hakama +3",feet="Hizamaru Sune-Ate +2"})
+    sets.idle.BloodAggro = prioritize({main="Heishi Shorinken",sub="Kunimitsu",ammo="Date Shuriken",
+        head="Malignance Chapeau",neck="Loricate Torque +1",ear1="Arete del Luna +1",ear2="Infused Earring",
+        body="Hizamaru Haramaki +2",hands="Shigure Tekko +1",ring1="Vocane Ring +1",ring2="Defending Ring",
+        back=gear.DWCape,waist="Null Belt",legs="Malignance Tights",feet="Hachiya Kyahan +4"})
 
     sets.defense.PDT = prioritize({main=gear.fudoC,sub="Tsuru",ammo="Yamarang",
         head="Null Masque",neck="Bathy Choker +1",ear1="Cryptic Earring",ear2="Odnowa Earring +1",
@@ -654,7 +664,7 @@ function init_gear_sets()
     -- dt-50, def~1457, eva~1200, meva+740, hp~3575, enm+14, parry+5
 
     sets.danzo     = {feet="Danzo Sune-Ate"}
-    sets.hachiya   = prioritize({feet="Hachiya Kyahan +3"})
+    sets.hachiya   = prioritize({feet="Hachiya Kyahan +4"})
     sets.Kiting    = sets.hachiya
     sets.buff.doom = prioritize({
         head="Malignance Chapeau",neck="Nicander's Necklace",ear1="Telos Earring",ear2="Odnowa Earring +1",
@@ -1304,8 +1314,8 @@ function job_self_command(cmdParams, eventArgs)
         local weap = state.CombatWeapon.value
         if weap:endswith('TP')    then handle_set({'CombatWeapon', weap:sub(1,-3)})
         elseif state.CombatWeapon:contains(weap..'TP') then handle_set({'CombatWeapon', weap..'TP'})
-        elseif weap == 'HeiSB'    then handle_set({'CombatWeapon', 'HeiTsu'})
-        elseif weap == 'HeiTsu'   then handle_set({'CombatWeapon', 'HeiFudo'})
+        elseif weap == 'HeiSB'    then handle_set({'CombatWeapon', 'HeiYag'})
+        elseif weap == 'HeiYag'   then handle_set({'CombatWeapon', 'HeiFudo'})
         elseif weap == 'HeiFudo'  then handle_set({'CombatWeapon', 'HeiSB'})
         elseif weap == 'Gokotai'  then handle_set({'CombatWeapon', 'GokoBow'})
         elseif weap == 'GokoBow'  then handle_set({'CombatWeapon', 'FudoCBow'})
@@ -1369,6 +1379,7 @@ function job_keybinds()
         'bind !^w  gs c set CombatWeapon Heishi',
         'bind ~!^w gs c set CombatWeapon HeiSB',
         'bind ^@w  gs c set CombatWeapon GKatana',
+        'bind ~^@w gs c set CombatWeapon GSword',
         'bind !^e  gs c set CombatWeapon FudoB',
         'bind ~!^e gs c set CombatWeapon FudoC',
         'bind !^r  gs c set CombatWeapon NaegTP',
@@ -1459,7 +1470,8 @@ function job_keybinds()
             'bind !6 input /ja "Arcane Circle" <me>',
             'bind !d input /ma Stun',                  -- 180/1280
             'bind @d input /ma Stun <stnpc>',
-            'bind !@d input /ma Poisonga'})
+            'bind !@d input /ma Poisonga',
+            'bind ~!@d input /ma Poisonga <stnpc>'})
     elseif player.sub_job == 'RUN' then
         bind_command_list:extend(L{
             'bind @1 input /ja Ignis <me>',            -- fire up,    ice down
@@ -1536,6 +1548,7 @@ function job_keybinds()
             'bind !6 input /ma Refresh <me>',
             'bind ^tab input /ma Dispel',
             'bind !@d input /ma Diaga',
+            'bind ~!@d input /ma Diaga <stnpc>',
             'bind !^g input /ma Stoneskin <me>',
             'bind !^v input /ma Aquaveil <me>'})
     elseif player.sub_job == 'BLM' then
@@ -1545,7 +1558,8 @@ function job_keybinds()
             'bind !6 input /ma Sleepga',
             'bind !d input /ma Stun',
             'bind @d input /ma Stun <stnpc>',
-            'bind !@d input /ma Poisonga'})
+            'bind !@d input /ma Poisonga',
+            'bind ~!@d input /ma Poisonga <stnpc>'})
     elseif player.sub_job == 'SMN' then
         bind_command_list:extend(L{
             'bind !4 input /ma Diabolos <me>',

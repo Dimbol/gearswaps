@@ -48,7 +48,7 @@ function user_setup()
         state.CombatWeapon:options('CarnCrep','CarnGleti','AenDem','AenTwash','TwashTP','TwashDW','TaurAE','NaegTP','NaegDW','Staff')
 		state.CombatForm:set('DW')
     else
-        state.CombatWeapon:options('Carn','Aeneas','Twashtar','Naegling','Staff')
+        state.CombatWeapon:options('Carn','Aeneas','Twashtar','Tauret','Naegling','Staff')
 		state.CombatForm:reset()
     end
     state.ExtraSongsMode = M{['description']='Extra Songs','None','Dummy','FullHarp'}  -- Set/unset with !c/!@c
@@ -92,42 +92,43 @@ function user_setup()
 
     info.ws_binds = make_keybind_list(T{
         ['Dagger']=L{
-            'bind !^1|%1 input /ws "Evisceration"',
-            'bind !^2|%2 input /ws "Rudra\'s Storm"',
-            'bind !^3|%3 input /ws "Mordant Rime"',
-            'bind !^4|%4 input /ws "Exenterator"',
-            'bind !^6|%6 input /ws "Aeolian Edge"',
-            'bind !^7|%7 input /ws "Cyclone"',
-            'bind ~!^1|%~1 input /ws "Evisceration" <stnpc>',
-            'bind ~!^2|%~2 input /ws "Rudra\'s Storm" <stnpc>',
-            'bind ~!^3|%~3 input /ws "Mordant Rime" <stnpc>',
-            'bind ~!^4|%~4 input /ws "Exenterator" <stnpc>',
-            'bind ~!^6|%~6 input /ws "Aeolian Edge" <stnpc>',
-            'bind ~!^7|%~7 input /ws "Cyclone" <stnpc>',
+            'bind %1 input /ws "Evisceration"',
+            'bind %2 input /ws "Rudra\'s Storm"',
+            'bind %3 input /ws "Mordant Rime"',
+            'bind %4 input /ws "Exenterator"',
+            'bind %6 input /ws "Aeolian Edge"',
+            'bind %7 input /ws "Cyclone"',
+            'bind %~1 input /ws "Evisceration" <stnpc>',
+            'bind %~2 input /ws "Rudra\'s Storm" <stnpc>',
+            'bind %~3 input /ws "Mordant Rime" <stnpc>',
+            'bind %~4 input /ws "Exenterator" <stnpc>',
+            'bind %~6 input /ws "Aeolian Edge" <stnpc>',
+            'bind %~7 input /ws "Cyclone" <stnpc>',
             'bind !^d input /ws "Shadowstitch"'},
         ['Sword']=L{
-            'bind !^1|%1 input /ws "Sanguine Blade"',
-            'bind !^3|%3 input /ws "Savage Blade"',
-            'bind !^6|%6 input /ws "Circle Blade"',
-            'bind ~!^1|%~1 input /ws "Sanguine Blade" <stnpc>',
-            'bind ~!^3|%~3 input /ws "Savage Blade" <stnpc>',
-            'bind ~!^6|%~6 input /ws "Circle Blade" <stnpc>',
+            'bind %1 input /ws "Sanguine Blade"',
+            'bind %3 input /ws "Savage Blade"',
+            'bind %6 input /ws "Circle Blade"',
+            'bind %~1 input /ws "Sanguine Blade" <stnpc>',
+            'bind %~3 input /ws "Savage Blade" <stnpc>',
+            'bind %~6 input /ws "Circle Blade" <stnpc>',
             'bind !^d input /ws "Flat Blade"'},
         ['Staff']=L{
-            'bind !^1|%1 input /ws "Shell Crusher"',
-            'bind !^2|%2 input /ws "Shattersoul"',
-            'bind !^3|%3 input /ws "Retribution"',
-            'bind !^4|%4 input /ws "Spirit Taker"',
-            'bind !^6|%6 input /ws "Cataclysm"',
-            'bind ~!^1|%~1 input /ws "Shell Crusher" <stnpc>',
-            'bind ~!^2|%~2 input /ws "Shattersoul" <stnpc>',
-            'bind ~!^3|%~3 input /ws "Retribution" <stnpc>',
-            'bind ~!^4|%~4 input /ws "Spirit Taker" <stnpc>',
-            'bind ~!^6|%~6 input /ws "Cataclysm" <stnpc>'}},
+            'bind %1 input /ws "Shell Crusher"',
+            'bind %2 input /ws "Shattersoul"',
+            'bind %3 input /ws "Retribution"',
+            'bind %4 input /ws "Spirit Taker"',
+            'bind %6 input /ws "Cataclysm"',
+            'bind %~1 input /ws "Shell Crusher" <stnpc>',
+            'bind %~2 input /ws "Shattersoul" <stnpc>',
+            'bind %~3 input /ws "Retribution" <stnpc>',
+            'bind %~4 input /ws "Spirit Taker" <stnpc>',
+            'bind %~6 input /ws "Cataclysm" <stnpc>'}},
         {['Carn']='Dagger',['CarnCrep']='Dagger',['CarnGleti']='Dagger',
          ['Aeneas']='Dagger',['AenTwash']='Dagger',['AenDem']='Dagger',
          ['Twashtar']='Dagger',['TwashTP']='Dagger',['TwashDW']='Dagger',
-         ['TaurAE']='Dagger',['Naegling']='Sword',['NaegTP']='Sword',['NaegDW']='Sword',['Staff']='Staff'})
+         ['Tauret']='Dagger',['TaurAE']='Dagger',
+         ['Naegling']='Sword',['NaegTP']='Sword',['NaegDW']='Sword',['Staff']='Staff'})
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
 
@@ -172,7 +173,7 @@ function init_gear_sets()
     sets.weapons.Naegling  = {main="Naegling",sub="Genmei Shield"}
     sets.weapons.NaegTP    = {main="Naegling",sub="Centovente"}
     sets.weapons.NaegDW    = {main="Naegling",sub="Gleti's Knife"}
-    sets.weapons.Tauret    = {main="Tauret",sub="Genmei Shield"}
+    sets.weapons.Tauret    = {main="Tauret",sub="Ammurapi Shield"}
     sets.weapons.TaurAE    = {main="Tauret",sub="Malevolence"}
     sets.weapons.Staff     = {main="Xoanon",sub="Bloodrain Strap"}
     sets.TreasureHunter = {range=empty,ammo="Perfect Lucky Egg",head="Volte Cap",waist="Chaac Belt",feet=gear.chir_feet_th}
@@ -189,7 +190,7 @@ function init_gear_sets()
         back=gear.SongCape,waist="Witful Belt",legs="Ayanmo Cosciales +2",feet="Fili Cothurnes +3"}
     sets.precast.FC.Cure = set_combine(sets.precast.FC, {ear2="Mendicant's Earring"})
     sets.precast.FC.BardSong = {range=gear.linos_qm,
-        head="Fili Calot +2",neck="Orunmila's Torque",ear1="Loquacious Earring",ear2="Etiolation Earring",
+        head="Fili Calot +3",neck="Orunmila's Torque",ear1="Loquacious Earring",ear2="Etiolation Earring",
         body="Brioso Justaucorps +3",hands="Leyline Gloves",ring1="Lebeche Ring",ring2="Kishar Ring",
         back=gear.SongCape,waist="Witful Belt",legs="Ayanmo Cosciales +2",feet="Telchine Pigaches"}
     sets.precast.FC['Honor March'] = set_combine(sets.precast.FC.BardSong, {range="Marsyas"})
@@ -244,14 +245,14 @@ function init_gear_sets()
     -- Midcast Sets
 
     sets.midcast.SongEffect = {main="Carnwenhan",sub="Genmei Shield",range="Loughnashade",
-        head="Fili Calot +2",neck="Moonbow Whistle +1",ear1="Genmei Earring",ear2="Etiolation Earring",
-        body="Fili Hongreline +3",hands="Fili Manchettes +2",ring1="Vocane Ring +1",ring2="Defending Ring",
+        head="Fili Calot +3",neck="Moonbow Whistle +1",ear1="Genmei Earring",ear2="Etiolation Earring",
+        body="Fili Hongreline +3",hands="Fili Manchettes +3",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.SongCape,waist="Platinum Moogle Belt",legs="Inyanga Shalwar +2",feet="Brioso Slippers +3"}              -- dur+171
 
     sets.midcast.Madrigal = set_combine(sets.midcast.SongEffect, {
-        head="Fili Calot +2",body="Aoidos' Hongreline +1",back=gear.SongCape,legs="Fili Rhingrave +3"})                   -- dur+165
+        head="Fili Calot +3",body="Aoidos' Hongreline +1",back=gear.SongCape,legs="Fili Rhingrave +3"})                   -- dur+165
     sets.midcast.Prelude  = set_combine(sets.midcast.SongEffect, {back=gear.SongCape,legs="Fili Rhingrave +3"})           -- dur+164 *
-    sets.midcast.March    = set_combine(sets.midcast.SongEffect, {hands="Fili Manchettes +2",legs="Fili Rhingrave +3"})   -- dur+164 *
+    sets.midcast.March    = set_combine(sets.midcast.SongEffect, {hands="Fili Manchettes +3",legs="Fili Rhingrave +3"})   -- dur+164 *
     sets.midcast.Minuet   = set_combine(sets.midcast.SongEffect, {body="Fili Hongreline +3",legs="Fili Rhingrave +3"})    -- dur+164 *
     sets.midcast.Minne    = set_combine(sets.midcast.SongEffect, {body="Aoidos' Hongreline +1",legs="Mousai Seraweels +1"})-- dur+165
     sets.midcast.Mambo    = set_combine(sets.midcast.SongEffect, {
@@ -263,7 +264,7 @@ function init_gear_sets()
     sets.midcast.Paeon    = set_combine(sets.midcast.SongEffect, {
         head="Brioso Roundlet +3",body="Aoidos' Hongreline +1",legs="Fili Rhingrave +3"})                                 -- dur+165
     sets.midcast['Honor March'] = set_combine(sets.midcast.SongEffect, {range="Marsyas",
-        body="Aoidos' Hongreline +1",hands="Fili Manchettes +2",legs="Fili Rhingrave +3"})                                -- dur+165
+        body="Aoidos' Hongreline +1",hands="Fili Manchettes +3",legs="Fili Rhingrave +3"})                                -- dur+165
     sets.midcast['Aria of Passion'] = set_combine(sets.midcast.SongEffect, {range="Loughnashade",
         body="Aoidos' Hongreline +2",legs="Inyanga Shalwar +1"})                                                          -- dur+165
     sets.midcast['Sentinel\'s Scherzo'] = set_combine(sets.midcast.SongEffect, {
@@ -283,9 +284,9 @@ function init_gear_sets()
         body="Aoidos' Hongreline +2",feet="Fili Cothurnes +3"})                                                           -- dur+165
     sets.midcast.Ballad.FullHarp  = set_combine(sets.midcast.Ballad,  {range="Daurdabla",body="Aoidos' Hongreline +1"})   -- dur+165
 
-    sets.midcast.LongMadrigal        = set_combine(sets.midcast.SongEffect, {head="Fili Calot +2"})                       -- dur+191
+    sets.midcast.LongMadrigal        = set_combine(sets.midcast.SongEffect, {head="Fili Calot +3"})                       -- dur+191
     sets.midcast.LongPrelude         = set_combine(sets.midcast.SongEffect, {back=gear.SongCape})                         -- dur+181
-    sets.midcast.LongMarch           = set_combine(sets.midcast.SongEffect, {hands="Fili Manchettes +2"})                 -- dur+181
+    sets.midcast.LongMarch           = set_combine(sets.midcast.SongEffect, {hands="Fili Manchettes +3"})                 -- dur+181
     sets.midcast.LongMinuet          = set_combine(sets.midcast.SongEffect, {body="Fili Hongreline +3"})                  -- dur+181
     sets.midcast.LongMinne           = set_combine(sets.midcast.SongEffect, {legs="Mousai Seraweels +1"})                 -- dur+174
     sets.midcast.LongMambo           = set_combine(sets.midcast.SongEffect, {feet="Mousai Crackows +1"})                  -- dur+176
@@ -294,7 +295,7 @@ function init_gear_sets()
     sets.midcast.LongBallad          = set_combine(sets.midcast.SongEffect, {legs="Fili Rhingrave +3"})                   -- dur+164
     sets.midcast.LongPaeon           = set_combine(sets.midcast.SongEffect, {head="Brioso Roundlet +3"})                  -- dur+191
     sets.midcast['Honor March'].Long = set_combine(sets.midcast.SongEffect, {range="Marsyas",
-        body="Brioso Justaucorps +3",hands="Fili Manchettes +2",ring1=gear.Lstikini})                                     -- dur+191
+        body="Brioso Justaucorps +3",hands="Fili Manchettes +3",ring1=gear.Lstikini})                                     -- dur+191
     sets.midcast['Aria of Passion'].Long = set_combine(sets.midcast.SongEffect, {range="Loughnashade"})                   -- dur+171
     sets.midcast.LongBardSong = sets.midcast.SongEffect                                                                   -- dur+171
     sets.subkali = {sub="Kali"}
@@ -303,8 +304,8 @@ function init_gear_sets()
     sets.midcast.DummySong = {range="Daurdabla",legs="Nyame Flanchard"} -- Handled in job_post_midcast()
 
     sets.midcast.SongDebuff = {main="Carnwenhan",sub="Ammurapi Shield",range="Gjallarhorn",
-        head="Brioso Roundlet +3",neck="Moonbow Whistle +1",ear1="Regal Earring",ear2="Fili Earring +1",
-        body="Fili Hongreline +3",hands="Fili Manchettes +2",ring1=gear.Lstikini,ring2=gear.Rstikini,
+        head="Fili Calot +3",neck="Moonbow Whistle +1",ear1="Regal Earring",ear2="Fili Earring +1",
+        body="Fili Hongreline +3",hands="Fili Manchettes +3",ring1=gear.Lstikini,ring2=gear.Rstikini,
         back="Null Shawl",waist="Null Belt",legs="Inyanga Shalwar +2",feet="Brioso Slippers +3"}                          -- dur+171%
     sets.midcast.SongDebuff.Resistant = set_combine(sets.midcast.SongDebuff, {legs="Fili Rhingrave +3"})                  -- dur+154%
     sets.midcast.Lullaby = set_combine(sets.midcast.SongDebuff, {hands="Brioso Cuffs +3"})                -- dur+181% (aoe), dur+191% (1)
@@ -349,7 +350,7 @@ function init_gear_sets()
     sets.midcast.Klimaform = {}
 
     sets.midcast['Enfeebling Magic'] = {main="Carnwenhan",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
-        head="Brioso Roundlet +3",neck="Null Loop",ear1="Regal Earring",ear2="Fili Earring +1",
+        head="Fili Calot +3",neck="Null Loop",ear1="Regal Earring",ear2="Fili Earring +1",
         body="Brioso Justaucorps +3",hands="Kaykaus Cuffs +1",ring1=gear.Lstikini,ring2=gear.Rstikini,
         back="Null Shawl",waist="Null Belt",legs="Chironic Hose",feet="Fili Cothurnes +3"}
     sets.midcast.Dispelga = set_combine(sets.midcast['Enfeebling Magic'], {legs="Fili Rhingrave +3"}, sets.dispelga)
@@ -366,13 +367,13 @@ function init_gear_sets()
 
     sets.idle = {main="Sangoma",sub="Genmei Shield",range="Loughnashade",
         head="Null Masque",neck="Bathy Choker +1",ear1="Infused Earring",ear2="Fili Earring +1",
-        body="Fili Hongreline +3",hands="Bunzi's Gloves",ring1="Shadow Ring",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Null Belt",legs="Nyame Flanchard",feet="Fili Cothurnes +3"}
+        body="Fili Hongreline +3",hands="Fili Manchettes +3",ring1="Shadow Ring",ring2="Defending Ring",
+        back="Null Shawl",waist="Null Belt",legs="Fili Rhingrave +3",feet="Fili Cothurnes +3"}
     sets.idle.Rf = {main="Daybreak",sub="Genmei Shield",
         head="Null Masque",neck="Sibyl Scarf",ear1="Genmei Earring",ear2="Fili Earring +1",
         body="Inyanga Jubbah +2",hands="Volte Gloves",ring1="Inyanga Ring",ring2=gear.Rstikini,
         back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Inyanga Shalwar +2",feet="Inyanga Crackows +2"}
-    sets.idle.Roller = set_combine(sets.idle, {ring1="Vocane Ring +1",ring2="Roller's Ring"})
+    sets.idle.Roller = set_combine(sets.idle, {ear1="Genmei Earring",ring1="Vocane Ring +1",ring2="Roller's Ring"})
     sets.latent_refresh = {waist="Fucho-no-obi"}
     sets.sphere = {body="Gyve Doublet"}
     sets.buff.doom = {neck="Nicander's Necklace",ring1="Eshmun's Ring",waist="Gishdubar Sash"}
@@ -386,7 +387,7 @@ function init_gear_sets()
     sets.defense.Eva = {main="Ternion Dagger +1",sub="Genmei Shield",range=gear.linos_qm,
         head="Null Masque",neck="Bathy Choker +1",ear1="Eabani Earring",ear2="Infused Earring",
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Shadow Ring",ring2="Defending Ring",
-        back=gear.EVACape,waist="Null Belt",legs="Nyame Flanchard",feet="Hippomenes Socks +1"}
+        back=gear.EVACape,waist="Null Belt",legs="Fili Rhingrave +3",feet="Hippomenes Socks +1"}
     sets.Kiting = {feet="Fili Cothurnes +3"}
 
     sets.engaged = {range=gear.linos_tp,
@@ -821,9 +822,8 @@ function job_keybinds()
         'bind  !^q gs c weap Carn',
         'bind ~!^q gs c set CombatWeapon CarnGleti',
         'bind  !^w gs c weap Aen',
-        'bind ~!^w gs c set CombatWeapon AenTwash',
+        'bind ~!^w gs c weap Taur',
         'bind  ^@w gs c set CombatWeapon Staff',
-        'bind ~^@w gs c weap Taur',
         'bind  !^e gs c weap Twash',
         'bind ~!^e gs c set CombatWeapon TwashDW',
         'bind  !^r gs c weap Naeg',

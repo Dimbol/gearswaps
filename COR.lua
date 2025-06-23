@@ -107,8 +107,10 @@ function user_setup()
 
     info.ws_binds = make_keybind_list(T{
         ['Sword']=L{
-            'bind !^1|%1 input /ws Wildfire',
-            'bind !^2|%2 input /ws "Leaden Salute"',
+            'bind %1 input /ws Wildfire',
+            'bind %2 input /ws "Leaden Salute"',
+            'bind !^1 input /ws Wildfire',
+            'bind !^2 input /ws "Leaden Salute"',
             'bind !^3 input /ws "Last Stand"',
             'bind !^4 input /ws "Hot Shot"',
             'bind !^5 input /ws "Sniper Shot"',
@@ -116,8 +118,10 @@ function user_setup()
             'bind %4 input /ws Requiescat',
             'bind %5 input /ws "Shining Blade"',
             'bind %6 input /ws "Circle Blade"',
-            'bind ~!^1|~%1 input /ws Wildfire <stnpc>',
-            'bind ~!^2|~%2 input /ws "Leaden Salute" <stnpc>',
+            'bind ~%1 input /ws Wildfire <stnpc>',
+            'bind ~%2 input /ws "Leaden Salute" <stnpc>',
+            'bind ~!^1 input /ws Wildfire <stnpc>',
+            'bind ~!^2 input /ws "Leaden Salute" <stnpc>',
             'bind ~!^3 input /ws "Last Stand" <stnpc>',
             'bind ~!^4 input /ws "Hot Shot" <stnpc>',
             'bind ~!^5 input /ws "Sniper Shot" <stnpc>',
@@ -127,8 +131,10 @@ function user_setup()
             'bind ~%6 input /ws "Circle Blade" <stnpc>',
             'bind !^d input /ws "Flat Blade"'},
         ['Dagger']=L{
-            'bind !^1|%1 input /ws Wildfire',
-            'bind !^2|%2 input /ws "Leaden Salute"',
+            'bind %1 input /ws Wildfire',
+            'bind %2 input /ws "Leaden Salute"',
+            'bind !^1 input /ws Wildfire',
+            'bind !^2 input /ws "Leaden Salute"',
             'bind !^3 input /ws "Last Stand"',
             'bind !^4 input /ws "Hot Shot"',
             'bind !^5 input /ws "Sniper Shot"',
@@ -137,8 +143,10 @@ function user_setup()
             'bind %5 input /ws "Wasp Sting"',
             'bind %6 input /ws "Aeolian Edge"',
             'bind %7 input /ws Cyclone',
-            'bind ~!^1|~%1 input /ws Wildfire <stnpc>',
-            'bind ~!^2|~%2 input /ws "Leaden Salute" <stnpc>',
+            'bind ~%1 input /ws Wildfire <stnpc>',
+            'bind ~%2 input /ws "Leaden Salute" <stnpc>',
+            'bind ~!^1 input /ws Wildfire <stnpc>',
+            'bind ~!^2 input /ws "Leaden Salute" <stnpc>',
             'bind ~!^3 input /ws "Last Stand" <stnpc>',
             'bind ~!^4 input /ws "Hot Shot" <stnpc>',
             'bind ~!^5 input /ws "Sniper Shot" <stnpc>',
@@ -237,13 +245,13 @@ function init_gear_sets()
 
     sets.precast.CorsairRoll = {main=gear.RostamC,sub="Nusku Shield",range="Compensator",
         head="Lanun Tricorne",neck="Regal Necklace",ear1="Beyla Earring",ear2="Chasseur's Earring +1",
-        body="Chasseur's Frac +2",hands="Chasseur's Gants +2",ring1="Vocane Ring +1",ring2="Defending Ring",
+        body="Chasseur's Frac +3",hands="Chasseur's Gants +3",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.RATPCape,waist="Platinum Moogle Belt",legs="Desultor Tassets",feet="Oshosi Leggings +1"}
     sets.precast.CorsairRoll["Caster's Roll"] = set_combine(sets.precast.CorsairRoll, {legs="Chasseur's Culottes +2"})
-    sets.precast.CorsairRoll["Courser's Roll"] = set_combine(sets.precast.CorsairRoll, {feet="Chasseur's Bottes +2"})
+    sets.precast.CorsairRoll["Courser's Roll"] = set_combine(sets.precast.CorsairRoll, {feet="Chasseur's Bottes +3"})
     sets.precast.CorsairRoll["Blitzer's Roll"] = set_combine(sets.precast.CorsairRoll, {head="Chasseur's Tricorne +2"})
-    sets.precast.CorsairRoll["Tactician's Roll"] = set_combine(sets.precast.CorsairRoll, {body="Chasseur's Frac +2"})
-    sets.precast.CorsairRoll["Allies' Roll"] = set_combine(sets.precast.CorsairRoll, {hands="Chasseur's Gants +2"})
+    sets.precast.CorsairRoll["Tactician's Roll"] = set_combine(sets.precast.CorsairRoll, {body="Chasseur's Frac +3"})
+    sets.precast.CorsairRoll["Allies' Roll"] = set_combine(sets.precast.CorsairRoll, {hands="Chasseur's Gants +3"})
     sets.precast.JA['Double-Up'] = {main=gear.RostamC,
         head="Null Masque",neck="Warder's Charm +1",ear1="Beyla Earring",ear2="Chasseur's Earring +1",
         body=gear.adh_body_ta,hands="Nyame Gauntlets",ring1="Lebeche Ring",ring2="Defending Ring",
@@ -268,10 +276,10 @@ function init_gear_sets()
     sets.precast.WS['Marksmanship'].Acc = {ammo="Devastating Bullet",
         head="Chasseur's Tricorne +2",neck="Iskur Gorget",ear1="Beyla Earring",ear2="Crepuscular Earring",
         body="Laksamana's Frac +3",hands="Malignance Gloves",ring1="Regal Ring",ring2="Ephramad's Ring",
-        back=gear.RAWSCape,waist="Kwahu Kachina Belt +1",legs="Laksamana's Trews +3",feet="Chasseur's Bottes +2"}
+        back=gear.RAWSCape,waist="Kwahu Kachina Belt +1",legs="Laksamana's Trews +3",feet="Chasseur's Bottes +3"}
     sets.precast.WS['Last Stand'] = set_combine(sets.precast.WS['Marksmanship'], {body="Ikenga's Vest",ear2="Moonshade Earring"})
     sets.precast.WS['Last Stand'].Acc = set_combine(sets.precast.WS['Last Stand'], {neck="Null Loop",ear1="Beyla Earring",
-        body="Laksamana's Frac +3",hands="Chasseur's Gants +2",ring1="Regal Ring",waist="Null Belt"})
+        body="Laksamana's Frac +3",hands="Chasseur's Gants +3",ring1="Regal Ring",waist="Null Belt"})
     sets.precast.WS['Last Stand'].Enmity = {ammo="Chrono Bullet",
         head="Nyame Helm",neck="Fotia Gorget",ear1="Beyla Earring",ear2="Chasseur's Earring +1",
         body="Ikenga's Vest",hands="Ikenga's Gloves",ring1="Dingir Ring",ring2="Ephramad's Ring",
@@ -356,8 +364,8 @@ function init_gear_sets()
     sets.gishdubar = {waist="Gishdubar Sash"}
     sets.midcast['Enfeebling Magic'] = {main=gear.RostamC,range="Fomalhaut",ammo="Devastating Bullet",
         head="Chasseur's Tricorne +2",neck="Null Loop",ear1="Crepuscular Earring",ear2="Chasseur's Earring +1",
-        body="Chasseur's Frac +2",hands="Chasseur's Gants +2",ring1=gear.Lstikini,ring2=gear.Rstikini,
-        back="Null Shawl",waist="Null Belt",legs="Chasseur's Culottes +2",feet="Chasseur's Bottes +2"}
+        body="Chasseur's Frac +3",hands="Chasseur's Gants +3",ring1=gear.Lstikini,ring2=gear.Rstikini,
+        back="Null Shawl",waist="Null Belt",legs="Chasseur's Culottes +2",feet="Chasseur's Bottes +3"}
     sets.midcast.Repose = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast['Dark Magic'] = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast['Enhancing Magic'] = {neck="Incanter's Torque",ear1="Andoaa Earring",ear2="Mimir Earring",
@@ -369,16 +377,16 @@ function init_gear_sets()
     sets.midcast.CorsairShot = {main="Naegling",sub="Tauret",range="Death Penalty",ammo="Hauksbok Bullet",
         head="Blood Mask",neck="Baetyl Pendant",ear1="Friomisi Earring",ear2="Hecate's Earring",
         body="Lanun Frac +3",hands="Carmine Finger Gauntlets +1",ring1="Dingir Ring",ring2="Metamorph Ring +1",
-        back="Null Shawl",waist="Eschan Stone",legs=gear.herc_legs_ma,feet="Chasseur's Bottes +2"}
+        back="Null Shawl",waist="Eschan Stone",legs=gear.herc_legs_ma,feet="Chasseur's Bottes +3"}
     sets.midcast.CorsairShot.STP = {ammo="Living Bullet",
         head="Blood Mask",neck="Iskur Gorget",ear1="Telos Earring",ear2="Crepuscular Earring",
         body="Malignance Tabard",hands="Malignance Gloves",ring1="Chirich Ring +1",ring2="Crepuscular Ring",
-        back=gear.RATPCape,waist="Yemaya Belt",legs="Chasseur's Culottes +2",feet="Chasseur's Bottes +2"}
+        back=gear.RATPCape,waist="Yemaya Belt",legs="Chasseur's Culottes +2",feet="Chasseur's Bottes +3"}
     sets.midcast.CorsairShot.Acc = set_combine(sets.midcast.CorsairShot, {ammo="Living Bullet",
         head="Chasseur's Tricorne +2",neck="Null Loop",ear1="Crepuscular Earring",ear2="Dignitary's Earring",
-        hands="Chasseur's Gants +2",ring2="Stikini Ring +1",waist="Null Belt"})
+        hands="Chasseur's Gants +3",ring2="Stikini Ring +1",waist="Null Belt"})
     sets.midcast.CorsairShot['Light Shot'] = set_combine(sets.midcast.CorsairShot.Acc, {ammo="Devastating Bullet",
-        head="Blood Mask",neck="Null Loop",body="Chasseur's Frac +2",legs="Malignance Tights"})
+        head="Blood Mask",neck="Null Loop",body="Chasseur's Frac +3",legs="Malignance Tights"})
     sets.midcast.CorsairShot['Dark Shot'] = set_combine(sets.midcast.CorsairShot['Light Shot'], {})
     sets.midcast.CorsairShot['Light Shot'].Acc = set_combine(sets.midcast.CorsairShot['Light Shot'], {head="Chasseur's Tricorne +2"})
     sets.midcast.CorsairShot['Dark Shot'].Acc = set_combine(sets.midcast.CorsairShot['Light Shot'].Acc, {})
@@ -395,7 +403,7 @@ function init_gear_sets()
         neck="Null Loop",ear1="Beyla Earring",legs="Malignance Tights"})
     sets.midcast.RA.Crit = {ammo="Chrono Bullet",
         head="Meghanada Visor +2",neck="Iskur Gorget",ear1="Odr Earring",ear2="Chasseur's Earring +1",
-        body="Meghanada Cuirie +2",hands="Chasseur's Gants +2",ring1="Ilabrat Ring",ring2="Ephramad's Ring",
+        body="Meghanada Cuirie +2",hands="Chasseur's Gants +3",ring1="Ilabrat Ring",ring2="Ephramad's Ring",
         back=gear.RACRCape,waist="Kwahu Kachina Belt +1",legs="Darraigner's Brais",feet="Oshosi Leggings +1"}
     sets.midcast.RA.CritAcc = set_combine(sets.midcast.RA.Crit, {body="Nisroch Jerkin",legs="Mummu Kecks +2"})
     sets.midcast.RA.Recycle = set_combine(sets.midcast.RA, {
@@ -403,11 +411,11 @@ function init_gear_sets()
     sets.midcast.RA.Enmity = set_combine(sets.midcast.RA, {ear1="Beyla Earring",ear2="Chasseur's Earring +1",feet="Oshosi Leggings +1"})
 
     sets.midcast.RA.TripleShot = set_combine(sets.midcast.RA, {
-        head="Oshosi Mask +1",body="Chasseur's Frac +2",hands="Lanun Gants +3",legs="Oshosi Trousers +1",feet="Oshosi Leggings +1"})
+        head="Oshosi Mask +1",body="Chasseur's Frac +3",hands="Lanun Gants +3",legs="Oshosi Trousers +1",feet="Oshosi Leggings +1"})
     sets.midcast.RA.TripleShot.Acc = set_combine(sets.midcast.RA.TripleShot, {ring2="Ephramad's Ring"})
     sets.midcast.RA.TripleShot.HighAcc = set_combine(sets.midcast.RA.TripleShot.Acc, {ammo="Devastating Bullet",ear1="Beyla Earring"})
-    sets.midcast.RA.TripleShot.Crit = set_combine(sets.midcast.RA.Crit, {body="Chasseur's Frac +2",legs="Oshosi Trousers +1",feet="Oshosi Leggings +1"})
-    sets.midcast.RA.TripleShot.CritAcc = set_combine(sets.midcast.RA.TripleShot.Crit, {hands="Chasseur's Gants +2"})
+    sets.midcast.RA.TripleShot.Crit = set_combine(sets.midcast.RA.Crit, {body="Chasseur's Frac +3",legs="Oshosi Trousers +1",feet="Oshosi Leggings +1"})
+    sets.midcast.RA.TripleShot.CritAcc = set_combine(sets.midcast.RA.TripleShot.Crit, {hands="Chasseur's Gants +3"})
     sets.midcast.RA.TripleShot.Recycle = set_combine(sets.midcast.RA.TripleShot, {
         ear2="Chasseur's Earring +1",ring1="Dingir Ring",legs="Adhemar Kecks +1"})
     sets.midcast.RA.TripleShot.Enmity = set_combine(sets.midcast.RA.TripleShot, {

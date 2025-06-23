@@ -175,18 +175,30 @@ function user_setup()
     send_command('bind %\\\\ gs c ListWS')
 
     info.bubble_binds = make_keybind_list(L{
-        'bind %1|~^1   gs c lastgeo',
-        'bind %2|~^2   input /ma Geo-Frailty',
-        'bind %3|~^3   gs c lastindi',
-        'bind %4|~^4   input /ma Geo-Wilt',
-        'bind %5|~^5   input /ma Geo-Malaise',
-        'bind %6|~^6   input /ma Geo-Fade',
-        'bind %7|~^7   input /ma Geo-Vex',
-        'bind %~2|~!^2 input /ma Indi-Fury <stpc>',
-        'bind %~4|~!^4 input /ma Indi-Wilt <stpc>',
-        'bind %~5|~!^5 input /ma Indi-Haste <stpc>',
-        'bind %~6|~!^6 input /ma Indi-Malaise <stpc>',
-        'bind %~7|~!^7 input /ma Indi-Attunement <stpc>',
+        'bind %1   gs c lastgeo',
+        'bind %2   input /ma Geo-Frailty',
+        'bind %3   gs c lastindi',
+        'bind %4   input /ma Geo-Wilt',
+        'bind %5   input /ma Geo-Malaise',
+        'bind %6   input /ma Geo-Fade',
+        'bind %7   input /ma Geo-Vex',
+        'bind %~2 input /ma Indi-Fury <stpc>',
+        'bind %~4 input /ma Indi-Wilt <stpc>',
+        'bind %~5 input /ma Indi-Haste <stpc>',
+        'bind %~6 input /ma Indi-Malaise <stpc>',
+        'bind %~7 input /ma Indi-Attunement <stpc>',
+        'bind ~^1   gs c lastgeo',
+        'bind ~^2   input /ma Geo-Frailty',
+        'bind ~^3   gs c lastindi',
+        'bind ~^4   input /ma Geo-Wilt',
+        'bind ~^5   input /ma Geo-Malaise',
+        'bind ~^6   input /ma Geo-Fade',
+        'bind ~^7   input /ma Geo-Vex',
+        'bind ~!^2 input /ma Indi-Fury <stpc>',
+        'bind ~!^4 input /ma Indi-Wilt <stpc>',
+        'bind ~!^5 input /ma Indi-Haste <stpc>',
+        'bind ~!^6 input /ma Indi-Malaise <stpc>',
+        'bind ~!^7 input /ma Indi-Attunement <stpc>',
         'bind @backspace gs c ListBubs'})
     info.bubble_binds:bind()
 
@@ -319,10 +331,10 @@ function init_gear_sets()
 
     sets.midcast['Elemental Magic'] = {main="Bunzi's Rod",sub="Ammurapi Shield",range="Dunna",
         head="Azimuth Hood +3",neck="Sibyl Scarf",ear1="Malignance Earring",ear2="Barkarole Earring",
-        body="Bagua Tunic +3",hands="Amalric Gages +1",ring1="Freke Ring",ring2="Medada's Ring",
-        back=gear.NukeCape,waist="Sacro Cord",legs="Ea Slops +1",feet="Azimuth Gaiters +3"}
+        body="Azimuth Coat +2",hands="Azimuth Gloves +3",ring1="Freke Ring",ring2="Medada's Ring",
+        back=gear.NukeCape,waist="Sacro Cord",legs="Azimuth Tights +2",feet="Azimuth Gaiters +3"}
     sets.midcast['Elemental Magic'].MAcc = set_combine(sets.midcast['Elemental Magic'], {
-        neck="Bagua Charm +2",body="Azimuth Coat +2",ring1="Stikini Ring +1",waist="Acuity Belt +1"})
+        neck="Bagua Charm +2",ring1="Stikini Ring +1",waist="Acuity Belt +1"})
     sets.midcast.Impact = set_combine(sets.midcast['Elemental Magic'].MAcc, sets.impact)
     sets.magicburst = {main="Bunzi's Rod",sub="Ammurapi Shield",range="Dunna",
         head="Ea Hat +1",neck="Mizukage-no-Kubikazari",ear1="Malignance Earring",ear2="Barkarole Earring",
@@ -339,8 +351,8 @@ function init_gear_sets()
 
     sets.midcast['Enfeebling Magic'] = {main="Idris",sub="Ammurapi Shield",range="Dunna",
         head="Azimuth Hood +3",neck="Null Loop",ear1="Malignance Earring",ear2="Regal Earring",
-        body="Azimuth Coat +2",hands="Azimuth Gloves +2",ring1="Metamorph Ring +1",ring2="Medada's Ring",
-        back="Null Shawl",waist="Null Belt",legs="Geomancy Pants +3",feet="Geomancy Sandals +3"}
+        body="Azimuth Coat +2",hands="Azimuth Gloves +3",ring1="Metamorph Ring +1",ring2="Medada's Ring",
+        back="Null Shawl",waist="Null Belt",legs="Geomancy Pants +3",feet="Azimuth Gaiters +3"}
     sets.midcast.Silence  = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast.Slow     = set_combine(sets.midcast['Enfeebling Magic'], {
         head="Null Masque",back="Aurist's Cape +1",waist="Luminary Sash"})
@@ -864,8 +876,8 @@ function job_keybinds()
         'bind @q   input /ja "Full Circle" <me>',
         'bind ^@q  input /ja "Concentric Pulse"',
 
-        'bind ^-|^@-|!-|!@-|%- input /ja "Theurgic Focus" <me>',
-        'bind ^=|^@=|!=|!@=|%= input /ja "Collimated Fervor" <me>',
+        'bind %- input /ja "Theurgic Focus" <me>',
+        'bind %= input /ja "Collimated Fervor" <me>',
 
         'bind ^1   input /ma "Dia II"',
         'bind ^@1  input /ma "Bio II"',
@@ -902,12 +914,19 @@ function job_keybinds()
         'bind  !9 input /ma "Blizzard IV"',
         'bind  !0 input /ma "Thunder IV"',
 
-        'bind ~!@8|%~8 input /ma "Stone V"',
-        'bind ~!@9|%~9 input /ma "Water V"',
-        'bind ~!@0|%~0 input /ma "Aero V"',
-        'bind  !@8|%8  input /ma "Fire V"',
-        'bind  !@9|%9  input /ma "Blizzard V"',
-        'bind  !@0|%0  input /ma "Thunder V"',
+        'bind ~!@8 input /ma "Stone V"',
+        'bind ~!@9 input /ma "Water V"',
+        'bind ~!@0 input /ma "Aero V"',
+        'bind  !@8 input /ma "Fire V"',
+        'bind  !@9 input /ma "Blizzard V"',
+        'bind  !@0 input /ma "Thunder V"',
+
+        'bind %~8 input /ma "Stone V"',
+        'bind %~9 input /ma "Water V"',
+        'bind %~0 input /ma "Aero V"',
+        'bind  %8 input /ma "Fire V"',
+        'bind  %9 input /ma "Blizzard V"',
+        'bind  %0 input /ma "Thunder V"',
 
         'bind ~^@8 input /ma "Stonera II"',
         'bind ~^@9 input /ma "Watera II"',

@@ -52,7 +52,7 @@ function user_setup()
     state.PhysicalDefenseMode:options('PDT','Eva')                      -- Cycle with @z
     state.CombatWeapon = M{['description']='Combat Weapon'}             -- Cycle with @F9
     if S{'DNC','NIN'}:contains(player.sub_job) then
-        state.CombatWeapon:options('CrocTaur','CrocTP','CrocDay','CrocPuku','NaegTP','NaegDW','NaegDWBow','SeqDWBow','MaxTP','TaurAE','TaurDW','1dmg')
+        state.CombatWeapon:options('CrocTP','CrocTaur','CrocDay','CrocPuku','NaegTP','NaegDW','NaegDWBow','SeqDWBow','MaxTP','TaurAE','TaurDW','1dmg')
         state.CombatForm:set('EnDW')
     else
         state.CombatWeapon:options('Crocea','CrocShield','Naegling','TPBow','SeqBow','Maxentius','Tauret')
@@ -1048,7 +1048,7 @@ function job_keybinds()
         'bind  !^q gs c weap Taur',
         'bind ~!^q gs c weap Croc Puku',
         'bind  !^w gs c weap Croc',
-        'bind ~!^w gs c weap Croc TP',
+        'bind ~!^w gs c weap Croc Taur',
         'bind  !^e gs c weap Naeg',
         'bind ~!^e gs c weap Naeg Bow',
         'bind  !^r gs c weap Max',
@@ -1106,18 +1106,24 @@ function job_keybinds()
         'bind @8 input /ma "Fire III"',
         'bind @9 input /ma "Blizzard III"',
         'bind @0 input /ma "Thunder III"',
-        'bind !@8|%8 input /ma "Fire V"',
-        'bind !@9|%9 input /ma "Blizzard V"',
-        'bind !@0|%0 input /ma "Thunder V"',
+        'bind %8 input /ma "Fire V"',
+        'bind %9 input /ma "Blizzard V"',
+        'bind %0 input /ma "Thunder V"',
+        'bind !@8 input /ma "Fire V"',
+        'bind !@9 input /ma "Blizzard V"',
+        'bind !@0 input /ma "Thunder V"',
         'bind ~!8 input /ma "Stone IV"',
         'bind ~!9 input /ma "Water IV"',
         'bind ~!0 input /ma "Aero IV"',
         'bind ~@8 input /ma "Stone III"',
         'bind ~@9 input /ma "Water III"',
         'bind ~@0 input /ma "Aero III"',
-        'bind ~!@8|~%8 input /ma "Stone V"',
-        'bind ~!@9|~%9 input /ma "Water V"',
-        'bind ~!@0|~%0 input /ma "Aero V"',
+        'bind ~%8 input /ma "Stone V"',
+        'bind ~%9 input /ma "Water V"',
+        'bind ~%0 input /ma "Aero V"',
+        'bind ~!@8 input /ma "Stone V"',
+        'bind ~!@9 input /ma "Water V"',
+        'bind ~!@0 input /ma "Aero V"',
 
         'bind @c  input /ma Blink <me>',
         'bind @v  input /ma Aquaveil <me>',

@@ -194,18 +194,17 @@ function init_gear_sets()
         back=gear.TPCape,waist="Null Belt",legs="Ayanmo Cosciales +2",feet="Ayanmo Gambieras +2"}
     sets.precast.JA['Violent Flourish'] = set_combine(sets.precast.Step, {ring1="Etana Ring"})
 
-    sets.precast.FC = {main="Asclepius",sub="Ammurapi Shield",ammo="Sapience Orb",
-        head="Ebers Cap +2",neck="Cleric's Torque +2",ear1="Malignance Earring",ear2="Loquacious Earring",
+    sets.precast.FC = {main="Asclepius",sub="Chanter's Shield",ammo="Sapience Orb",
+        head="Ebers Cap +3",neck="Cleric's Torque +2",ear1="Malignance Earring",ear2="Loquacious Earring",
         body="Inyanga Jubbah +2",hands="Fanatic Gloves",ring1="Lebeche Ring",ring2="Kishar Ring",
-        back=gear.FCCape,waist="Embla Sash",legs="Ayanmo Cosciales +2",feet="Telchine Pigaches"}
-    sets.precast.FC['Enhancing Magic'] = set_combine(sets.precast.FC, {ammo="Impatiens",waist="Siegel Sash"})
+        back=gear.FCCape,waist="Witful Belt",legs="Ayanmo Cosciales +2",feet="Telchine Pigaches"}
     sets.precast.FC['Healing Magic'] = set_combine(sets.precast.FC, {ammo="Impatiens",
-        back="Perimede Cape",waist="Witful Belt",legs="Ebers Pantaloons +2"})
+        back="Perimede Cape",waist="Witful Belt",legs="Ebers Pantaloons +3"})
     sets.precast.FC.StatusRemoval = set_combine(sets.precast.FC['Healing Magic'], {main="Yagrush",sub="Ammurapi Shield"})
     sets.precast.FC.CureCheat = {main="Yagrush",sub="Genmei Shield",ammo="Sapience Orb",
         head="Piety Cap",neck="Cleric's Torque +2",ear1="Malignance Earring",ear2="Mendicant's Earring",
         body=empty,hands="Volte Gloves",ring1="Lebeche Ring",ring2="Kishar Ring",
-        back=gear.FCCape,waist="Embla Sash",legs="Ebers Pantaloons +2",feet=empty}
+        back=gear.FCCape,waist="Embla Sash",legs="Ebers Pantaloons +3",feet=empty}
     sets.impact = {head=empty,body="Twilight Cloak"}
     sets.precast.FC.Impact = set_combine(sets.precast.FC, sets.impact)
     sets.dispelga = {main="Daybreak",sub="Ammurapi Shield"}
@@ -237,31 +236,31 @@ function init_gear_sets()
     -- Midcast Sets
 
     sets.midcast.Cure = {main="Queller Rod",sub="Genmei Shield",ammo="Staunch Tathlum +1",
-        head="Ebers Cap +2",neck="Cleric's Torque +2",ear1="Glorious Earring",ear2="Mendicant's Earring",
-        body="Theophany Bliaut +3",hands="Ebers Mitts +2",ring1="Shadow Ring",ring2="Defending Ring",
-        back=gear.ENMCape,waist=gear.ElementalObi,legs="Ebers Pantaloons +2",feet="Ebers Duckbills +2"}
+        head="Ebers Cap +3",neck="Cleric's Torque +2",ear1="Glorious Earring",ear2="Mendicant's Earring",
+        body="Theophany Bliaut +3",hands="Ebers Mitts +3",ring1="Shadow Ring",ring2="Defending Ring",
+        back=gear.ENMCape,waist=gear.ElementalObi,legs="Ebers Pantaloons +3",feet="Ebers Duckbills +3"}
     sets.midcast.Curaga = set_combine(sets.midcast.Cure, {})
-    sets.midcast.CureSolace = set_combine(sets.midcast.Cure, {body="Ebers Bliaut +2"})
+    sets.midcast.CureSolace = set_combine(sets.midcast.Cure, {body="Ebers Bliaut +3"})
     sets.midcast.Cure.Melee = set_combine(sets.midcast.Cure, {body="Chironic Doublet"})
     sets.midcast.Curaga.Melee = set_combine(sets.midcast.Cure.Melee, {})
     sets.midcast.CureSolace.Melee = set_combine(sets.midcast.Cure.Melee, {
-        body="Ebers Bliaut +2",ring1="Vocane Ring +1",feet="Medium's Sabots"})
+        body="Ebers Bliaut +3",ring1="Vocane Ring +1",feet="Medium's Sabots"})
     sets.midcast.Cure.Enmity = {main="Mafic Cudgel",sub="Genmei Shield",ammo="Staunch Tathlum +1",
-        head="Ebers Cap +2",neck="Unmoving Collar +1",ear1="Cryptic Earring",ear2="Trux Earring",
+        head="Ebers Cap +3",neck="Unmoving Collar +1",ear1="Cryptic Earring",ear2="Trux Earring",
         body="Chironic Doublet",hands="Telchine Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Kasiri Belt",legs="Ebers Pantaloons +2",feet="Inyanga Crackows +2"}
+        back=gear.MEVACape,waist="Kasiri Belt",legs="Ebers Pantaloons +3",feet="Inyanga Crackows +2"}
     sets.midcast.Curaga.Enmity = set_combine(sets.midcast.Cure.Enmity, {})
     sets.midcast.CureSolace.Enmity = set_combine(sets.midcast.Cure.Enmity, {})
     sets.midcast.CureCheat = {main="Asclepius",sub="Ammurapi Shield",ammo="Staunch Tathlum +1",
         head="Theophany Cap +3",neck="Nodens Gorget",ear1="Glorious Earring",ear2="Etiolation Earring",
         body="Chironic Doublet",hands="Telchine Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back="Moonbeam Cape",waist="Platinum Moogle Belt",legs="Ebers Pantaloons +2",feet="Nyame Sollerets"}
+        back="Moonbeam Cape",waist="Platinum Moogle Belt",legs="Ebers Pantaloons +3",feet="Nyame Sollerets"}
     sets.midcast.CureCheat.Enmity = set_combine(sets.midcast.CureCheat, {main="Asclepius",sub="Genmei Shield",
-        head="Ebers Cap +2",neck="Unmoving Collar +1",ear1="Cryptic Earring",feet="Theophany Duckbills +3"})
+        head="Ebers Cap +3",neck="Unmoving Collar +1",ear1="Cryptic Earring",feet="Theophany Duckbills +3"})
     sets.cmp_belt  = {waist="Shinjutsu-no-Obi +1"}
     sets.gishdubar = {waist="Gishdubar Sash"}
 
-    sets.midcast.StatusRemoval = {main="Yagrush",sub="Genmei Shield",head="Ebers Cap +2",legs="Ebers Pantaloons +2"}
+    sets.midcast.StatusRemoval = {main="Yagrush",sub="Genmei Shield",head="Ebers Cap +3",legs="Ebers Pantaloons +3"}
     sets.midcast.Erase = set_combine(sets.midcast.StatusRemoval, {neck="Cleric's Torque +2"})
     sets.midcast.Raise = {main="Asclepius",sub="Genmei Shield",ammo="Pemphredo Tathlum",
         head="Vanya Hood",neck="Loricate Torque +1",ear1="Malignance Earring",ear2="Mendicant's Earring",
@@ -269,10 +268,10 @@ function init_gear_sets()
         back=gear.MEVACape,waist="Shinjutsu-no-Obi +1",legs="Ayanmo Cosciales +2",feet="Medium's Sabots"}
     sets.midcast.Reraise = set_combine(sets.midcast.Raise, {})
     sets.midcast.Esuna   = set_combine(sets.midcast.Raise, {})
-    sets.buff['Divine Caress'] = {hands="Ebers Mitts +2",back="Mending Cape"}
+    sets.buff['Divine Caress'] = {hands="Ebers Mitts +3",back="Mending Cape"}
     sets.midcast.Cursna = {main="Yagrush",sub="Genmei Shield",ammo="Staunch Tathlum +1",
-        head="Ebers Cap +2",neck="Debilis Medallion",ear1="Glorious Earring",ear2="Ebers Earring +1",
-        body="Ebers Bliaut +2",hands="Fanatic Gloves",ring1="Haoma's Ring",ring2="Haoma's Ring",
+        head="Ebers Cap +3",neck="Debilis Medallion",ear1="Glorious Earring",ear2="Ebers Earring +1",
+        body="Ebers Bliaut +3",hands="Fanatic Gloves",ring1="Haoma's Ring",ring2="Haoma's Ring",
         back=gear.FCCape,waist="Cornelia's Belt",legs="Theophany Pantaloons +3",feet="Vanya Clogs"}
 
     sets.midcast.EnhancingDuration = {main="Gada",sub="Ammurapi Shield",ammo="Staunch Tathlum +1",
@@ -283,7 +282,7 @@ function init_gear_sets()
         head="Telchine Cap",neck="Incanter's Torque",ear1="Mimir Earring",ear2="Andoaa Earring",
         body="Telchine Chasuble",hands="Inyanga Dastanas +2",ring1=gear.Lstikini,ring2=gear.Rstikini,
         back="Perimede Cape",waist="Olympus Sash",legs="Piety Pantaloons +3",feet="Theophany Duckbills +3"})
-    sets.midcast.Auspice   = set_combine(sets.midcast.EnhancingDuration, {feet="Ebers Duckbills +2"})
+    sets.midcast.Auspice   = set_combine(sets.midcast.EnhancingDuration, {feet="Ebers Duckbills +3"})
     sets.midcast.Stoneskin = set_combine(sets.midcast.EnhancingDuration, {
         neck="Nodens Gorget",waist="Siegel Sash",legs="Shedir Seraweels"})
     sets.midcast.Aquaveil  = {main="Vadose Rod",sub="Genmei Shield",ammo="Staunch Tathlum +1",
@@ -296,15 +295,15 @@ function init_gear_sets()
         back=gear.MEVACape,waist="Embla Sash",legs="Piety Pantaloons +3",feet="Theophany Duckbills +3"}
     sets.midcast.StatBoost = set_combine(sets.midcast.Phalanx, {})
     sets.midcast.BarElement = {main="Beneficus",sub="Ammurapi Shield",ammo="Staunch Tathlum +1",
-        head="Ebers Cap +2",neck="Incanter's Torque",ear1="Mimir Earring",ear2="Andoaa Earring",
-        body="Ebers Bliaut +2",hands="Ebers Mitts +2",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Embla Sash",legs="Piety Pantaloons +3",feet="Ebers Duckbills +2"}
+        head="Ebers Cap +3",neck="Incanter's Torque",ear1="Mimir Earring",ear2="Andoaa Earring",
+        body="Ebers Bliaut +3",hands="Ebers Mitts +3",ring1="Vocane Ring +1",ring2="Defending Ring",
+        back=gear.MEVACape,waist="Embla Sash",legs="Piety Pantaloons +3",feet="Ebers Duckbills +3"}
     sets.midcast.BarStatus = {main="Gada",sub="Ammurapi Shield",ammo="Staunch Tathlum +1",
         head="Telchine Cap",neck="Sroda Necklace",ear1="Mimir Earring",ear2="Andoaa Earring",
         body="Telchine Chasuble",hands="Telchine Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.MEVACape,waist="Embla Sash",legs="Telchine Braconi",feet="Theophany Duckbills +3"}
     sets.midcast.Regen = set_combine(sets.midcast.EnhancingDuration, {main="Bolelabunga",sub="Ammurapi Shield",
-        head="Inyanga Tiara +2",body="Piety Bliaut +3",hands="Ebers Mitts +2",legs="Theophany Pantaloons +3"})
+        head="Inyanga Tiara +2",body="Piety Bliaut +3",hands="Ebers Mitts +3",legs="Theophany Pantaloons +3"})
     sets.midcast.FixedPotencyEnhancing = set_combine(sets.midcast.EnhancingDuration, {})
 
     sets.midcast['Divine Magic'] = {main="Daybreak",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
@@ -319,9 +318,9 @@ function init_gear_sets()
     sets.nuke_belt = {waist="Sacro Cord"}
 
     sets.midcast.Repose = {main="Asclepius",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
-        head="Theophany Cap +3",neck="Null Loop",ear1="Malignance Earring",ear2="Regal Earring",
-        body="Theophany Bliaut +3",hands="Ebers Mitts +2",ring1=gear.Lstikini,ring2="Kishar Ring",
-        back=gear.ENMCape,waist="Null Belt",legs="Theophany Pantaloons +3",feet="Ebers Duckbills +2"}
+        head="Ebers Cap +3",neck="Null Loop",ear1="Malignance Earring",ear2="Regal Earring",
+        body="Ebers Bliaut +3",hands="Ebers Mitts +3",ring1=gear.Lstikini,ring2="Kishar Ring",
+        back=gear.ENMCape,waist="Null Belt",legs="Theophany Pantaloons +3",feet="Ebers Duckbills +3"}
     sets.midcast.Flash = {main="Mafic Cudgel",sub="Genmei Shield",ammo="Staunch Tathlum +1",
         head="Null Masque",neck="Unmoving Collar +1",ear1="Cryptic Earring",ear2="Trux Earring",
         body="Inyanga Jubbah +2",hands="Inyanga Dastanas +2",ring1="Supershear Ring",ring2="Eihwaz Ring",
@@ -329,12 +328,11 @@ function init_gear_sets()
 
     sets.midcast.Drain = set_combine(sets.midcast.Repose, {main="Rubicundity",sub="Ammurapi Shield",
         head="Pixie Hairpin +1",neck="Erra Pendant",
-        hands="Inyanga Dastanas +2",ring1="Archon Ring",ring2="Evanescence Ring",
-        feet="Theophany Duckbills +3"})
+        hands="Inyanga Dastanas +2",ring1="Archon Ring",ring2="Evanescence Ring"})
     sets.midcast.Aspir = set_combine(sets.midcast.Drain, {})
     sets.drain_belt = {waist="Fucho-no-Obi"}
 
-    sets.midcast.Stun = set_combine(sets.midcast.Repose, {hands="Inyanga Dastanas +2",feet="Theophany Duckbills +3"})
+    sets.midcast.Stun = set_combine(sets.midcast.Repose, {})
     sets.midcast['Elemental Magic'] = set_combine(sets.midcast['Divine Magic'], {})
     sets.midcast.Impact = set_combine(sets.midcast.Stun,
         {ring1="Metamorph Ring +1",ring2=gear.Rstikini,waist="Null Belt"},
@@ -360,25 +358,25 @@ function init_gear_sets()
 
     sets.idle = {main="Asclepius",sub="Genmei Shield",ammo="Homiliary",
         head="Null Masque",neck="Loricate Torque +1",ear1="Thureous Earring",ear2="Etiolation Earring",
-        body="Ebers Bliaut +2",hands="Volte Gloves",ring1="Inyanga Ring",ring2="Defending Ring",
+        body="Ebers Bliaut +3",hands="Volte Gloves",ring1="Inyanga Ring",ring2="Defending Ring",
         back=gear.MEVACape,waist="Null Belt",legs="Inyanga Shalwar +2",feet="Herald's Gaiters"}
     sets.idle.PDT = {main="Asclepius",sub="Genmei Shield",ammo="Staunch Tathlum +1",
         head="Null Masque",neck="Warder's Charm +1",ear1="Thureous Earring",ear2="Ebers Earring +1",
-        body="Ebers Bliaut +2",hands="Volte Gloves",ring1="Shadow Ring",ring2="Defending Ring",
+        body="Ebers Bliaut +3",hands="Volte Gloves",ring1="Shadow Ring",ring2="Defending Ring",
         back=gear.MEVACape,waist="Null Belt",legs="Inyanga Shalwar +2",feet="Inyanga Crackows +2"}
     sets.idle.MEVA = {main="Daybreak",sub="Genmei Shield",ammo="Staunch Tathlum +1",
         head="Null Masque",neck="Warder's Charm +1",ear1="Thureous Earring",ear2="Ebers Earring +1",
-        body="Ebers Bliaut +2",hands="Nyame Gauntlets",ring1="Shadow Ring",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Null Belt",legs="Ebers Pantaloons +2",feet="Ebers Duckbills +2"}
+        body="Ebers Bliaut +3",hands="Nyame Gauntlets",ring1="Shadow Ring",ring2="Defending Ring",
+        back=gear.MEVACape,waist="Null Belt",legs="Ebers Pantaloons +3",feet="Ebers Duckbills +3"}
     sets.idle.Rf = {main="Bolelabunga",sub="Genmei Shield",ammo="Homiliary",
         head="Null Masque",neck="Sibyl Scarf",ear1="Genmei Earring",ear2="Ebers Earring +1",
-        body="Ebers Bliaut +2",hands="Volte Gloves",ring1="Inyanga Ring",ring2=gear.Rstikini,
+        body="Ebers Bliaut +3",hands="Volte Gloves",ring1="Inyanga Ring",ring2=gear.Rstikini,
         back=gear.MEVACape,waist="Null Belt",legs="Inyanga Shalwar +2",feet="Inyanga Crackows +2"}
     sets.latent_refresh = {ammo="Homiliary",waist="Fucho-no-obi"}
     sets.buff.doom = {neck="Nicander's Necklace",ring1="Eshmun's Ring",waist="Gishdubar Sash"}
     sets.buff.sleep = {main="Lorg Mor",sub="Genmei Shield",ammo="Homiliary",
         head="Null Masque",neck="Warder's Charm +1",ear1="Genmei Earring",ear2="Etiolation Earring",
-        body="Ebers Bliaut +2",hands="Nyame Gauntlets",ring1="Shadow Ring",ring2="Defending Ring",
+        body="Ebers Bliaut +3",hands="Nyame Gauntlets",ring1="Shadow Ring",ring2="Defending Ring",
         back=gear.MEVACape,waist="Null Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"}
 
     sets.defense.PDT  = set_combine(sets.idle.PDT, {})
@@ -406,8 +404,8 @@ function init_gear_sets()
 
     sets.encumber = {ammo="Homiliary",
         head="Theophany Cap +3",neck="Cleric's Torque +2",ear1="Glorious Earring",ear2="Ebers Earring +1",
-        body="Ebers Bliaut +2",hands="Fanatic Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.FCCape,waist="Embla Sash",legs="Ebers Pantaloons +2",feet="Medium's Sabots"}
+        body="Ebers Bliaut +3",hands="Fanatic Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
+        back=gear.FCCape,waist="Embla Sash",legs="Ebers Pantaloons +3",feet="Medium's Sabots"}
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -820,6 +818,8 @@ function job_keybinds()
         'bind ^c gs c CureCheat',
         'bind @c input /ma Blink <me>',
         'bind @v input /ma Aquaveil <me>',
+        'bind ~^x  input /ma Sneak',
+        'bind ~!^x input /ma Invisible',
         'bind !@g input /ma Stoneskin <me>',
         'bind !b input /ma Repose <t>',    -- for charmed people
         'bind !n input /ma "Holy II" <t>', -- for charmed people too

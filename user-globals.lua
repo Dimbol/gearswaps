@@ -29,34 +29,37 @@ function handle_stratagems(cmdParams)
         return
     end
     local stratagem = cmdParams[2]
+    local ability
 
     if stratagem == 'light' then
-        if state.Buff['Light Arts'] then        send_command('input /ja "Addendum: White" <me>')
-        else                                    send_command('input /ja "Light Arts" <me>') end
+        if state.Buff['Light Arts'] then     ability = "Addendum: White"
+        else                                 ability = "Light Arts" end
     elseif stratagem == 'dark' then
-        if state.Buff['Dark Arts'] then         send_command('input /ja "Addendum: Black" <me>')
-        else                                    send_command('input /ja "Dark Arts" <me>') end
+        if state.Buff['Dark Arts'] then      ability = "Addendum: Black"
+        else                                 ability = "Dark Arts" end
     elseif state.Buff['Light Arts'] or state.Buff['Addendum: White'] then
-        if stratagem == 'cost' then             send_command('input /ja Penury <me>')
-        elseif stratagem == 'speed' then        send_command('input /ja Celerity <me>')
-        elseif stratagem == 'aoe' then          send_command('input /ja Accession <me>')
-        elseif stratagem == 'power' then        send_command('input /ja Rapture <me>')
-        elseif stratagem == 'specialty' then    send_command('input /ja Perpetuance <me>')
-        elseif stratagem == 'accuracy' then     send_command('input /ja Altruism <me>')
-        elseif stratagem == 'enmity' then       send_command('input /ja Tranquility <me>')
-        elseif stratagem == 'addendum' then     send_command('input /ja "Addendum: White" <me>')
-        else add_to_chat(123,'Error: Unknown stratagem ['..stratagem..']') end
+        if stratagem == 'cost' then          ability = "Penury"
+        elseif stratagem == 'speed' then     ability = "Celerity"
+        elseif stratagem == 'aoe' then       ability = "Accession"
+        elseif stratagem == 'power' then     ability = "Rapture"
+        elseif stratagem == 'specialty' then ability = "Perpetuance"
+        elseif stratagem == 'accuracy' then  ability = "Altruism"
+        elseif stratagem == 'enmity' then    ability = "Tranquility"
+        elseif stratagem == 'addendum' then  ability = "Addendum: White"
+        else add_to_chat(123,'Error: Unknown stratagem ['..stratagem..']') return end
     elseif state.Buff['Dark Arts'] or state.Buff['Addendum: Black'] then
-        if stratagem == 'cost' then             send_command('input /ja Parsimony <me>')
-        elseif stratagem == 'speed' then        send_command('input /ja Alacrity <me>')
-        elseif stratagem == 'aoe' then          send_command('input /ja Manifestation <me>')
-        elseif stratagem == 'power' then        send_command('input /ja Ebullience <me>')
-        elseif stratagem == 'specialty' then    send_command('input /ja Immanence <me>')
-        elseif stratagem == 'accuracy' then     send_command('input /ja Focalization <me>')
-        elseif stratagem == 'enmity' then       send_command('input /ja Equanimity <me>')
-        elseif stratagem == 'addendum' then     send_command('input /ja "Addendum: Black" <me>')
-        else add_to_chat(123,'Error: Unknown stratagem ['..stratagem..']') end
-    else add_to_chat(123,'Error: No Grimoire Active.') end
+        if stratagem == 'cost' then          ability = "Parsimony"
+        elseif stratagem == 'speed' then     ability = "Alacrity"
+        elseif stratagem == 'aoe' then       ability = "Manifestation"
+        elseif stratagem == 'power' then     ability = "Ebullience"
+        elseif stratagem == 'specialty' then ability = "Immanence"
+        elseif stratagem == 'accuracy' then  ability = "Focalization"
+        elseif stratagem == 'enmity' then    ability = "Equanimity"
+        elseif stratagem == 'addendum' then  ability = "Addendum: Black"
+        else add_to_chat(123,'Error: Unknown stratagem ['..stratagem..']') return end
+    else add_to_chat(123,'Error: No Grimoire Active.') return end
+
+    send_command('input /ja "%s" <me>':format(ability))
 end
 
 -- make simple objects from lists of bind commands, for easier handling

@@ -192,11 +192,11 @@ function user_setup()
     gear.hp["Eabani Earring"] = 45
     gear.hp["Eihwaz Ring"] = 70
     gear.hp["Emet Harness +1"] = 61
-    gear.hp["Erilaz Galea +2"] = 101
-    gear.hp["Erilaz Gauntlets +2"] = 49
-    gear.hp["Erilaz Greaves +2"] = 38
-    gear.hp["Erilaz Leg Guards +2"] = 90
-    gear.hp["Erilaz Surcoat +2"] = 133
+    gear.hp["Erilaz Galea +3"] = 111
+    gear.hp["Erilaz Gauntlets +3"] = 59
+    gear.hp["Erilaz Greaves +3"] = 48
+    gear.hp["Erilaz Leg Guards +3"] = 100
+    gear.hp["Erilaz Surcoat +3"] = 143
     gear.hp["Etana Ring"] = 60
     gear.hp["Ethereal Earring"] = 15
     gear.hp["Etiolation Earring"] = 50
@@ -257,55 +257,55 @@ function user_setup()
 
     info.ws_binds = make_keybind_list(T{
         ['Great Sword']=L{
-            'bind !^1|%1 input /ws "Herculean Slash"',
-            'bind !^2|%2 input /ws "Resolution"',
-            'bind !^3|%3 input /ws "Dimidiation"',
-            'bind !^4|%4 input /ws "Ground Strike"',
-            'bind !^5|%5 input /ws "Power Slash"',
-            'bind !^6|%6 input /ws "Shockwave"',
-            'bind ~!^1|%~1 input /ws "Herculean Slash" <stnpc>',
-            'bind ~!^2|%~2 input /ws "Resolution"      <stnpc>',
-            'bind ~!^3|%~3 input /ws "Dimidiation"     <stnpc>',
-            'bind ~!^4|%~4 input /ws "Ground Strike"   <stnpc>',
-            'bind ~!^5|%~5 input /ws "Power Slash"     <stnpc>',
-            'bind ~!^6|%~6 input /ws "Shockwave"       <stnpc>'},
+            'bind %1 input /ws "Herculean Slash"',
+            'bind %2 input /ws "Resolution"',
+            'bind %3 input /ws "Dimidiation"',
+            'bind %4 input /ws "Ground Strike"',
+            'bind %5 input /ws "Power Slash"',
+            'bind %6 input /ws "Shockwave"',
+            'bind %~1 input /ws "Herculean Slash" <stnpc>',
+            'bind %~2 input /ws "Resolution"      <stnpc>',
+            'bind %~3 input /ws "Dimidiation"     <stnpc>',
+            'bind %~4 input /ws "Ground Strike"   <stnpc>',
+            'bind %~5 input /ws "Power Slash"     <stnpc>',
+            'bind %~6 input /ws "Shockwave"       <stnpc>'},
         ['Sword']=L{
-            'bind !^1|%1 input /ws "Sanguine Blade"',
-            'bind !^2|%2 input /ws "Seraph Blade"',
-            'bind !^3|%3 input /ws "Savage Blade"',
-            'bind !^4|%4 input /ws "Flat Blade"',
-            'bind !^5|%5 input /ws "Swift Blade"',
-            'bind !^6|%6 input /ws "Circle Blade"',
-            'bind ~!^1|%~1 input /ws "Sanguine Blade" <stnpc>',
-            'bind ~!^2|%~2 input /ws "Seraph Blade"   <stnpc>',
-            'bind ~!^3|%~3 input /ws "Savage Blade"   <stnpc>',
-            'bind ~!^4|%~4 input /ws "Flat Blade"     <stnpc>',
-            'bind ~!^5|%~5 input /ws "Swift Blade"    <stnpc>',
-            'bind ~!^6|%~6 input /ws "Circle Blade"   <stnpc>'},
+            'bind %1 input /ws "Sanguine Blade"',
+            'bind %2 input /ws "Seraph Blade"',
+            'bind %3 input /ws "Savage Blade"',
+            'bind %4 input /ws "Flat Blade"',
+            'bind %5 input /ws "Swift Blade"',
+            'bind %6 input /ws "Circle Blade"',
+            'bind %~1 input /ws "Sanguine Blade" <stnpc>',
+            'bind %~2 input /ws "Seraph Blade"   <stnpc>',
+            'bind %~3 input /ws "Savage Blade"   <stnpc>',
+            'bind %~4 input /ws "Flat Blade"     <stnpc>',
+            'bind %~5 input /ws "Swift Blade"    <stnpc>',
+            'bind %~6 input /ws "Circle Blade"   <stnpc>'},
         ['Great Axe']=L{
-            'bind !^1|%1 input /ws "Armor Break"',
-            'bind !^2|%2 input /ws "Upheaval"',
-            'bind !^3|%3 input /ws "Steel Cyclone"',
-            'bind !^4|%4 input /ws "Weapon Break"',
-            'bind !^5|%5 input /ws "Shield Break"',
-            'bind !^6|%6 input /ws "Fell Cleave"',
-            'bind ~!^1|%~1 input /ws "Armor Break"   <stnpc>',
-            'bind ~!^2|%~2 input /ws "Upheaval"      <stnpc>',
-            'bind ~!^3|%~3 input /ws "Steel Cyclone" <stnpc>',
-            'bind ~!^4|%~4 input /ws "Weapon Break"  <stnpc>',
-            'bind ~!^5|%~5 input /ws "Shield Break"  <stnpc>',
-            'bind ~!^6|%~6 input /ws "Fell Cleave"   <stnpc>'},
+            'bind %1 input /ws "Armor Break"',
+            'bind %2 input /ws "Upheaval"',
+            'bind %3 input /ws "Steel Cyclone"',
+            'bind %4 input /ws "Weapon Break"',
+            'bind %5 input /ws "Shield Break"',
+            'bind %6 input /ws "Fell Cleave"',
+            'bind %~1 input /ws "Armor Break"   <stnpc>',
+            'bind %~2 input /ws "Upheaval"      <stnpc>',
+            'bind %~3 input /ws "Steel Cyclone" <stnpc>',
+            'bind %~4 input /ws "Weapon Break"  <stnpc>',
+            'bind %~5 input /ws "Shield Break"  <stnpc>',
+            'bind %~6 input /ws "Fell Cleave"   <stnpc>'},
         ['Axe']=L{
-            'bind !^1|%1 input /ws "Bora Axe"',
-            'bind !^2|%2 input /ws "Decimation"',
-            'bind !^3|%3 input /ws "Ruinator"',
-            'bind !^4|%4 input /ws "Smash Axe"',
-            'bind !^5|%5 input /ws "Rampage"',
-            'bind ~!^1|%~1 input /ws "Bora Axe"   <stnpc>',
-            'bind ~!^2|%~2 input /ws "Decimation" <stnpc>',
-            'bind ~!^3|%~3 input /ws "Ruinator"   <stnpc>',
-            'bind ~!^4|%~4 input /ws "Smash Axe"  <stnpc>',
-            'bind ~!^5|%~5 input /ws "Rampage"    <stnpc>'}},
+            'bind %1 input /ws "Bora Axe"',
+            'bind %2 input /ws "Decimation"',
+            'bind %3 input /ws "Ruinator"',
+            'bind %4 input /ws "Smash Axe"',
+            'bind %5 input /ws "Rampage"',
+            'bind %~1 input /ws "Bora Axe"   <stnpc>',
+            'bind %~2 input /ws "Decimation" <stnpc>',
+            'bind %~3 input /ws "Ruinator"   <stnpc>',
+            'bind %~4 input /ws "Smash Axe"  <stnpc>',
+            'bind %~5 input /ws "Rampage"    <stnpc>'}},
         {['Epeo']='Great Sword',['Lionheart']='Great Sword',
          ['Axe']='Axe',['AxeDW']='Axe',['Sword']='Sword',['SwordDW']='Sword',['GreatAxe']='Great Axe',['Hepatizon']='Great Axe'})
     info.ws_binds:bind(state.CombatWeapon)
@@ -350,13 +350,13 @@ function init_gear_sets()
     sets.Enmity = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Aqreqaq Bomblet",
         head="Halitus Helm",neck="Futhark Torque +2",ear1="Trux Earring",ear2="Cryptic Earring",
         body="Emet Harness +1",hands="Kurys Gloves",ring1="Eihwaz Ring",ring2="Supershear Ring",
-        back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
-    -- enm+85, pdt-40, inqu+5, mdt-12,  bdt-12,  meva+478, 2696 hp /drk
+        back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +3",feet="Erilaz Greaves +3"})
+    -- enm+85, pdt-40, inqu+5, mdt-12,  bdt-12,  meva+478, 2716 hp /drk
     sets.Enmity.Tank = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
         head="Halitus Helm",neck="Unmoving Collar +1",ear1="Odnowa Earring +1",ear2="Cryptic Earring",
         body="Emet Harness +1",hands="Kurys Gloves",ring1="Moonlight Ring",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
-    -- enm+68, pdt-50, inqu+5, mdt-28, bdt-26, meva+423, 2911 hp /drk
+        back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +3",feet="Erilaz Greaves +3"})
+    -- enm+68, pdt-50, inqu+5, mdt-28, bdt-26, meva+423, 2931 hp /drk
 
     -- combined with and Enmity set in job_precast
     sets.precast.JA.Warcry = {}
@@ -377,10 +377,10 @@ function init_gear_sets()
     sets.precast.JA.Rayke = prioritize({feet="Futhark Boots +3"})
 
     sets.precast.JA['Vivacious Pulse'] = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
-        head="Erilaz Galea +2",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Cryptic Earring",
+        head="Erilaz Galea +3",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Cryptic Earring",
         body="Ashera Harness",hands="Turms Mittens +1",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Turms Leggings +1"})
-    -- pdt-50, mdt-50, bdt-49, 3375 hp /drk
+    -- pdt-50, mdt-50, bdt-49, 3385 hp /drk
 
     sets.precast.JA.Lunge = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Seething Bomblet +1",
         head="Nyame Helm",neck="Warder's Charm +1",ear1="Friomisi Earring",ear2="Hecate's Earring",
@@ -393,9 +393,9 @@ function init_gear_sets()
     sets.nuke_belt = {waist="Null Belt"}
 
     sets.precast.Step = prioritize({ammo="Yamarang",
-        head="Erilaz Galea +2",neck="Unmoving Collar +1",ear1="Odr Earring",ear2="Telos Earring",
-        body="Erilaz Surcoat +2",hands="Erilaz Gauntlets +2",ring1="Moonlight Ring",ring2="Ephramad's Ring",
-        back=gear.TPCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
+        head="Erilaz Galea +3",neck="Unmoving Collar +1",ear1="Odr Earring",ear2="Telos Earring",
+        body="Erilaz Surcoat +3",hands="Erilaz Gauntlets +3",ring1="Moonlight Ring",ring2="Ephramad's Ring",
+        back=gear.TPCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +3",feet="Erilaz Greaves +3"})
     sets.precast.JA['Violent Flourish'] = prioritize(set_combine(sets.precast.Step, {ear1="Dignitary's Earring",back="Null Shawl"}))
 
     sets.precast.WS = prioritize({ammo="Knobkierrie",
@@ -457,26 +457,25 @@ function init_gear_sets()
 
     -- Midcast Sets
     sets.SIRD = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
-        head="Erilaz Galea +2",neck="Moonlight Necklace",ear1="Odnowa Earring +1",ear2="Halasz Earring",
+        head="Erilaz Galea +3",neck="Moonlight Necklace",ear1="Odnowa Earring +1",ear2="Halasz Earring",
         body=gear.taeon_body_phlx,hands="Rawhide Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Audumbla Sash",legs="Carmine Cuisses +1",feet=gear.taeon_feet_phlx})
-    -- sir-102, pdt-38, mdt-26, bdt-24, enm+26, 2755 hp /drk FIXME DT feet after galea+3
+        back=gear.MEVACape,waist="Audumbla Sash",legs="Carmine Cuisses +1",feet="Erilaz Greaves +3"})
     sets.SIRD.Choral = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
-        head="Erilaz Galea +2",neck="Moonlight Necklace",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
+        head="Erilaz Galea +3",neck="Moonlight Necklace",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
         body="Futhark Coat +3",hands="Nyame Gauntlets",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Audumbla Sash",legs="Carmine Cuisses +1",feet="Erilaz Greaves +2"})
+        back=gear.MEVACape,waist="Audumbla Sash",legs="Carmine Cuisses +1",feet="Erilaz Greaves +3"})
 
     sets.midcast['Enhancing Magic'] = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
-        head="Erilaz Galea +2",neck="Incanter's Torque",ear1="Andoaa Earring",ear2="Mimir Earring",
+        head="Erilaz Galea +3",neck="Incanter's Torque",ear1="Andoaa Earring",ear2="Mimir Earring",
         body="Futhark Coat +3",hands="Runeist Mitons +3",ring1=gear.Lstikini,ring2=gear.Rstikini,
-        back=gear.MEVACape,waist="Olympus Sash",legs="Carmine Cuisses +1",feet="Erilaz Greaves +2"})
+        back=gear.MEVACape,waist="Olympus Sash",legs="Carmine Cuisses +1",feet="Erilaz Greaves +3"})
     sets.midcast.Temper = set_combine(sets.midcast['Enhancing Magic'], {})
-    -- skill=523, dur+40, pdt-21, mdt-5, bdt-5, 2785 hp /drk (risky spell)
+    -- skill=523, dur+40, pdt-21, mdt-5, bdt-5, 2805 hp /drk (risky spell)
     sets.midcast.Temper.Tank = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
-        head="Erilaz Galea +2",neck="Futhark Torque +2",ear1="Andoaa Earring",ear2="Mimir Earring",
+        head="Erilaz Galea +3",neck="Futhark Torque +2",ear1="Andoaa Earring",ear2="Mimir Earring",
         body="Nyame Mail",hands="Runeist Mitons +3",ring1=gear.Lstikini,ring2="Defending Ring",
-        back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Carmine Cuisses +1",feet="Erilaz Greaves +2"})
-    -- skill=522, dur+40, pdt-50, mdt-42, bdt-42, 3181 hp /drk FIXME
+        back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Carmine Cuisses +1",feet="Erilaz Greaves +3"})
+    -- skill=522, dur+40, pdt-50, mdt-42, bdt-42, 3201 hp /drk FIXME
     sets.midcast.Phalanx = prioritize({main="Deacon Sword",sub=empty,ammo="Staunch Tathlum +1",
         head="Futhark Bandeau +3",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Mimir Earring",
         body=gear.herc_body_phlx,hands=gear.herc_hands_phlx,ring1="Moonlight Ring",ring2="Defending Ring",
@@ -488,7 +487,7 @@ function init_gear_sets()
         back="Evasionist's Cape",waist="Platinum Moogle Belt",legs=gear.herc_legs_phlx,feet=gear.herc_feet_phlx})
 
     sets.midcast.FixedPotencyEnhancing = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
-        head="Erilaz Galea +2",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
+        head="Erilaz Galea +3",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
         body="Nyame Mail",hands="Turms Mittens +1",ring1="Moonlight Ring",ring2="Defending Ring",
         back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Futhark Trousers +3",feet="Turms Leggings +1"})
     sets.midcast.Refresh = set_combine(sets.midcast.FixedPotencyEnhancing, {})
@@ -496,18 +495,18 @@ function init_gear_sets()
         head="Runeist Bandeau +3",neck="Sacro Gorget",ear2="Erilaz Earring +1",feet="Nyame Sollerets"}))
     sets.midcast.Stoneskin = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Seething Bomblet +1",
         head="Runeist Bandeau +3",neck="Stone Gorget",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
-        body="Erilaz Surcoat +2",hands="Erilaz Gauntlets +2",ring1="Moonlight Ring",ring2="Defending Ring",
-        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Turms Leggings +1"})
+        body="Erilaz Surcoat +3",hands="Erilaz Gauntlets +3",ring1="Moonlight Ring",ring2="Defending Ring",
+        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +3",feet="Turms Leggings +1"})
     sets.midcast.Stoneskin.Potency = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Seething Bomblet +1",
         head="Runeist Bandeau +3",neck="Stone Gorget",ear1="Odnowa Earring +1",ear2="Erilaz Earring +1",
-        body="Erilaz Surcoat +2",hands="Erilaz Gauntlets +2",ring1="Moonlight Ring",ring2="Defending Ring",
-        back=gear.FCCape,waist="Siegel Sash",legs="Haven Hose",feet="Erilaz Greaves +2"})
+        body="Erilaz Surcoat +3",hands="Erilaz Gauntlets +3",ring1="Moonlight Ring",ring2="Defending Ring",
+        back=gear.FCCape,waist="Siegel Sash",legs="Haven Hose",feet="Erilaz Greaves +3"})
     sets.midcast.Blink = {}
 
     sets.midcast['Enfeebling Magic'] = prioritize({main="Epeolatry",sub="Kaja Grip",ammo="Yamarang",
-        head="Erilaz Galea +2",neck="Null Loop",ear1="Dignitary's Earring",ear2="Erilaz Earring +1",
-        body="Nyame Mail",hands="Erilaz Gauntlets +2",ring1=gear.Lstikini,ring2=gear.Rstikini,
-        back="Null Shawl",waist="Null Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
+        head="Erilaz Galea +3",neck="Null Loop",ear1="Dignitary's Earring",ear2="Erilaz Earring +1",
+        body="Nyame Mail",hands="Erilaz Gauntlets +3",ring1=gear.Lstikini,ring2=gear.Rstikini,
+        back="Null Shawl",waist="Null Belt",legs="Erilaz Leg Guards +3",feet="Erilaz Greaves +3"})
     sets.midcast.Poisonga = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Perfect Lucky Egg",
         head="Volte Cap",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
         body="Nyame Mail",hands="Turms Mittens +1",ring1="Vocane Ring +1",ring2="Defending Ring",
@@ -521,8 +520,8 @@ function init_gear_sets()
 
     sets.midcast.Cure = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
         head="Null Masque",neck="Sacro Gorget",ear1="Odnowa Earring +1",ear2="Erilaz Earring +1",
-        body="Erilaz Surcoat +2",hands="Turms Mittens +1",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.ParryCape,waist="Gishdubar Sash",legs="Erilaz Leg Guards +2",feet="Turms Leggings +1"})
+        body="Erilaz Surcoat +3",hands="Turms Mittens +1",ring1="Vocane Ring +1",ring2="Defending Ring",
+        back=gear.ParryCape,waist="Gishdubar Sash",legs="Erilaz Leg Guards +3",feet="Turms Leggings +1"})
 
     sets.midcast.Foil              = set_combine(sets.Enmity, {})
     sets.midcast.Flash             = set_combine(sets.Enmity, {})
@@ -554,8 +553,8 @@ function init_gear_sets()
 
     sets.buff.doom = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
         head="Null Masque",neck="Nicander's Necklace",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
-        body="Nyame Mail",hands="Erilaz Gauntlets +2",ring1="Eshmun's Ring",ring2="Purity Ring",
-        back=gear.MEVACape,waist="Gishdubar Sash",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
+        body="Nyame Mail",hands="Erilaz Gauntlets +3",ring1="Eshmun's Ring",ring2="Purity Ring",
+        back=gear.MEVACape,waist="Gishdubar Sash",legs="Erilaz Leg Guards +3",feet="Erilaz Greaves +3"})
     sets.buff.sleep = {head="Frenzy Sallet"}
     sets.buff.Embolden = {back="Evasionist's Cape"}
     sets.buff.Battuta = {feet="Futhark Boots +3"}
@@ -564,22 +563,22 @@ function init_gear_sets()
     sets.idle = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
         head="Turms Cap +1",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
         body="Runeist Coat +3",hands="Nyame Gauntlets",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Carmine Cuisses +1",feet="Erilaz Greaves +2"})
+        back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Carmine Cuisses +1",feet="Erilaz Greaves +3"})
     sets.idle.Refresh = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Homiliary",
         head="Null Masque",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
         body="Runeist Coat +3",hands=gear.herc_hands_rf,ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Platinum Moogle Belt",legs=gear.herc_legs_rf,feet="Erilaz Greaves +2"})
+        back=gear.MEVACape,waist="Platinum Moogle Belt",legs=gear.herc_legs_rf,feet="Erilaz Greaves +3"})
     sets.idle.Kite = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Homiliary",
         head="Turms Cap +1",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
         body="Runeist Coat +3",hands="Nyame Gauntlets",ring1="Moonlight Ring",ring2="Defending Ring",
-        back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Carmine Cuisses +1",feet="Erilaz Greaves +2"})
+        back=gear.MEVACape,waist="Platinum Moogle Belt",legs="Carmine Cuisses +1",feet="Erilaz Greaves +3"})
     sets.latent_refresh = {ammo="Homiliary",waist="Fucho-no-obi"}
     sets.defense.Kite = set_combine(sets.idle.Kite, {})
 
     sets.defense.Parry = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
         head="Null Masque",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Cryptic Earring",
-        body="Erilaz Surcoat +2",hands="Turms Mittens +1",ring1="Moonlight Ring",ring2="Defending Ring",
-        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Turms Leggings +1"})
+        body="Erilaz Surcoat +3",hands="Turms Mittens +1",ring1="Moonlight Ring",ring2="Defending Ring",
+        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +3",feet="Turms Leggings +1"})
     sets.defense.VParry = set_combine(sets.defense.Parry, {ring1="Vocane Ring +1"})
     --sets.defense.RGParry = set_combine(sets.defense.Parry, prioritize({head="Turms Cap +1",body="Nyame Mail"}))
     sets.defense.Eva = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Yamarang",
@@ -592,21 +591,21 @@ function init_gear_sets()
         body="Ayanmo Corazza +2",hands="Ayanmo Manopolas +2",ring1="Vocane Ring +1",ring2="Defending Ring",
         back=gear.TPCape,waist="Gishdubar Sash",legs="Ayanmo Cosciales +2",feet="Ayanmo Gambieras +2"}
     sets.defense.HPup = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
-        head="Erilaz Galea +2",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
+        head="Erilaz Galea +3",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Etiolation Earring",
         body="Ashera Harness",hands="Runeist Mitons +3",ring1="Moonlight Ring",ring2="Defending Ring",
-        back="Moonbeam Cape",waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Turms Leggings +1"})
+        back="Moonbeam Cape",waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +3",feet="Turms Leggings +1"})
 
     sets.defense.MEVA = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Yamarang",
         head="Turms Cap +1",neck="Futhark Torque +2",ear1="Eabani Earring",ear2="Erilaz Earring +1",
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Vocane Ring +1",ring2="Shadow Ring",
-        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Erilaz Greaves +2"})
+        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Erilaz Greaves +3"})
 
     sets.defense.MDT = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
         head="Turms Cap +1",neck="Warder's Charm +1",ear1="Odnowa Earring +1",ear2="Erilaz Earring +1",
-        body="Erilaz Surcoat +2",hands="Erilaz Gauntlets +2",ring1="Vocane Ring +1",ring2="Shadow Ring",
-        --back="Repulse Mantle",waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
-        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
-    sets.defense.MT = set_combine(sets.defense.MDT, prioritize({body="Erilaz Surcoat +2",back=gear.ParryCape}))
+        body="Erilaz Surcoat +3",hands="Erilaz Gauntlets +3",ring1="Vocane Ring +1",ring2="Shadow Ring",
+        --back="Repulse Mantle",waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +3",feet="Erilaz Greaves +3"})
+        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +3",feet="Erilaz Greaves +3"})
+    sets.defense.MT = set_combine(sets.defense.MDT, prioritize({body="Erilaz Surcoat +3",back=gear.ParryCape}))
 
     sets.defense.MDB = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Pemphredo Tathlum",
         head="Null Masque",neck="Sibyl Scarf",ear1="Odnowa Earring +1",ear2="Erilaz Earring +1",
@@ -616,16 +615,16 @@ function init_gear_sets()
     sets.defense.Knockback = {ring1="Vocane Ring +1",back="Repulse Mantle"}
     sets.defense.Charm     = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
         head="Null Masque",neck="Unmoving Collar +1",ear1="Hearty Earring",ear2="Arete del Luna +1",
-        body="Erilaz Surcoat +2",hands="Erilaz Gauntlets +2",ring1="Moonlight Ring",ring2="Defending Ring",
-        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Runeist Bottes +3"})
+        body="Erilaz Surcoat +3",hands="Erilaz Gauntlets +3",ring1="Moonlight Ring",ring2="Defending Ring",
+        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +3",feet="Runeist Bottes +3"})
     sets.defense.Death = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
         head="Null Masque",neck="Futhark Torque +2",ear1="Odnowa Earring +1",ear2="Erilaz Earring +1",
-        body="Samnuha Coat",hands="Erilaz Gauntlets +2",ring1="Eihwaz Ring",ring2="Shadow Ring",
-        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Runeist Bottes +3"})
+        body="Samnuha Coat",hands="Erilaz Gauntlets +3",ring1="Eihwaz Ring",ring2="Shadow Ring",
+        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +3",feet="Runeist Bottes +3"})
     sets.defense.Stun = prioritize({main="Epeolatry",sub="Utu Grip",ammo="Staunch Tathlum +1",
         head="Volte Cap",neck="Anu Torque",ear1="Arete del Luna",ear2="Arete del Luna +1",
-        body="Nyame Mail",hands="Erilaz Gauntlets +2",ring1="Vocane Ring +1",ring2="Shadow Ring",
-        back="Repulse Mantle",waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +2",feet="Erilaz Greaves +2"})
+        body="Nyame Mail",hands="Erilaz Gauntlets +3",ring1="Vocane Ring +1",ring2="Shadow Ring",
+        back="Repulse Mantle",waist="Platinum Moogle Belt",legs="Erilaz Leg Guards +3",feet="Erilaz Greaves +3"})
     sets.Kiting = {legs="Carmine Cuisses +1"}
 
     -- Engaged (DD) sets
