@@ -36,6 +36,14 @@
 -- shattersoul:         gravitation, induration
 -- omniscience:         gravitation, tranxfixion
 
+-- club weaponskill properties
+-- shining strike:      impaction
+-- brainshaker:         reverberation
+-- skullbreaker:        induration, reverberation
+-- true strike:         detonation, impaction
+-- black halo:          fragmentation, compression
+-- realmrazer:          fusion, impaction
+
 texts = require('texts')
 
 -------------------------------------------------------------------------------------------------------------------
@@ -50,10 +58,11 @@ function get_sets()
     include('Mote-Include.lua')
 end
 
--- Setup vars that are user-independent.  state.Buff vars initialized here will automatically be tracked.
+-- Non-gearset initializations.
 function job_setup()
     enable('main','sub','range','ammo','head','neck','ear1','ear2','body','hands','ring1','ring2','back','waist','legs','feet')
 
+    state.Buff['Tabula Rasa']     = buffactive['Tabula Rasa'] or false
     state.Buff['Light Arts']      = buffactive['Light Arts'] or false
     state.Buff['Addendum: White'] = buffactive['Addendum: White'] or false
     state.Buff['Dark Arts']       = buffactive['Dark Arts'] or false
@@ -72,26 +81,19 @@ function job_setup()
     state.Buff.sleep = buffactive.sleep or false
 
     logout_event_id = windower.raw_register_event('logout', destroy_state_text)
-end
 
--------------------------------------------------------------------------------------------------------------------
--- User setup functions for this job.  Recommend that these be overridden in a sidecar file.
--------------------------------------------------------------------------------------------------------------------
-
--- Setup vars that are user-dependent.  Can override this function in a sidecar file.
-function user_setup()
     state.OffenseMode:options('None','Normal')                              -- Cycle with F9, set with !w, unset with !@w
     state.HybridMode:options('Normal','PDef')                               -- Cycle with ^space
     state.CastingMode:options('Normal','MAcc')                              -- Cycle with F10, set with ^c, ~^c
     state.IdleMode:options('Normal','MRf')                                  -- Cycle with F11
     state.MagicalDefenseMode:options('MDT','MRf')                           -- Cycle with @z
     state.CombatWeapon = M{['description']='Combat Weapon'}
-    state.CombatWeapon:options('Marin','Musa','Pole','Khat','Bunzi','Dagger')   -- Cycle with @F9
+    state.CombatWeapon:options('Marin','Musa','Pole','Khat','Rod','Dagger')   -- Cycle with @F9
 
     state.SphereIdle = M(false, 'Sphere Sphere')        -- Toggle with ^z
     state.AllyBinds  = M(false, 'Ally Cure Keybinds')   -- Toggle with !^delete
     state.DiaMsg     = M(false, 'Dia Message')          -- Toggle with ^\
-    state.MagicBurst = M(false, 'MB Mode')              -- Toggle with !z, %z
+    state.MagicBurst = M(true, 'MB Mode')               -- Toggle with !z, %z
     state.MBSingle   = M(false, 'MB (1)')               -- Toggle with FIXME
     state.OANuke     = M(false, 'OA Mode')              -- Toggle with ~^z
     state.OASingle   = M(false, 'OA (1)')               -- Toggle with ~z
@@ -101,14 +103,13 @@ function user_setup()
 
     state.SCMode     = M('Manual','Auto')                -- Set with !c or !^c
     state.SCDmg      = M(true,  'Damaging Skillchains')  -- Toggle with !\
-    state.SCHelix    = M(false, 'SC Helix Closer')       -- Toggle with @\
+    state.SCHelix    = M(true,  'SC Helix Closer')       -- Toggle with @\
     state.SCHUD      = M(true,  'Skillchain HUD')        -- Toggle with !^\
     info.skillchains = T{
         ['grav']          = {name='Gravitation',   list=L{{action='Aero'},          {action='Noctohelix'}}},
         ['grav-ws']       = {name='Gravitation',   list=L{{action='Aero'},          {action='Starburst'}}},
         ['grav-dag']      = {name='Gravitation',   list=L{{action='Cyclone'},       {action='Noctohelix'}}},
-        ['t3-grav']       = {name='Gravitation',   list=L{{action='Aero III'},      {action='Noctohelix'}}},
-        ['t3-grav-ws']    = {name='Gravitation',   list=L{{action='Aero III'},      {action='Starburst'}}},
+        ['grav-rod']      = {name='Gravitation',   list=L{{action='True Strike'},   {action='Noctohelix'}}},
         ['dist']          = {name='Distortion',    list=L{{action='Luminohelix'},   {action='Stone'}}},
         ['dist-ws']       = {name='Distortion',    list=L{{action='Omniscience'},   {action='Stone'}}},
         ['dist-dag']      = {name='Distortion',    list=L{{action='Luminohelix'},   {action='Aeolian Edge'}}},
@@ -119,60 +120,74 @@ function user_setup()
         ['fusion']        = {name='Fusion',        list=L{{action='Fire'},          {action='Thunder'}}},
         ['fusion-ws']     = {name='Fusion',        list=L{{action='Fire'},          {action='Rock Crusher'}}},
         ['fusion-dag']    = {name='Fusion',        list=L{{action='Fire'},          {action='Cyclone'}}},
+        ['fusion-rod']    = {name='Fusion',        list=L{{action='Fire'},          {action='Shining Strike'}}},
         ['h-fusion']      = {name='Fusion',        list=L{{action='Fire'},          {action='Ionohelix'}}},
-        ['t3-fusion']     = {name='Fusion',        list=L{{action='Fire III'},      {action='Thunder III'}}},
-        ['t3-fusion-ws']  = {name='Fusion',        list=L{{action='Fire III'},      {action='Rock Crusher'}}},
+        ['t3-fusion']     = {name='Fusion',        list=L{{action='Fire'},          {action='Thunder III'}}},
         ['frag']          = {name='Fragmentation', list=L{{action='Blizzard'},      {action='Water'}}},
         ['frag-ws']       = {name='Fragmentation', list=L{{action='Shattersoul'},   {action='Water'}}},
+        ['frag-rod']      = {name='Fragmentation', list=L{{action='Blizzard'},      {action='Brainshaker'}}},
         ['h-frag']        = {name='Fragmentation', list=L{{action='Blizzard'},      {action='Hydrohelix'}}},
         ['h-frag-ws']     = {name='Fragmentation', list=L{{action='Shattersoul'},   {action='Hydrohelix'}}},
-        ['t3-frag']       = {name='Fragmentation', list=L{{action='Blizzard III'},  {action='Water III'}}},
+        ['h-frag-rod']    = {name='Fragmentation', list=L{{action='Skullbreaker'},  {action='Hydrohelix'}}},
+        ['t3-frag']       = {name='Fragmentation', list=L{{action='Blizzard'},      {action='Water III'}}},
         ['t3-frag-ws']    = {name='Fragmentation', list=L{{action='Shattersoul'},   {action='Water III'}}},
         ['earth']         = {name='Scission',      list=L{{action='Aero'},          {action='Stone'}}},
         ['earth-ws']      = {name='Scission',      list=L{{action='Shell Crusher'}, {action='Stone'}}},
         ['earth-dag']     = {name='Scission',      list=L{{action='Cyclone'},       {action='Stone'}}},
+        ['earth-rod']     = {name='Scission',      list=L{{action='True Strike'},   {action='Stone'}}},
         ['h-earth']       = {name='Scission',      list=L{{action='Aero'},          {action='Geohelix'}}},
         ['h-earth-ws']    = {name='Scission',      list=L{{action='Shell Crusher'}, {action='Geohelix'}}},
-        ['t3-earth']      = {name='Scission',      list=L{{action='Aero III'},      {action='Stone III'}}},
+        ['h-earth-dag']   = {name='Scission',      list=L{{action='Cyclone'},       {action='Geohelix'}}},
+        ['h-earth-rod']   = {name='Scission',      list=L{{action='True Strike'},   {action='Geohelix'}}},
+        ['t3-earth']      = {name='Scission',      list=L{{action='Aero'},          {action='Stone III'}}},
         ['t3-earth-ws']   = {name='Scission',      list=L{{action='Shell Crusher'}, {action='Stone III'}}},
         ['water']         = {name='Reverberation', list=L{{action='Stone'},         {action='Water'}}},
         ['water-ws']      = {name='Reverberation', list=L{{action='Omniscience'},   {action='Water'}}},
         ['water-dag']     = {name='Reverberation', list=L{{action='Aeolian Edge'},  {action='Water'}}},
+        ['water-rod']     = {name='Reverberation', list=L{{action='Stone'},         {action='Brainshaker'}}},
         ['h-water']       = {name='Reverberation', list=L{{action='Stone'},         {action='Hydrohelix'}}},
         ['h-water-ws']    = {name='Reverberation', list=L{{action='Omniscience'},   {action='Hydrohelix'}}},
-        ['t3-water']      = {name='Reverberation', list=L{{action='Stone III'},     {action='Water III'}}},
+        ['t3-water']      = {name='Reverberation', list=L{{action='Stone'},         {action='Water III'}}},
         ['t3-water-ws']   = {name='Reverberation', list=L{{action='Omniscience'},   {action='Water III'}}},
         ['wind']          = {name='Detonation',    list=L{{action='Stone'},         {action='Aero'}}},
         ['wind-ws']       = {name='Detonation',    list=L{{action='Rock Crusher'},  {action='Aero'}}},
         ['wind-dag']      = {name='Detonation',    list=L{{action='Stone'},         {action='Cyclone'}}},
+        ['wind-rod']      = {name='Detonation',    list=L{{action='True Strike'},   {action='Aero'}}},
         ['h-wind']        = {name='Detonation',    list=L{{action='Stone'},         {action='Anemohelix'}}},
         ['h-wind-ws']     = {name='Detonation',    list=L{{action='Rock Crusher'},  {action='Anemohelix'}}},
-        ['t3-wind']       = {name='Detonation',    list=L{{action='Stone III'},     {action='Aero III'}}},
+        ['h-wind-rod']    = {name='Detonation',    list=L{{action='True Strike'},   {action='Anemohelix'}}},
+        ['t3-wind']       = {name='Detonation',    list=L{{action='Stone'},         {action='Aero III'}}},
         ['t3-wind-ws']    = {name='Detonation',    list=L{{action='Rock Crusher'},  {action='Aero III'}}},
         ['fire']          = {name='Liquefaction',  list=L{{action='Stone'},         {action='Fire'}}},
         ['fire-ws']       = {name='Liquefaction',  list=L{{action='Rock Crusher'},  {action='Fire'}}},
         ['fire-dag']      = {name='Liquefaction',  list=L{{action='Aeolian Edge'},  {action='Fire'}}},
+        ['fire-rod']      = {name='Liquefaction',  list=L{{action='True Strike'},   {action='Fire'}}},
         ['h-fire']        = {name='Liquefaction',  list=L{{action='Stone'},         {action='Pyrohelix'}}},
         ['h-fire-ws']     = {name='Liquefaction',  list=L{{action='Rock Crusher'},  {action='Pyrohelix'}}},
-        ['t3-fire']       = {name='Liquefaction',  list=L{{action='Thunder III'},   {action='Fire III'}}},
+        ['h-fire-rod']    = {name='Liquefaction',  list=L{{action='True Strike'},   {action='Pyrohelix'}}},
+        ['t3-fire']       = {name='Liquefaction',  list=L{{action='Thunder'},       {action='Fire III'}}},
         ['t3-fire-ws']    = {name='Liquefaction',  list=L{{action='Rock Crusher'},  {action='Fire III'}}},
         ['ice']           = {name='Induration',    list=L{{action='Water'},         {action='Blizzard'}}},
         ['ice-ws']        = {name='Induration',    list=L{{action='Water'},         {action='Shattersoul'}}},
+        ['ice-rod']       = {name='Induration',    list=L{{action='Brainshaker'},   {action='Blizzard'}}},
         ['h-ice']         = {name='Induration',    list=L{{action='Water'},         {action='Cryohelix'}}},
-        ['t3-ice']        = {name='Induration',    list=L{{action='Water III'},     {action='Blizzard III'}}},
-        ['t3-ice-ws']     = {name='Induration',    list=L{{action='Water III'},     {action='Shattersoul'}}},
+        ['h-ice-rod']     = {name='Induration',    list=L{{action='Brainshaker'},   {action='Cryohelix'}}},
+        ['t3-ice']        = {name='Induration',    list=L{{action='Water'},         {action='Blizzard III'}}},
         ['thunder']       = {name='Impaction',     list=L{{action='Blizzard'},      {action='Thunder'}}},
         ['thunder-ws']    = {name='Impaction',     list=L{{action='Shattersoul'},   {action='Thunder'}}},
         ['thunder-dag']   = {name='Impaction',     list=L{{action='Blizzard'},      {action='Cyclone'}}},
+        ['thunder-rod']   = {name='Impaction',     list=L{{action='Brainshaker'},   {action='Thunder'}}},
         ['h-thunder']     = {name='Impaction',     list=L{{action='Blizzard'},      {action='Ionohelix'}}},
         ['h-thunder-ws']  = {name='Impaction',     list=L{{action='Shattersoul'},   {action='Ionohelix'}}},
-        ['t3-thunder']    = {name='Impaction',     list=L{{action='Blizzard III'},  {action='Thunder III'}}},
+        ['h-thunder-rod'] = {name='Impaction',     list=L{{action='Brainshaker'},   {action='Ionohelix'}}},
+        ['t3-thunder']    = {name='Impaction',     list=L{{action='Blizzard'},      {action='Thunder III'}}},
         ['t3-thunder-ws'] = {name='Impaction',     list=L{{action='Shattersoul'},   {action='Thunder III'}}},
         ['light']         = {name='Transfixion',   list=L{{action='Noctohelix'},    {action='Luminohelix'}}},
         ['light-ws']      = {name='Transfixion',   list=L{{action='Starburst'},     {action='Luminohelix'}}},
+        ['light-rod']     = {name='Transfixion',   list=L{{action='Black Halo'},    {action='Luminohelix'}}},
         ['dark']          = {name='Compression',   list=L{{action='Blizzard'},      {action='Noctohelix'}}},
         ['dark-ws']       = {name='Compression',   list=L{{action='Omniscience'},   {action='Noctohelix'}}},
-        ['t3-dark']       = {name='Compression',   list=L{{action='Blizzard III'},  {action='Noctohelix'}}},
+        ['dark-rod']      = {name='Compression',   list=L{{action='Skullbreaker'},  {action='Noctohelix'}}},
         ['30k']           = {name='30k Combo',     list=L{{action='Luminohelix'}, {action='Stone'}, {action='Omniscience'}}},
         ['longgrav']      = {name='Long Grav.',    list=L{{action='Stone'}, {action='Aero'}, {action='Stone'},
                                                           {action='Anemohelix'}, {action='Noctohelix'}}},
@@ -264,9 +279,25 @@ function user_setup()
             'bind !^4 input /ws "Shadowstitch"',
             'bind !^6 input /ws "Aeolian Edge"'}},
         {['Marin']='Staff',['Musa']='Staff',['Pole']='Staff',['Khat']='Staff',
-         ['Bunzi']='Club',['Club']='Club',['Dagger']='Dagger'})
+         ['Rod']='Club',['Club']='Club',['Dagger']='Dagger'})
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
+
+    job_sub_job_change()
+
+    -- give monkey_check_spell access to the gearswap environment, plus our state vars
+    local monkey_env = {state=state}
+    setmetatable(monkey_env, {__index = gearswap})
+    gearswap.setfenv(monkey_check_spell, monkey_env)
+
+    -- monkey patch gearswap.check_spell
+    gearswap_check_spell = gearswap_check_spell or gearswap.check_spell
+    gearswap.check_spell = monkey_check_spell
+end
+
+function job_sub_job_change()
+    info.sj_binds = make_keybind_list(sub_job_keybinds())
+    info.sj_binds:bind()
 
     info.recast_ids = L{{name="Strats",id=231}}
     if     player.sub_job == 'RDM' then
@@ -277,26 +308,13 @@ function user_setup()
         info.recast_ids:append({name="E.Seal",id=38})
     end
 
-    --select_default_macro_book()
-
-    -- give monkey_check_spell access to the gearswap environment, plus our state vars
-    local monkey_env = {state=state}
-    setmetatable(monkey_env, {__index = gearswap})
-    gearswap.setfenv(monkey_check_spell, monkey_env)
-    gearswap.setfenv(monkey_filter_pretarget, monkey_env)
-
-    -- monkey patch gearswap.check_spell
-    gearswap_check_spell = gearswap_check_spell or gearswap.check_spell
-    gearswap.check_spell = monkey_check_spell
-
-    -- monkey patch gearswap.filter_pretarget
-    gearswap_filter_pretarget = gearswap_filter_pretarget or gearswap.filter_pretarget
-    gearswap.filter_pretarget = monkey_filter_pretarget
+    hud_update_on_state_change()
 end
 
 -- Called when this job file is unloaded (eg: job change)
-function user_unload()
+function job_file_unload()
     info.keybinds:unbind()
+    info.sj_binds:unbind()
 
     if state.AllyBinds.value then info.ally_keybinds:unbind() end
     send_command('unbind !^delete')
@@ -306,13 +324,8 @@ function user_unload()
 
     destroy_state_text()
 
-    if gearswap.check_spell == monkey_check_spell then
-        gearswap.check_spell = gearswap_check_spell
-    end
-
-    if gearswap.filter_pretarget == monkey_filter_pretarget then
-        gearswap.filter_pretarget = gearswap_filter_pretarget
-    end
+    -- reverse monkey patching
+    gearswap.check_spell = gearswap_check_spell or gearswap.check_spell
 end
 
 -- Define sets and vars used by this job file.
@@ -324,7 +337,7 @@ function init_gear_sets()
     sets.weapons.Musa     = {main="Musa",sub="Khonsu"}
     sets.weapons.Pole     = {main="Malignance Pole",sub="Khonsu"}
     sets.weapons.Khat     = {main="Khatvanga",sub="Khonsu"}
-    sets.weapons.Bunzi    = {main="Bunzi's Rod",sub="Ammurapi Shield"}
+    sets.weapons.Rod      = {main="Wizard's Rod",sub="Ammurapi Shield"}
     sets.weapons.Club     = {main="Maxentius",sub="Ammurapi Shield"}
     sets.weapons.Dagger   = {main="Malevolence",sub="Ammurapi Shield"}
 
@@ -339,26 +352,26 @@ function init_gear_sets()
     sets.buff['Klimaform']   = {feet="Arbatel Loafers +3"}  -- damage x1.25
 
     ---- Precast Sets ----
-    sets.precast.JA['Tabula Rasa'] = {legs="Pedagogy Pants +3"}
+    sets.precast.JA['Tabula Rasa'] = {legs="Pedagogy Pants +4"}
 
     sets.precast.FC = {main="Musa",sub="Clerisy Strap",ammo="Impatiens",
         head=gear.mer_head_fc,neck="Orunmila's Torque",ear1="Malignance Earring",ear2="Etiolation Earring",
-        body="Zendik Robe",hands="Academic's Bracers +3",ring1="Lebeche Ring",ring2="Medada's Ring",
+        body="Zendik Robe",hands="Academic's Bracers +4",ring1="Lebeche Ring",ring2="Medada's Ring",
         back=gear.MACape,waist="Witful Belt",legs="Pinga Pants +1",feet="Academic's Loafers +3"}
     sets.precast.FC.Cure = set_combine(sets.precast.FC, {
-        head="Pedagogy Mortarboard +3",ear2="Mendicant's Earring",feet=gear.mer_feet_fc})
+        head="Pedagogy Mortarboard +4",ear2="Mendicant's Earring",feet=gear.mer_feet_fc})
     sets.precast.FC.Curaga = sets.precast.FC.Cure
     sets.precast.FC['Elemental Magic'] = set_combine(sets.precast.FC.Cure, {ear2="Barkarole Earring"})
     sets.precast.FC.no_qm = set_combine(sets.precast.FC, {ammo="Sapience Orb",
         back=gear.MACape,ring1="Kishar Ring",waist="Shinjutsu-no-Obi +1"})
     sets.precast.FC.unlocked = {main="Musa",sub="Clerisy Strap",ammo="Impatiens",
-        head="Pedagogy Mortarboard +3",neck="Orunmila's Torque",ear1="Malignance Earring",ear2="Etiolation Earring",
-        body="Zendik Robe",hands="Academic's Bracers +3",ring1="Lebeche Ring",ring2="Medada's Ring",
+        head="Pedagogy Mortarboard +4",neck="Orunmila's Torque",ear1="Malignance Earring",ear2="Etiolation Earring",
+        body="Zendik Robe",hands="Academic's Bracers +4",ring1="Lebeche Ring",ring2="Medada's Ring",
         back="Perimede Cape",waist="Witful Belt",legs="Pinga Pants +1",feet=gear.mer_feet_fc}
     sets.precast.FC.sub_rdm = sets.precast.FC.unlocked
     sets.precast.FC.Impact = {ammo="Sapience Orb",
         head=empty,neck="Orunmila's Torque",ear1="Malignance Earring",ear2="Etiolation Earring",
-        body="Twilight Cloak",hands="Academic's Bracers +3",ring1="Kishar Ring",ring2="Medada's Ring",
+        body="Twilight Cloak",hands="Academic's Bracers +4",ring1="Kishar Ring",ring2="Medada's Ring",
         back=gear.MACape,waist="Shinjutsu-no-Obi +1",legs="Pinga Pants +1",feet=gear.mer_feet_fc}
     sets.precast.FC.Impact.grim = set_combine(sets.precast.FC.Impact, {main="Musa",sub="Clerisy Strap",feet="Academic's Loafers +3"})
     sets.precast.FC.Impact.grim_qm = set_combine(sets.precast.FC.Impact.grim, {ammo="Impatiens",ring1="Lebeche Ring",waist="Witful Belt"})
@@ -367,11 +380,11 @@ function init_gear_sets()
     sets.precast.FC.Dispelga = set_combine(sets.precast.FC, sets.dispelga)
 
     sets.precast.WS = {ammo="Oshasha's Treatise",
-        head="Blistering Sallet +1",neck="Fotia Gorget",ear1="Telos Earring",ear2="Crepuscular Earring",
-        body="Arbatel Gown +3",hands="Gazu Bracelets +1",ring1="Chirich Ring +1",ring2="Cacoethic Ring +1",
-        back=gear.TPCape,waist="Fotia Belt",legs="Nyame Flanchard",feet="Arbatel Loafers +3"}
+        head="Blistering Sallet +1",neck="Null Loop",ear1="Telos Earring",ear2="Crepuscular Earring",
+        body="Arbatel Gown +3",hands="Gazu Bracelets +1",ring1="Chirich Ring +1",ring2="Rufescent Ring",
+        back=gear.TPCape,waist="Null Belt",legs="Nyame Flanchard",feet="Arbatel Loafers +3"}
     sets.precast.WS['Black Halo'] = set_combine(sets.precast.WS, {})
-    sets.precast.WS.Realmrazer = set_combine(sets.precast.WS, {})
+    sets.precast.WS.Realmrazer = set_combine(sets.precast.WS, {neck="Fotia Gorget",waist="Fotia Belt"})
 
     sets.precast.WS['Shell Crusher'] = {ammo="Amar Cluster",
         head="Blistering Sallet +1",neck="Null Loop",ear1="Moonshade Earring",ear2="Crepuscular Earring",
@@ -384,64 +397,66 @@ function init_gear_sets()
         head="Arbatel Bonnet +3",neck="Sibyl Scarf",ear1="Malignance Earring",ear2="Regal Earring",
         body="Arbatel Gown +3",hands="Arbatel Bracers +3",ring1="Metamorph Ring +1",ring2="Medada's Ring",
         back=gear.NukeCape,waist="Orpheus's Sash",legs="Arbatel Pants +3",feet="Arbatel Loafers +3"}
-    sets.precast.WS['Earth Crusher'] = set_combine(sets.precast.WS['Rock Crusher'], {ear2="Moonshade Earring"})
-    sets.precast.WS.Starburst        = set_combine(sets.precast.WS['Earth Crusher'], {})
-    sets.precast.WS.Sunburst         = sets.precast.WS.Starburst
-    sets.precast.WS.Omniscience      = set_combine(sets.precast.WS['Rock Crusher'], {head="Pixie Hairpin +1",ring1="Archon Ring"})
-    sets.precast.WS.Cataclysm        = set_combine(sets.precast.WS.Omniscience, {ear2="Moonshade Earring"})
-    sets.precast.WS['Flash Nova']    = set_combine(sets.precast.WS['Rock Crusher'], {})
-    sets.precast.WS['Aeolian Edge']  = set_combine(sets.precast.WS['Earth Crusher'], {})
-    sets.precast.WS.Cyclone          = sets.precast.WS['Aeolian Edge']
+    sets.precast.WS['Earth Crusher']  = set_combine(sets.precast.WS['Rock Crusher'], {ear2="Moonshade Earring"})
+    sets.precast.WS.Starburst         = set_combine(sets.precast.WS['Earth Crusher'], {})
+    sets.precast.WS.Sunburst          = sets.precast.WS.Starburst
+    sets.precast.WS.Omniscience       = set_combine(sets.precast.WS['Rock Crusher'], {head="Pixie Hairpin +1",ring1="Archon Ring"})
+    sets.precast.WS.Cataclysm         = set_combine(sets.precast.WS.Omniscience, {ear2="Moonshade Earring"})
+    sets.precast.WS['Flash Nova']     = set_combine(sets.precast.WS['Rock Crusher'], {})
+    sets.precast.WS['Aeolian Edge']   = set_combine(sets.precast.WS['Earth Crusher'], {})
+    sets.precast.WS.Cyclone           = sets.precast.WS['Aeolian Edge']
+    sets.precast.WS['Shining Strike'] = set_combine(sets.precast.WS['Earth Crusher'], {})
+    sets.precast.WS['Seraph Strike']  = set_combine(sets.precast.WS['Earth Crusher'], {})
 
     sets.precast.WS.Myrkr = {ammo="Psilomene",
         head="Amalric Coif +1",neck="Sanctity Necklace",ear1="Moonshade Earring",ear2="Etiolation Earring",
-        body="Academic's Gown +3",hands="Nyame Gauntlets",ring1="Mephitas's Ring +1",ring2="Sangoma Ring",
-        back="Tantalic Cape",waist="Shinjutsu-no-Obi +1",legs="Amalric Slops +1",feet="Amalric Nails +1"}
+        body="Academic's Gown +4",hands="Nyame Gauntlets",ring1="Mephitas's Ring +1",ring2="Sangoma Ring",
+        back="Aurist's Cape +1",waist="Shinjutsu-no-Obi +1",legs="Amalric Slops +1",feet="Amalric Nails +1"}
 
     ---- Midcast Sets ----
     sets.midcast.Cure = {main="Malignance Pole",sub="Khonsu",ammo="Pemphredo Tathlum",
         head="Vanya Hood",neck="Incanter's Torque",ear1="Calamitous Earring",ear2="Mendicant's Earring",
-        body="Arbatel Gown +3",hands="Academic's Bracers +3",ring1="Kuchekula Ring",ring2="Defending Ring",
+        body="Arbatel Gown +3",hands="Pedagogy Bracers +3",ring1="Kuchekula Ring",ring2="Murky Ring",
         back="Solemnity Cape",waist="Shinjutsu-no-Obi +1",legs="Academic's Pants +3",feet="Vanya Clogs"}
     sets.midcast.Curaga = sets.midcast.Cure
     sets.midcast.Cure.Locked = {ammo="Crepuscular Pebble",
-        head="Vanya Hood",neck="Loricate Torque +1",ear1="Genmei Earring",ear2="Mendicant's Earring",
-        body="Chironic Doublet",hands="Nyame Gauntlets",ring1="Warden's Ring",ring2="Defending Ring",
-        back=gear.IdleCape,waist="Shinjutsu-no-Obi +1",legs="Arbatel Pants +3",feet="Vanya Clogs"}
+        head="Vanya Hood",neck="Loricate Torque +1",ear1="Alabaster Earring",ear2="Mendicant's Earring",
+        body="Arbatel Gown +3",hands="Pedagogy Bracers +3",ring1="Defending Ring",ring2="Murky Ring",
+        back=gear.IdleCape,waist="Shinjutsu-no-Obi +1",legs="Academic's Pants +3",feet="Vanya Clogs"}
     sets.midcast.Cure.Weather = {main="Chatoyant Staff",sub="Khonsu",ammo="Crepuscular Pebble",
-        head="Vanya Hood",neck="Loricate Torque +1",ear1="Genmei Earring",ear2="Mendicant's Earring",
-        body="Chironic Doublet",hands="Nyame Gauntlets",ring1="Patricius Ring",ring2="Defending Ring",
-        back="Twilight Cape",waist="Hachirin-no-Obi",legs="Arbatel Pants +3",feet="Vanya Clogs"}
+        head="Vanya Hood",neck="Loricate Torque +1",ear1="Alabaster Earring",ear2="Mendicant's Earring",
+        body="Arbatel Gown +3",hands="Pedagogy Bracers +3",ring1="Defending Ring",ring2="Murky Ring",
+        back="Twilight Cape",waist="Hachirin-no-Obi",legs="Academic's Pants +3",feet="Vanya Clogs"}
     sets.cmp_belt   = {waist="Shinjutsu-no-Obi +1"}
     sets.haste_belt = {waist="Cornelia's Belt"}
     sets.gishdubar  = {waist="Gishdubar Sash"}
 
     sets.midcast.Raise = {main="Malignance Pole",sub="Khonsu",ammo="Pemphredo Tathlum",
         head=gear.tel_head_enh,neck="Loricate Torque +1",ear1="Calamitous Earring",ear2="Gifted Earring",
-        body="Zendik Robe",hands="Academic's Bracers +3",ring1="Mephitas's Ring +1",ring2="Medada's Ring",
+        body="Zendik Robe",hands="Academic's Bracers +4",ring1="Mephitas's Ring +1",ring2="Medada's Ring",
         back=gear.MACape,waist="Cornelia's Belt",legs="Arbatel Pants +3",feet=gear.mer_feet_fc}
     sets.midcast.StatusRemoval = set_combine(sets.midcast.Raise, {})
     sets.midcast.Erase         = set_combine(sets.midcast.StatusRemoval, {waist="Cornelia's Belt"})
     sets.midcast.Cursna = {main="Malignance Pole",sub="Khonsu",ammo="Crepuscular Pebble",
         head="Hike Khat +1",neck="Malison Medallion",ear1="Malignance Earring",ear2="Lugalbanda Earring",
-        body="Pedagogy Gown +3",hands="Pedagogy Bracers +3",ring1="Ephedra Ring",ring2="Menelaus's Ring",
+        body="Pedagogy Gown +4",hands="Pedagogy Bracers +3",ring1="Haoma's Ring",ring2="Menelaus's Ring",
         back=gear.MACape,waist="Cornelia's Belt",legs="Academic's Pants +3",feet="Vanya Clogs"}
 
     sets.midcast.FixedPotencyEnhancing = {main="Musa",sub="Khonsu",ammo="Crepuscular Pebble",
-        head=gear.tel_head_enh,neck="Loricate Torque +1",ear1="Genmei Earring",ear2="Etiolation Earring",
-        body="Pedagogy Gown +3",hands=gear.tel_hand_enh,ring1="Patricius Ring",ring2="Defending Ring",
+        head=gear.tel_head_enh,neck="Loricate Torque +1",ear1="Alabaster Earring",ear2="Etiolation Earring",
+        body="Pedagogy Gown +4",hands=gear.tel_hand_enh,ring1="Defending Ring",ring2="Murky Ring",
         back=gear.IdleCape,waist="Embla Sash",legs=gear.tel_legs_enh,feet=gear.tel_feet_enh}
     sets.midcast.Storm     = set_combine(sets.midcast.FixedPotencyEnhancing, {feet="Pedagogy Loafers +3"})
     sets.midcast.Refresh   = set_combine(sets.midcast.FixedPotencyEnhancing, {head="Amalric Coif +1"})
     sets.midcast.Stoneskin = set_combine(sets.midcast.FixedPotencyEnhancing, {
         neck="Nodens Gorget",ear2="Earthcry Earring",waist="Siegel Sash",legs="Shedir Seraweels"})
     sets.midcast.Aquaveil = {main="Vadose Rod",sub="Ammurapi Shield",ammo="Crepuscular Pebble",
-        head="Amalric Coif +1",neck="Loricate Torque +1",ear1="Genmei Earring",ear2="Etiolation Earring",
-        body="Pedagogy Gown +3",hands=gear.tel_hand_enh,ring1="Patricius Ring",ring2="Defending Ring",
+        head="Amalric Coif +1",neck="Loricate Torque +1",ear1="Alabaster Earring",ear2="Etiolation Earring",
+        body="Pedagogy Gown +4",hands=gear.tel_hand_enh,ring1="Defending Ring",ring2="Murky Ring",
         back=gear.IdleCape,waist="Emphatikos Rope",legs="Shedir Seraweels",feet=gear.tel_feet_enh}
     sets.midcast['Enhancing Magic'] = {main="Musa",sub="Khonsu",ammo="Pemphredo Tathlum",
         head="Befouled Crown",neck="Incanter's Torque",ear1="Andoaa Earring",ear2="Mimir Earring",
-        body="Pedagogy Gown +3",hands="Chironic Gloves",ring1="Stikini Ring +1",ring2="Defending Ring",
+        body="Pedagogy Gown +4",hands="Chironic Gloves",ring1="Stikini Ring +1",ring2="Murky Ring",
         back="Fi Follet Cape",waist="Olympus Sash",legs="Shedir Seraweels",feet="Regal Pumps +1"}
     sets.midcast.EnSpell = set_combine(sets.midcast['Enhancing Magic'], {hands=gear.tel_hand_enh,waist="Embla Sash"})
     sets.midcast.Embrava = set_combine(sets.midcast.FixedPotencyEnhancing, {ear2="Mimir Earring"})
@@ -450,13 +465,13 @@ function init_gear_sets()
     sets.midcast.BarElement  = set_combine(sets.midcast.Embrava, {legs="Shedir Seraweels"})
     sets.midcast.BarStatus   = set_combine(sets.midcast.Embrava, {})
     sets.midcast.Regen = {main="Musa",sub="Khonsu",ammo="Crepuscular Pebble",
-        head="Arbatel Bonnet +3",neck="Loricate Torque +1",ear1="Calamitous Earring",ear2="Gifted Earring",
-        body=gear.tel_body_enh,hands=gear.tel_hand_enh,ring1="Patricius Ring",ring2="Defending Ring",
+        head="Arbatel Bonnet +3",neck="Loricate Torque +1",ear1="Alabaster Earring",ear2="Gifted Earring",
+        body=gear.tel_body_enh,hands=gear.tel_hand_enh,ring1="Defending Ring",ring2="Murky Ring",
         back=gear.RegenCape,waist="Embla Sash",legs=gear.tel_legs_enh,feet=gear.tel_feet_enh}
     sets.midcast.Klimaform = set_combine(sets.midcast.Raise, {})
 
     sets.midcast['Elemental Magic'] = {main="Wizard's Rod",sub="Ammurapi Shield",ammo="Ghastly Tathlum +1",
-        head="Pedagogy Mortarboard +3",neck="Argute Stole +2",ear1="Malignance Earring",ear2="Regal Earring",
+        head="Pedagogy Mortarboard +4",neck="Argute Stole +2",ear1="Malignance Earring",ear2="Regal Earring",
         body="Arbatel Gown +3",hands="Amalric Gages +1",ring1="Freke Ring",ring2="Medada's Ring",
         back=gear.NukeCape,waist="Sacro Cord",legs="Arbatel Pants +3",feet="Arbatel Loafers +3"}
     sets.midcast['Elemental Magic'].MAcc  = set_combine(sets.midcast['Elemental Magic'], {
@@ -468,7 +483,7 @@ function init_gear_sets()
         back=gear.NukeCape,waist="Oneiros Rope",legs="Perdition Slops",feet=gear.mer_feet_oa}
 
     sets.midcast['Elemental Magic'].MB = {main="Wizard's Rod",sub="Ammurapi Shield",ammo="Ghastly Tathlum +1",
-        head="Pedagogy Mortarboard +3",neck="Argute Stole +2",ear1="Malignance Earring",ear2="Static Earring",
+        head="Pedagogy Mortarboard +4",neck="Argute Stole +2",ear1="Malignance Earring",ear2="Static Earring",
         body="Agwu's Robe",hands="Arbatel Bracers +3",ring1="Mujin Band",ring2="Medada's Ring",
         back=gear.NukeCape,waist="Sacro Cord",legs="Arbatel Pants +3",feet="Arbatel Loafers +3"}
     sets.midcast['Elemental Magic'].MAcc.MB = set_combine(sets.midcast['Elemental Magic'].MB, {
@@ -490,16 +505,13 @@ function init_gear_sets()
     sets.midcast.Helix.MB = set_combine(sets.midcast.Helix, {ear2="Static Earring",body="Agwu's Robe",back=gear.HDurCape})
     sets.midcast.Helix.MAcc.MB = set_combine(sets.midcast.Helix.MB, {main="Wizard's Rod",sub="Ammurapi Shield",waist="Acuity Belt +1"})
     sets.midcast.Helix.MB.Marin = set_combine(sets.midcast.Helix.MB, sets.marin)
-    sets.midcast.Helix.NoDmg = {main="Malignance Pole",sub="Khonsu",ammo="Sapience Orb",
-        head=empty,neck="Orunmila's Torque",ear1="Gifted Earring",ear2="Lugalbanda Earring",
-        body=empty,hands="Gazu Bracelets +1",ring1="Shneddick Ring +1",ring2="Defending Ring",
+    sets.midcast.Helix.NoDmg = {main="Malignance Pole",sub="Khonsu",ammo="Crepuscular Pebble",
+        head="Null Masque",neck="Loricate Torque +1",ear1="Alabaster Earring",ear2="Lugalbanda Earring",
+        body=empty,hands=empty,ring1="Defending Ring",ring2="Murky Ring",
         back=gear.IdleCape,waist="Cornelia's Belt",legs=empty,feet=empty}
 
     sets.midcast.LowTierNuke = sets.midcast.Helix
-    sets.midcast.NoDmg = {main="Malignance Pole",sub="Khonsu",ammo="Homiliary",
-        head=empty,neck="Warder's Charm +1",ear1="Genmei Earring",ear2="Lugalbanda Earring",
-        body=empty,hands=empty,ring1="Shneddick Ring +1",ring2="Defending Ring",
-        back=gear.IdleCape,waist="Null Belt",legs=empty,feet=empty}
+    sets.midcast.NoDmg = sets.midcast.Helix.NoDmg
 
     sets.midcast['Luminohelix'] = set_combine(sets.midcast.Helix, {main="Daybreak",sub="Culminus"})
     sets.midcast['Luminohelix'].MAcc = set_combine(sets.midcast.Helix.MAcc, {main="Daybreak",sub="Ammurapi Shield"})
@@ -536,17 +548,17 @@ function init_gear_sets()
     sets.midcast.Drain = {main="Rubicundity",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
         head="Pixie Hairpin +1",neck="Erra Pendant",ear1="Malignance Earring",ear2="Barkarole Earring",
         body="Zendik Robe",hands="Gazu Bracelets +1",ring1="Evanescence Ring",ring2="Archon Ring",
-        back=gear.MACape,waist="Fucho-no-Obi",legs="Pedagogy Pants +3",feet="Agwu's Pigaches"}
+        back=gear.MACape,waist="Fucho-no-Obi",legs="Pedagogy Pants +4",feet="Agwu's Pigaches"}
     sets.midcast.Drain.MAcc = {main="Rubicundity",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
-        head="Academic's Mortarboard +3",neck="Erra Pendant",ear1="Malignance Earring",ear2="Regal Earring",
-        body="Academic's Gown +3",hands="Arbatel Bracers +3",ring1="Evanescence Ring",ring2="Medada's Ring",
-        back="Null Shawl",waist="Fucho-no-Obi",legs="Pedagogy Pants +3",feet="Agwu's Pigaches"}
+        head="Academic's Mortarboard +4",neck="Erra Pendant",ear1="Malignance Earring",ear2="Regal Earring",
+        body="Academic's Gown +4",hands="Arbatel Bracers +3",ring1="Evanescence Ring",ring2="Medada's Ring",
+        back="Null Shawl",waist="Fucho-no-Obi",legs="Pedagogy Pants +4",feet="Agwu's Pigaches"}
     sets.midcast.Aspir = sets.midcast.Drain
     sets.drain_belt = {waist="Fucho-no-Obi"}
 
     sets.midcast['Enfeebling Magic'] = {main="Musa",sub="Khonsu",ammo="Pemphredo Tathlum",
-        head="Academic's Mortarboard +3",neck="Null Loop",ear1="Malignance Earring",ear2="Regal Earring",
-        body="Academic's Gown +3",hands="Academic's Bracers +3",ring1="Metamorph Ring +1",ring2="Medada's Ring",
+        head="Academic's Mortarboard +4",neck="Null Loop",ear1="Malignance Earring",ear2="Regal Earring",
+        body="Academic's Gown +4",hands="Academic's Bracers +4",ring1="Metamorph Ring +1",ring2="Medada's Ring",
         back="Null Shawl",waist="Null Belt",legs="Arbatel Pants +3",feet="Academic's Loafers +3"}
     sets.midcast.Dispel   = set_combine(sets.midcast['Enfeebling Magic'], {waist="Cornelia's Belt"})
     sets.midcast.Dispelga = set_combine(sets.midcast.Dispel, sets.dispelga)
@@ -561,27 +573,27 @@ function init_gear_sets()
     sets.midcast.Bind    = sets.midcast.Sleep
     sets.midcast.Gravity = sets.midcast.Sleep
 
-    sets.midcast.ElementalEnfeeble = set_combine(sets.midcast['Enfeebling Magic'], {legs="Pedagogy Pants +3"})
+    sets.midcast.ElementalEnfeeble = set_combine(sets.midcast['Enfeebling Magic'], {legs="Pedagogy Pants +4"})
     sets.midcast['Dark Magic']     = set_combine(sets.midcast.ElementalEnfeeble, {waist="Cornelia's Belt"})
     sets.midcast['Divine Magic']   = set_combine(sets.midcast['Dark Magic'], {})
     sets.midcast.Stun              = set_combine(sets.midcast['Dark Magic'], {back=gear.MACape})
 
     ---- Sets to return to when not performing an action ----
     sets.idle = {main="Malignance Pole",sub="Oneiros Grip",ammo="Homiliary",
-        head=gear.mer_head_rf,neck="Sibyl Scarf",ear1="Eabani Earring",ear2="Lugalbanda Earring",
-        body="Arbatel Gown +3",hands=gear.mer_hand_rf,ring1="Shneddick Ring +1",ring2="Defending Ring",
+        head=gear.mer_head_rf,neck="Sibyl Scarf",ear1="Alabaster Earring",ear2="Lugalbanda Earring",
+        body="Arbatel Gown +3",hands=gear.mer_hand_rf,ring1="Shneddick Ring +1",ring2="Murky Ring",
         back=gear.IdleCape,waist="Null Belt",legs=gear.mer_legs_rf,feet=gear.mer_feet_rf}
     sets.idle.PDT = {main="Akademos",sub="Oneiros Grip",ammo="Homiliary",
         head="Null Masque",neck="Warder's Charm +1",ear1="Eabani Earring",ear2="Lugalbanda Earring",
-        body="Arbatel Gown +3",hands=gear.mer_hand_rf,ring1="Shneddick Ring +1",ring2="Defending Ring",
+        body="Arbatel Gown +3",hands=gear.mer_hand_rf,ring1="Shneddick Ring +1",ring2="Murky Ring",
         back=gear.IdleCape,waist="Null Belt",legs="Arbatel Pants +3",feet=gear.mer_feet_rf}
     sets.idle.MRf = set_combine(sets.idle, {ring1="Stikini Ring +1"})
     sets.idle.MDT = set_combine(sets.idle, {head="Arbatel Bonnet +3",neck="Warder's Charm +1",ring1="Shadow Ring",legs="Arbatel Pants +3"})
 
-    sets.idle.Subl = set_combine(sets.idle, {head="Academic's Mortarboard +3",body="Pedagogy Gown +3",waist="Embla Sash"})
-    sets.idle.PDT.Subl = set_combine(sets.idle.PDT, {ammo="Crepuscular Pebble",head="Academic's Mortarboard +3",waist="Embla Sash"})
-    sets.idle.MRf.Subl = set_combine(sets.idle.MRf, {head="Academic's Mortarboard +3",body="Pedagogy Gown +3",waist="Embla Sash"})
-    sets.idle.MDT.Subl = set_combine(sets.idle.MDT, {head="Academic's Mortarboard +3",body="Pedagogy Gown +3",waist="Embla Sash"})
+    sets.idle.Subl = set_combine(sets.idle, {head="Academic's Mortarboard +4",body="Pedagogy Gown +4",waist="Embla Sash"})
+    sets.idle.PDT.Subl = set_combine(sets.idle.PDT, {ammo="Crepuscular Pebble",head="Academic's Mortarboard +4",waist="Embla Sash"})
+    sets.idle.MRf.Subl = set_combine(sets.idle.MRf, {head="Academic's Mortarboard +4",body="Pedagogy Gown +4",waist="Embla Sash"})
+    sets.idle.MDT.Subl = set_combine(sets.idle.MDT, {head="Academic's Mortarboard +4",body="Pedagogy Gown +4",waist="Embla Sash"})
 
     sets.defense = sets.idle
 
@@ -590,14 +602,14 @@ function init_gear_sets()
     sets.sphere         = {body="Gyve Doublet"}
     sets.Kiting         = {ring1="Shneddick Ring +1"}
 
-    sets.buff.doom  = {neck="Nicander's Necklace",ring1="Saida Ring",ring2="Defending Ring",waist="Gishdubar Sash"}
+    sets.buff.doom  = {neck="Nicander's Necklace",ring1="Saida Ring",ring2="Murky Ring",waist="Gishdubar Sash"}
     sets.buff.sleep = {main="Opashoro",sub="Khonsu"}
 
     sets.engaged = {main="Malignance Pole",sub="Khonsu",ammo="Amar Cluster",
         head="Null Masque",neck="Null Loop",ear1="Telos Earring",ear2="Dignitary's Earring",
         body="Arbatel Gown +3",hands="Gazu Bracelets +1",ring1="Chirich Ring +1",ring2="Pernicious Ring",
         back="Null Shawl",waist="Null Belt",legs="Arbatel Pants +3",feet="Arbatel Loafers +3"}
-    sets.engaged.PDef = set_combine(sets.engaged, {ring2="Defending Ring"})
+    sets.engaged.PDef = set_combine(sets.engaged, {ring2="Murky Ring"})
 
     ---- Misc sets depending upon other sets ----
     sets.midcast.FastRecast = set_combine(sets.idle, {})
@@ -1033,14 +1045,9 @@ end
 -- Utility functions specific to this job.
 -------------------------------------------------------------------------------------------------------------------
 
--- Select default macro book on initial load or subjob change.
---function select_default_macro_book()
---    set_macro_page(1,4)
---end
-
 -- returns a list for use with make_keybind_list
 function job_keybinds()
-    local bind_command_list = L{
+    return L{
         'bind !^l input /lockstyleset 4',
         'bind %`   gs c update user',
         'bind F9   gs c cycle OffenseMode',
@@ -1062,7 +1069,7 @@ function job_keybinds()
         'bind ~!^q gs c set CombatWeapon Dagger',
         'bind !^q  gs c set CombatWeapon Marin',
         'bind !^w  gs c set CombatWeapon Musa',
-        'bind !^e  gs c set CombatWeapon Pole',
+        'bind !^e  gs c set CombatWeapon Rod',
         'bind ^z   gs c toggle SphereIdle',
         'bind !z   gs c toggle MagicBurst',
         'bind %z   gs c toggle MagicBurst',
@@ -1084,7 +1091,7 @@ function job_keybinds()
         'bind !^\\\\ gs c toggle SCHUD',
 
         'bind !^`   input /ja "Tabula Rasa <me>',
-        'bind !@`   input /ja "Caper Emissarius" <t>',
+        'bind !@`   input /ja "Caper Emissarius" <stpc>',
         'bind !`    input /ja Libra',
         'bind ^@`   input /ja Enlightenment <me>',
         'bind !e    input /ja Sublimation <me>',
@@ -1213,9 +1220,11 @@ function job_keybinds()
         'bind  %8 input /ma "Fire V"',
         'bind  %9 input /ma "Blizzard V"',
         'bind  %0 input /ma "Thunder V"'}
+end
 
+function sub_job_keybinds()
     if     player.sub_job == 'RDM' then
-        bind_command_list:extend(L{
+        return L{
             'bind ~^@tab input /ja Convert <me>',
             'bind !@3 input /ma Distract',
             'bind !@4 input /ma Frazzle',
@@ -1224,37 +1233,41 @@ function job_keybinds()
             'bind !7  input /ma Flurry  <stpc>',
             'bind !g  input /ma Phalanx',
             'bind !^d  input /ma Bind    <stnpc>',
-            'bind ~!^d input /ma Gravity <stnpc>'})
+            'bind ~!^d input /ma Gravity <stnpc>'}
     elseif player.sub_job == 'WHM' then
-        bind_command_list:extend(L{
+        return L{
             'bind ^`  input /ja "Divine Seal" <me>',
             'bind !@1 input /ma Curaga',
             'bind !@2 input /ma "Curaga II"',
             'bind !5  input /ma Haste <stpc>',
             'bind !d  input /ma Flash',
-            'bind !^d input /ma Repose <stnpc>'})
+            'bind !^d input /ma Repose <stnpc>'}
     elseif player.sub_job == 'BLM' then
-        bind_command_list:extend(L{
+        return L{
             'bind ^`   input /ja "Elemental Seal" <me>',
             'bind !d   input /ma Stun',
             'bind !^d  input /ma Bind    <stnpc>',
-            'bind ~!^d input /ma Sleepga <stnpc>'})
+            'bind ~!^d input /ma Sleepga <stnpc>'}
     elseif player.sub_job == 'DRK' then
-        bind_command_list:extend(L{
+        return L{
             'bind !d  input /ma Stun',
-            'bind !^d input /ma "Absorb-TP"'})
+            'bind !^d input /ma "Absorb-TP"'}
     end
-
-    return bind_command_list
 end
 
 -- waiting for buffactive to update sucks
 -- let's monkey patch a gearswap function to use state.Buff vars for enlightenment and addendums
 -- (a similar approach may be feasible for quickly using stratagems after swapping arts)
 function monkey_check_spell(available_spells,spell)
-    -- Filter for spells that you do not know. Exclude Impact / Dispelga.
+    -- Filter for spells that you do not know.
+    -- Exclude Impact / Dispelga / Honor March if the respective slots are enabled.
+    -- Need to add logic to check whether the equipment is already on
     local spell_jobs = copy_entry(res.spells[spell.id].levels)
-    if not available_spells[spell.id] and not (spell.id == 503 or spell.id == 417 or spell.id == 360) then
+    if not available_spells[spell.id] and not (
+            (not disable_table[5] and not disable_table[4] and spell.id == 503) or -- Body + Head + Impact
+            (not disable_table[2] and (spell.id == 417 or spell.id == 418)) or -- Range + Honor March + Aria of Passion
+            ((not disable_table[0] or not disable_table[1]) and spell.id == 360) -- Main or Sub + Dispelga
+        ) then
         return false,"Unable to execute command. You do not know that spell ("..(res.spells[spell.id][language] or spell.id)..")"
     -- Filter for spells that you know, but do not currently have access to
     elseif (not spell_jobs[player.main_job_id] or not (spell_jobs[player.main_job_id] <= player.main_job_level or
@@ -1271,7 +1284,9 @@ function monkey_check_spell(available_spells,spell)
         not (spell_jobs[player.main_job_id] and (spell_jobs[player.main_job_id] <= player.main_job_level or
         (spell_jobs[player.main_job_id] >= 100 and number_of_jps(player.job_points[__raw.lower(res.jobs[player.main_job_id].ens)]) >= spell_jobs[player.main_job_id]) ) ) then
         return false,"Unable to execute command. Addendum required for that spell ("..(res.spells[spell.id][language] or spell.id)..")"
-    elseif spell.type == 'BlueMagic' and not ((player.main_job_id == 16 and table.contains(windower.ffxi.get_mjob_data().spells,spell.id))
+    elseif player.main_job_id == 20 and (spell.id == 478 or spell.id == 502) and not state.Buff['Tabula Rasa'] then
+        return false,"Unable to execute command. SP required for that spell ("..(res.spells[spell.id][language] or spell.id)..")"
+    elseif spell.type == 'BlueMagic' and not ((player.main_job_id == 16 and table.contains(windower.ffxi.get_mjob_data().spells,spell.id)) 
         or unbridled_learning_set[spell.english]) and
         not (player.sub_job_id == 16 and table.contains(windower.ffxi.get_sjob_data().spells,spell.id)) then
         -- This code isn't hurting anything, but it doesn't need to be here either.
@@ -1284,41 +1299,6 @@ function monkey_check_spell(available_spells,spell)
         end
     end
     return true
-end
-
--- monkey-patch filter_pretarget to pass all stratagems
-function monkey_filter_pretarget(action)
-    local category = outgoing_action_category_table[unify_prefix[action.prefix]]
-    local bool = true
-    local err
-    if world.in_mog_house then
-        msg.debugging("Unable to execute commands. Currently in a Mog House zone.")
-        return false
-    elseif category == 3 then
-        local available_spells = windower.ffxi.get_spells()
-        bool,err = check_spell(available_spells,action)
-    elseif category == 7 then
-        local available = windower.ffxi.get_abilities().weapon_skills
-        if not table.contains(available,action.id) then
-            bool,err = false,"Unable to execute command. You do not have access to that weapon skill."
-        end
-    elseif category == 9 and action.type ~= 'Scholar' then
-        local available = windower.ffxi.get_abilities().job_abilities
-        if not table.contains(available,action.id) then
-            bool,err = false,"Unable to execute command. You do not have access to that job ability."
-        end
-    elseif category == 25 and (not player.main_job_id == 23 or not windower.ffxi.get_mjob_data().species or
-        not res.monstrosity[windower.ffxi.get_mjob_data().species] or not res.monstrosity[windower.ffxi.get_mjob_data().species].tp_moves[action.id] or
-        not (res.monstrosity[windower.ffxi.get_mjob_data().species].tp_moves[action.id] <= player.main_job_level)) then
-        -- Monstrosity filtering
-        msg.debugging("Unable to execute command. You do not have access to that monsterskill ("..(res.monster_skills[action.id][language] or action.id)..")")
-        return false
-    end
-
-    if err then
-        msg.debugging(err)
-    end
-    return bool
 end
 
 -- update state.skillchain with skillchain step and hud information
@@ -1467,8 +1447,19 @@ function skillchain_handle_command(cmd)
             if sc == '6step' then
                 state.SCDmg:unset()
             elseif sc:endswith('-ws') then
+                local base_sc = sc:sub(1,-4)
                 if state.CombatWeapon.value == 'Dagger' then
-                    sc = sc:gsub('-ws$','-dag')
+                    if info.skillchains[base_sc..'-dag'] then
+                        sc = base_sc..'-dag'
+                    else
+                        sc = base_sc
+                    end
+                elseif state.CombatWeapon.value == 'Rod' then
+                    if info.skillchains[base_sc..'-rod'] then
+                        sc = base_sc..'-rod'
+                    else
+                        sc = base_sc
+                    end
                 end
             end
             if state.SCHelix.value and info.skillchains['h-'..sc] then

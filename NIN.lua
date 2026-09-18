@@ -51,12 +51,11 @@ function get_sets()
     include('Mote-Include.lua')
 end
 
--- Setup vars that are user-independent.  state.Buff vars initialized here will automatically be tracked.
+-- Non-gearset initializations.
 function job_setup()
     enable('ammo','head','neck','ear1','ear2','body','hands','ring1','ring2','back','waist','legs','feet')
     disable('main','sub')
     state.Buff.doom = buffactive.doom or false
-    state.Buff.sleep = buffactive.sleep or false
 
     state.Buff.Sange = buffactive['sange'] or false
     state.Buff.Futae = buffactive['futae'] or false
@@ -67,25 +66,18 @@ function job_setup()
     --include('Mote-TreasureHunter')
 
     logout_event_id = windower.raw_register_event('logout', destroy_state_text)
-end
 
--------------------------------------------------------------------------------------------------------------------
--- User setup functions for this job.  Recommend that these be overridden in a sidecar file.
--------------------------------------------------------------------------------------------------------------------
-
--- Setup vars that are user-dependent.  Can override this function in a sidecar file.
-function user_setup()
     state.OffenseMode:options('Normal','MEVA','Acc','Crit','EXP','None') -- Cycle with F9, set with ^c, @c, !c, !w, @w
     state.HybridMode:options('Normal','PDef')                            -- Cycle with ^F9
     state.RangedMode:options('Shuriken','Tathlum','Blink')               -- Cycle with !F9, set with !-, !=, !backspace
     state.WeaponskillMode:options('Normal','Acc','NoDmg')                -- Cycle with @F9
     state.CastingMode:options('Enmity','Normal')                         -- Cycle with F10, @z
     state.IdleMode:options('Normal','Rf','BloodAggro')                   -- Cycle with F11, reset with !F11
-    state.PhysicalDefenseMode:options('PDT','EvaPDT')                    -- Cycle with !z
+    state.PhysicalDefenseMode:options('EvaPDT','PDT')                    -- Cycle with !z
     state.MagicalDefenseMode:options('MDT')
     state.CombatWeapon = M{['description']='Combat Weapon'}              -- Set with !^q through !^r and others
     state.CombatWeapon:options('Heishi','HeiYag','HeiFudo','HeiSB','HeishiTP','Gokotai','GokoBow','FudoCBow',
-                               'Nagi','NagiTP','Kannagi','Kikoku','FudoB','FudoBTP','FudoC','FudoCTP',
+                               'Nagi','NagiTP','Kannagi','Kikoku','Dokoku','DokokuTP','FudoB','FudoBTP','FudoC','FudoCTP',
                                'AEDagger','SCDagger','GKatana','GKGekko','GSword','Club','H2H','Naeg','NaegTP')
 
     state.MagicBurst = M(true,  'Magic Burst')                  -- Toggle with ^z
@@ -115,7 +107,6 @@ function user_setup()
     -- Augmented items get variables for convenience and specificity
     gear.fudoB = {name="Fudo Masamune", augments={'Path: B'}}
     gear.fudoC = {name="Fudo Masamune", augments={'Path: C'}}
-    gear.taeon_head_phlx  = {name="Taeon Chapeau", augments={'Phalanx +3'}}
 	gear.taeon_head_snap  = {name="Taeon Chapeau", augments={'"Snapshot"+5'}}
 	gear.taeon_body_snap  = {name="Taeon Tabard", augments={'"Snapshot"+5'}}
 	gear.taeon_hands_snap = {name="Taeon Gloves", augments={'"Snapshot"+5'}}
@@ -126,9 +117,10 @@ function user_setup()
     gear.herc_hands_rf  = {name="Herculean Gloves", augments={'"Refresh"+2'}}
     gear.herc_legs_rf   = {name="Herculean Trousers", augments={'"Refresh"+2'}}
     gear.herc_legs_th   = {name="Herculean Trousers", augments={'"Treasure Hunter"+2'}}
-    gear.herc_head_fc   = {name="Herculean Helm", augments={'"Fast Cast"+6'}}
+    gear.herc_head_fc   = {name="Herculean Helm", augments={'"Fast Cast"+7'}}
     gear.herc_legs_fc   = {name="Herculean Trousers", augments={'"Fast Cast"+7'}}
     gear.herc_feet_fc   = {name="Herculean Boots", augments={'"Fast Cast"+6'}}
+    gear.herc_head_phlx  = {name="Herculean Helm", augments={'Phalanx +5'}}
     gear.herc_body_phlx  = {name="Herculean Vest", augments={'Phalanx +5'}}
     gear.herc_hands_phlx = {name="Herculean Gloves", augments={'Phalanx +5'}}
     gear.herc_legs_phlx  = {name="Herculean Trousers", augments={'Phalanx +4'}}
@@ -151,6 +143,8 @@ function user_setup()
 
     -- High HP items get tagged with priorities
     gear.hp = {}
+    setmetatable(gear.hp, {__newindex = function(t, k, v) if type(v) == 'number' then rawset(t, k, {name = k, priority = v}) end end})
+    gear.hp["Alabaster Earring"] = 100
     gear.hp["Aqreqaq Bomblet"] = 20
     gear.hp["Ashera Harness"] = 182
     gear.hp["Bathy Choker +1"] = 35
@@ -165,6 +159,10 @@ function user_setup()
     gear.hp["Genmei Kabuto"] = 191
     gear.hp["Hachiya Hatsuburi +4"] = 74
     gear.hp["Hachiya Kyahan +4"] = 39
+    gear.hp["Hattori Hakama +3"] = 80
+    gear.hp["Hattori Kyahan +3"] = 45
+    gear.hp["Hattori Tekko +3"] = 57
+    gear.hp["Hattori Zukin +3"] = 71
     gear.hp["Hizamaru Haramaki +2"] = 100
     gear.hp["Hizamaru Sune-Ate +2"] = 30
     gear.hp["Ilabrat Ring"] = 60
@@ -177,11 +175,13 @@ function user_setup()
     gear.hp["Malignance Boots"] = 34
     gear.hp["Malignance Gloves"] = 57
     gear.hp["Metamorph Ring +1"] = -60
+    gear.hp["Mochizuki Chainmail +3"] = 79
     gear.hp["Mochizuki Hakama +3"] = 82
-    gear.hp["Mochizuki Hatsuburi +3"] = 106
+    gear.hp["Mochizuki Hatsuburi +4"] = 116
     gear.hp["Mochizuki Kyahan +3"] = 33
     gear.hp["Mochizuki Tekko +3"] = 45
     gear.hp["Moonbeam Cape"] = 250
+    gear.hp["Mpaca's Cap"] = 61
     gear.hp["Mpaca's Doublet"] = 84
     gear.hp["Mpaca's Hose"] = 72
     gear.hp["Mummu Gamashes +2"] = 30
@@ -198,18 +198,18 @@ function user_setup()
     gear.hp["Rawhide Gloves"] = 75
     gear.hp["Regal Ring"] = 50
     gear.hp["Repulse Mantle"] = 30
+    gear.hp["Revelation Brais"] = 119
+    gear.hp["Revelation Gauntlets"] = 96
+    gear.hp["Revelation Masque"] = 107
+    gear.hp["Revelation Platemail"] = 130
+    gear.hp["Revelation Sabatons"] = 84
     gear.hp["Supershear Ring"] = 30
     gear.hp["Unmoving Collar +1"] = 200
     gear.hp["Volte Cap"] = 57
-    for k, v in pairs(gear.hp) do
-        gear.hp[k] = {name = k, priority = v}
-    end
-
-    gear.slots = S{'main','sub','range','ammo','head','neck','ear1','ear2','body','hands','ring1','ring2','back','waist','legs','feet'}
 
     function prioritize(set)
         for k, v in pairs(set) do
-            if gear.slots[k] and gear.hp[v] then
+            if gearswap.slot_map[k] and gear.hp[v] then
                 set[k] = gear.hp[v]
             end
         end
@@ -259,6 +259,29 @@ function user_setup()
             'bind %~2 input /ws "Blade: Shun" <stnpc>',
             'bind %~3 input /ws "Blade: Ten" <stnpc>',
             'bind %~4 input /ws "Blade: Metsu" <stnpc>',
+            'bind %~5 input /ws "Blade: Jin" <stnpc>',
+            'bind %~6 input /ws "Blade: Ku" <stnpc>',
+            'bind ~!^1    input /ws "Blade: Ei" <stnpc>',
+            'bind ~!^2    input /ws "Blade: Chi" <stnpc>',
+            'bind ~!^3    input /ws "Blade: To" <stnpc>',
+            'bind ~!^4    input /ws "Blade: Teki" <stnpc>',
+            'bind ~!^5    input /ws "Blade: Yu" <stnpc>'},
+        ['PKatana']=L{
+            'bind %1 input /ws "Blade: Hi"',
+            'bind %2 input /ws "Zesho Meppo"',
+            'bind %3 input /ws "Blade: Ten"',
+            'bind %4 input /ws "Blade: Kamu"',
+            'bind %5 input /ws "Blade: Jin"',
+            'bind %6 input /ws "Blade: Ku"',
+            'bind !^1   input /ws "Blade: Ei"',
+            'bind !^2   input /ws "Blade: Chi"',
+            'bind !^3   input /ws "Blade: To"',
+            'bind !^4   input /ws "Blade: Teki"',
+            'bind !^5   input /ws "Blade: Yu"',
+            'bind %~1 input /ws "Blade: Hi" <stnpc>',
+            'bind %~2 input /ws "Zesho Meppo" <stnpc>',
+            'bind %~3 input /ws "Blade: Ten" <stnpc>',
+            'bind %~4 input /ws "Blade: Kamu" <stnpc>',
             'bind %~5 input /ws "Blade: Jin" <stnpc>',
             'bind %~6 input /ws "Blade: Ku" <stnpc>',
             'bind ~!^1    input /ws "Blade: Ei" <stnpc>',
@@ -351,6 +374,7 @@ function user_setup()
             'bind !^d   input /ws "Shoulder Tackle"'}},
         {['Heishi']='Katana',['HeiYag']='Katana',['HeiFudo']='Katana',['HeiSB']='Katana',['HeishiTP']='Katana',
          ['Nagi']='Katana',['NagiTP']='Katana',['Kannagi']='Katana',['Kikoku']='RKatana',
+         ['Dokoku']='PKatana',['DokokuTP']='PKatana',
          ['FudoB']='Katana',['FudoBTP']='Katana',['FudoC']='Katana',['FudoCTP']='Katana',
          ['Gokotai']='Katana',['GokoBow']='BowKatana',
          ['FudoCBow']='BowKatana',['KannaBow']='BowKatana',['KaKuBow']='BowKatana',
@@ -359,26 +383,34 @@ function user_setup()
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
 
+    job_sub_job_change()
+end
+
+function job_sub_job_change()
+    if info.sj_binds then info.sj_binds:unbind() end
+    info.sj_binds = make_keybind_list(sub_job_keybinds())
+    info.sj_binds:bind()
+
     info.recast_ids = L{{name='Yonin',id=146},{name='Issekigan',id=57}}
-    if     player.sub_job == 'WAR' then
+    if     player.sub_job== 'WAR' then
         info.recast_ids:extend(L{{name='Provoke',id=5},{name='Warcry',id=2}})
-    elseif player.sub_job == 'DRG' then
+    elseif player.sub_job== 'DRG' then
         info.recast_ids:extend(L{{name='High Jump',id=159},{name='Super Jump',id=160}})
-    elseif player.sub_job == 'DRK' then
+    elseif player.sub_job== 'DRK' then
         info.recast_ids:extend(L{{name='Last Resort',id=87},{name='Souleater',id=85}})
-    elseif player.sub_job == 'RUN' then
+    elseif player.sub_job== 'RUN' then
         info.recast_ids:extend(L{{name='Vallation',id=23},{name='Valiance',id=113},{name='Swordplay',id=24},{name='Pflug',id=59}})
-    elseif player.sub_job == 'PLD' then
+    elseif player.sub_job== 'PLD' then
         info.recast_ids:extend(L{{name='Sentinel',id=75}})
     end
 
-    --select_default_macro_book()
+    hud_update_on_state_change()
 end
 
 -- Called when this job file is unloaded (eg: job change)
-function user_unload()
+function job_file_unload()
     info.keybinds:unbind()
-
+    info.sj_binds:unbind()
     info.ws_binds:unbind()
     send_command('unbind %\\\\')
 
@@ -402,6 +434,8 @@ function init_gear_sets()
     sets.weapons.FudoCTP  = {main=gear.fudoC,sub="Hitaki"}
     sets.weapons.Kannagi  = {main="Kannagi",sub="Gleti's Knife"}
     sets.weapons.Kikoku   = {main="Kikoku",sub="Kunimitsu"}
+    sets.weapons.Dokoku   = {main="Dokoku",sub="Kunimitsu"}
+    sets.weapons.DokokuTP = {main="Dokoku",sub="Hitaki"}
     sets.weapons.Gokotai  = {main="Gokotai",sub="Kunimitsu"}
     sets.weapons.GokoBow  = {main="Gokotai",sub="Hitaki",range="Ullr",ammo=gear.arrow_tp}
     sets.weapons.FudoCBow = {main=gear.fudoC,sub="Hitaki",range="Ullr",ammo=gear.arrow_tp}
@@ -433,8 +467,8 @@ function init_gear_sets()
     -- FudoC: enm+97~167, pdt-35, dt-10, def~1167, eva~954, meva+435
     sets.Enmity.EvaPDT = prioritize({main=gear.fudoC,sub="Tsuru",ammo="Date Shuriken",
         head="Null Masque",neck="Bathy Choker +1",ear1="Eabani Earring",ear2="Infused Earring",
-        body="Emet Harness +1",hands="Shigure Tekko +1",ring1="Gelatinous Ring +1",ring2="Defending Ring",
-        back=gear.ParryCape,waist="Kasiri Belt",legs="Mpaca's Hose",feet="Nyame Sollerets"})
+        body="Emet Harness +1",hands="Shigure Tekko +1",ring1="Gelatinous Ring +1",ring2="Murky Ring",
+        back=gear.ParryCape,waist="Kasiri Belt",legs="Hattori Hakama +3",feet="Revelation Sabatons"})
     sets.nagi = {main="Nagi"}   -- applied in job_post_precast and job_post_midcast for enmity with few shadows
     sets.precast.JA.Yonin          = set_combine(sets.Enmity, {})
     sets.precast.JA.Provoke        = set_combine(sets.Enmity, {})
@@ -449,34 +483,37 @@ function init_gear_sets()
     sets.precast.JA['Mijin Gakure'] = {main="Nagi"}
 
     sets.gavialis = prioritize({head="Gavialis Helm"}) -- combined in job_post_precast
-    sets.scb = prioritize({head="Nyame Helm",neck="Warder's Charm +1",
-        body="Nyame Mail",hands="Nyame Gauntlets",legs="Nyame Flanchard",feet="Nyame Sollerets"})
+    sets.scb = prioritize({head="Mpaca's Cap",body="Nyame Mail",hands="Nyame Gauntlets",legs="Nyame Flanchard",feet="Nyame Sollerets"})
     sets.precast.WS = prioritize({ammo="Oshasha's Treatise",
-        head="Adhemar Bonnet +1",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Hattori Earring +1",
+        head="Mpaca's Cap",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Hattori Earring +1",
         body="Kendatsuba Samue +1",hands="Adhemar Wristbands +1",ring1="Regal Ring",ring2="Ephramad's Ring",
         back=gear.ShunCape,waist="Fotia Belt",legs="Samnuha Tights",feet=gear.herc_feet_ta})
     sets.precast.WS['Blade: Shun'] = prioritize({ammo="Cath Palug Stone",
-        head="Kendatsuba Jinpachi +1",neck="Fotia Gorget",ear1="Odr Earring",ear2="Hattori Earring +1",
+        head="Kendatsuba Jinpachi +1",neck="Fotia Gorget",ear1="Hoxne Earring",ear2="Hattori Earring +1",
         body="Kendatsuba Samue +1",hands="Kendatsuba Tekko +1",ring1="Regal Ring",ring2="Ephramad's Ring",
         back=gear.ShunCape,waist="Fotia Belt",legs="Jokushu Haidate",feet="Kendatsuba Sune-Ate +1"})
     sets.precast.WS['Blade: Ten'] = prioritize({ammo="Oshasha's Treatise",
-        head="Nyame Helm",neck="Ninja Nodowa +2",ear1="Moonshade Earring",ear2="Hattori Earring +1",
+        head="Mpaca's Cap",neck="Ninja Nodowa +2",ear1="Moonshade Earring",ear2="Hattori Earring +1",
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Epaminondas's Ring",ring2="Ephramad's Ring",
         back=gear.TenCape,waist="Sailfi Belt +1",legs="Nyame Flanchard",feet="Nyame Sollerets"})
     sets.precast.WS['Blade: Metsu'] = prioritize({ammo="Cath Palug Stone",
-        head="Hachiya Hatsuburi +4",neck="Ninja Nodowa +2",ear1="Lugra Earring +1",ear2="Hattori Earring +1",
+        head="Hachiya Hatsuburi +4",neck="Ninja Nodowa +2",ear1="Hoxne Earring",ear2="Hattori Earring +1",
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Epaminondas's Ring",ring2="Ephramad's Ring",
         back=gear.MetsuCape,waist="Fotia Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
     sets.precast.WS['Blade: Kamu'] = prioritize({ammo="Oshasha's Treatise",
-        head="Nyame Helm",neck="Ninja Nodowa +2",ear1="Lugra Earring +1",ear2="Hattori Earring +1",
+        head="Mpaca's Cap",neck="Ninja Nodowa +2",ear1="Hoxne Earring",ear2="Hattori Earring +1",
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Gere Ring",ring2="Ephramad's Ring",
         back=gear.TenCape,waist="Fotia Belt",legs="Nyame Flanchard",feet=gear.herc_feet_ta})
     sets.precast.WS['Blade: Hi'] = prioritize({ammo="Yetshila +1",
         head="Hachiya Hatsuburi +4",neck="Ninja Nodowa +2",ear1="Odr Earring",ear2="Hattori Earring +1",
         body="Kendatsuba Samue +1",hands="Mummu Wrists +2",ring1="Epaminondas's Ring",ring2="Ephramad's Ring",
         back=gear.HiCape,waist="Windbuffet Belt +1",legs="Mummu Kecks +2",feet="Mummu Gamashes +2"})
+    sets.precast.WS['Zesho Meppo'] = prioritize({ammo="Cath Palug Stone",
+        head="Mpaca's Cap",neck="Ninja Nodowa +2",ear1="Moonshade Earring",ear2="Hattori Earring +1",
+        body="Nyame Mail",hands="Nyame Gauntlets",ring1="Epaminondas's Ring",ring2="Ephramad's Ring",
+        back=gear.MetsuCape,waist="Fotia Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
     sets.precast.WS['Blade: Jin'] = prioritize(set_combine(sets.precast.WS['Blade: Hi'], {
-        head="Adhemar Bonnet +1",body="Kendatsuba Samue +1",ring1="Ilabrat Ring",
+        head="Mpaca's Cap",body="Kendatsuba Samue +1",ring1="Ilabrat Ring",
         back=gear.ShunCape,waist="Fotia Belt"}))
     sets.precast.WS.Evisceration = set_combine(sets.precast.WS['Blade: Jin'], {})
     sets.precast.WS['Vorpal Blade'] = set_combine(sets.precast.WS['Blade: Jin'], {})
@@ -486,12 +523,12 @@ function init_gear_sets()
     sets.precast.WS['True Strike']  = set_combine(sets.precast.WS['Savage Blade'], {})
 
     sets.precast.WS['Aeolian Edge'] = prioritize({ammo="Seething Bomblet +1",
-        head="Mochizuki Hatsuburi +3",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Friomisi Earring",
+        head="Mochizuki Hatsuburi +4",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Friomisi Earring",
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Dingir Ring",ring2="Epaminondas's Ring",
         back=gear.MetsuCape,waist="Fotia Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
     sets.precast.WS['Aeolian Edge'].Tag = prioritize({ammo="Seething Bomblet +1",
         head="Nyame Helm",neck="Bathy Choker +1",ear1="Eabani Earring",ear2="Moonshade Earring",
-        body="Nyame Mail",hands="Nyame Gauntlets",ring1="Hizamaru Ring",ring2="Defending Ring",
+        body="Nyame Mail",hands="Nyame Gauntlets",ring1="Hizamaru Ring",ring2="Murky Ring",
         back=gear.MetsuCape,waist="Null Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
     sets.precast.WS.Cyclone = sets.precast.WS['Aeolian Edge']
     sets.precast.WS['Blade: Yu']       = set_combine(sets.precast.WS['Aeolian Edge'], {ear1="Hecate's Earring"})
@@ -503,7 +540,7 @@ function init_gear_sets()
     sets.precast.WS['Freezebite']      = set_combine(sets.precast.WS['Aeolian Edge'], {})
 
     sets.precast.WS['Blade: To'] = prioritize({ammo="Oshasha's Treatise",
-        head="Mochizuki Hatsuburi +3",neck="Ninja Nodowa +2",ear1="Moonshade Earring",ear2="Hattori Earring +1",
+        head="Mochizuki Hatsuburi +4",neck="Ninja Nodowa +2",ear1="Moonshade Earring",ear2="Hattori Earring +1",
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Gere Ring",ring2="Ephramad's Ring",
         back=gear.TenCape,waist="Orpheus's Sash",legs="Nyame Flanchard",feet="Nyame Sollerets"})
     sets.precast.WS['Blade: Teki']  = set_combine(sets.precast.WS['Blade: To'], {})
@@ -532,68 +569,70 @@ function init_gear_sets()
         back=gear.SnapCape,waist="Yemaya Belt",legs="Adhemar Kecks +1",feet=gear.taeon_feet_snap})
     sets.precast.RA.Bow = set_combine(sets.precast.RA, {range="Ullr",ammo=gear.arrow_tp})
     sets.precast.FC = prioritize({main=gear.fudoB,sub="Tsuru",ammo="Sapience Orb",
-        head=gear.herc_head_fc,neck="Orunmila's Torque",ear1="Etiolation Earring",ear2="Odnowa Earring +1",
+        head=gear.herc_head_fc,neck="Orunmila's Torque",ear1="Alabaster Earring",ear2="Odnowa Earring +1",
         body=gear.adh_body_fc,hands="Leyline Gloves",ring1="Gelatinous Ring +1",ring2="Kishar Ring",
         back=gear.FCCape,waist="Platinum Moogle Belt",legs=gear.herc_legs_fc,feet=gear.herc_feet_fc})
-    -- fc+63
+    -- fc+62
     sets.precast.FC.Ninjutsu = set_combine(sets.precast.FC, {ammo="Impatiens"})
-    sets.precast.FC.Utsusemi = prioritize(set_combine(sets.precast.FC.Ninjutsu, {neck="Magoraga Beads",legs="Nyame Flanchard"}))
-    sets.precast.FC.Utsusemi.SubRDM = set_combine(sets.precast.FC.Utsusemi, {back="Moonbeam Cape"})
+    sets.precast.FC.Utsusemi = set_combine(sets.precast.FC.Ninjutsu, prioritize({neck="Magoraga Beads",legs="Nyame Flanchard"}))
+    sets.precast.FC.Utsusemi.SubRDM = set_combine(sets.precast.FC.Utsusemi, prioritize({back="Moonbeam Cape"}))
 
     sets.precast.Waltz = prioritize({ammo="Yamarang",
-        head="Mummu Bonnet +2",neck="Bathy Choker +1",ear1="Eabani Earring",ear2="Odnowa Earring +1",
-        body="Nyame Mail",hands="Nyame Gauntlets",ring1="Vocane Ring +1",ring2="Defending Ring",
+        head="Mummu Bonnet +2",neck="Bathy Choker +1",ear1="Alabaster Earring",ear2="Odnowa Earring +1",
+        body="Nyame Mail",hands="Nyame Gauntlets",ring1="Gelatinous Ring +1",ring2="Murky Ring",
         back=gear.ParryCape,waist="Kasiri Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
     sets.precast.Step = prioritize({ammo="Yamarang",
-        head="Null Masque",neck="Null Loop",ear1="Telos Earring",ear2="Dignitary's Earring",
+        head="Null Masque",neck="Null Loop",ear1="Hoxne Earring",ear2="Dignitary's Earring",
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Ilabrat Ring",ring2="Ephramad's Ring",
         back=gear.TPCape,waist="Null Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
-    sets.precast.JA['Violent Flourish'] = prioritize(set_combine(sets.precast.Step, {ring1="Etana Ring"}))
+    sets.precast.JA['Violent Flourish'] = set_combine(sets.precast.Step, prioritize({ring1="Etana Ring"}))
     sets.precast.JA['Animated Flourish'] = set_combine(sets.Enmity, {})
-    sets.precast.WS.NoDmg = set_combine(sets.precast.Step, {back=gear.EnmCape,ring2="Defending Ring"})
+    sets.precast.WS.NoDmg = set_combine(sets.precast.Step, prioritize({back=gear.EnmCape,ring2="Murky Ring"}))
 
     -- Midcast Sets
     sets.midcast.RA = prioritize({ammo="Date Shuriken",
         head="Malignance Chapeau",neck="Ninja Nodowa +2",ear1="Telos Earring",ear2="Odnowa Earring +1",
-        body="Malignance Tabard",hands="Malignance Gloves",ring1="Dingir Ring",ring2="Defending Ring",
+        body="Malignance Tabard",hands="Malignance Gloves",ring1="Dingir Ring",ring2="Murky Ring",
         back=gear.HiCape,waist="Null Belt",legs="Malignance Tights",feet="Malignance Boots"})
-    sets.midcast.RA.Bow = set_combine(sets.midcast.RA, {range="Ullr",ammo=gear.arrow_tp,
-        ear2="Crepuscular Earring",ring2="Ephramad's Ring"})
+    sets.midcast.RA.Bow = set_combine(sets.midcast.RA, prioritize({range="Ullr",ammo=gear.arrow_tp,
+        ear2="Crepuscular Earring",ring2="Ephramad's Ring"}))
     sets.precast.JA.Shadowbind = sets.midcast.RA.Bow
 
     sets.midcast.Ninjutsu = prioritize({main=gear.fudoC,sub="Tsuru",ammo="Date Shuriken",
         head="Null Masque",neck="Bathy Choker +1",ear1="Eabani Earring",ear2="Odnowa Earring +1",
-        body="Mpaca's Doublet",hands="Mochizuki Tekko +3",ring1="Vocane Ring +1",ring2="Defending Ring",
+        body="Mpaca's Doublet",hands="Mochizuki Tekko +3",ring1="Defending Ring",ring2="Murky Ring",
         back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
-    sets.midcast['Migawari: Ichi'] = set_combine(sets.midcast.Ninjutsu, {back=gear.FCCape})
+    sets.midcast['Migawari: Ichi'] = set_combine(sets.midcast.Ninjutsu, prioritize({back=gear.FCCape}))
 
-    sets.midcast.Utsusemi = prioritize(set_combine(sets.midcast.Ninjutsu, {hands="Nyame Gauntlets",feet="Hattori Kyahan +3"}))
+    sets.midcast.Utsusemi = set_combine(sets.midcast.Ninjutsu, prioritize({sub="Yagyu Darkblade",
+        hands="Nyame Gauntlets",feet="Hattori Kyahan +3"}))
     sets.midcast.Utsusemi.Enmity = prioritize({main=gear.fudoC,sub="Yagyu Darkblade",ammo="Date Shuriken",
         head="Genmei Kabuto",neck="Moonlight Necklace",ear1="Trux Earring",ear2="Cryptic Earring",
-        body="Emet Harness +1",hands="Kurys Gloves",ring1="Eihwaz Ring",ring2="Defending Ring",
+        body="Emet Harness +1",hands="Kurys Gloves",ring1="Eihwaz Ring",ring2="Murky Ring",
         back=gear.EnmCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Hattori Kyahan +3"})
     -- enm+64, pdt-44, dt-23
     sets.midcast.Utsusemi.NoCancel = prioritize({ring2="Supershear Ring",feet="Nyame Sollerets"})
     sets.midcast.Utsusemi.Enmity.NoCancel = {feet="Ahosi Leggings"}
     sets.midcast.Utsusemi.EvaPDT = prioritize({main=gear.fudoC,sub="Yagyu Darkblade",ammo="Date Shuriken",
         head="Null Masque",neck="Bathy Choker +1",ear1="Eabani Earring",ear2="Infused Earring",
-        body="Mpaca's Doublet",hands="Nyame Gauntlets",ring1="Hizamaru Ring",ring2="Defending Ring",
-        back=gear.ParryCape,waist="Kasiri Belt",legs="Mpaca's Hose",feet="Nyame Sollerets"})
+        body="Mpaca's Doublet",hands="Revelation Gauntlets",ring1="Hizamaru Ring",ring2="Murky Ring",
+        back=gear.ParryCape,waist="Kasiri Belt",legs="Hattori Hakama +3",feet="Hattori Kyahan +3"})
     sets.midcast.Utsusemi.SIRD = prioritize({main="Tancho +1",sub="Tancho",ammo="Date Shuriken",
         head="Null Masque",neck="Moonlight Necklace",ear1="Eabani Earring",ear2="Odnowa Earring +1",
-        body="Mpaca's Doublet",hands="Rawhide Gloves",ring1="Vocane Ring +1",ring2="Defending Ring",
+        body="Mpaca's Doublet",hands="Rawhide Gloves",ring1="Defending Ring",ring2="Murky Ring",
         back=gear.ParryCape,waist="Audumbla Sash",legs="Nyame Flanchard",feet="Hattori Kyahan +3"})
-    -- enm+32, pdt-50, dt-36, sird+105
+    -- enm+32, pdt-50, dt-36, sird+108
 
     sets.midcast.ElementalNinjutsu = prioritize({main="Gokotai",sub="Kunimitsu",ammo="Pemphredo Tathlum",
-        head="Mochizuki Hatsuburi +3",neck="Sibyl Scarf",ear1="Lugra Earring +1",ear2="Friomisi Earring",
+        head="Mochizuki Hatsuburi +4",neck="Sibyl Scarf",ear1="Hoxne Earring",ear2="Friomisi Earring",
         body="Nyame Mail",hands="Nyame Gauntlets",ring1="Dingir Ring",ring2="Metamorph Ring +1",
         back=gear.NukeCape,waist="Eschan Stone",legs="Nyame Flanchard",feet="Mochizuki Kyahan +3"})
-    sets.midcast.ElementalNinjutsu.MB = set_combine(sets.midcast.ElementalNinjutsu, {hands="Hattori Tekko +3"})
+    sets.midcast.ElementalNinjutsu.MB = set_combine(sets.midcast.ElementalNinjutsu, prioritize({hands="Hattori Tekko +3"}))
     sets.buff.Futae = {hands="Hattori Tekko +3"}
     sets.orpheus    = {waist="Orpheus's Sash"}
     sets.ele_obi    = {waist="Hachirin-no-Obi"}
     sets.nuke_belt  = {waist="Eschan Stone"}
+    sets.lugraear   = {ear2="Lugra Earring +1"}
     sets.donargun   = {range="Donar Gun",ammo=empty}
 
     sets.midcast.EnfeeblingNinjutsu = prioritize({main="Nagi",sub="Gokotai",ammo="Yamarang",
@@ -604,9 +643,9 @@ function init_gear_sets()
 
     sets.midcast['Enfeebling Magic'] = set_combine(sets.midcast.EnfeeblingNinjutsu, {})
     sets.midcast.Repose = set_combine(sets.midcast['Enfeebling Magic'], {})
-    sets.midcast['Enhancing Magic'] = {neck="Incanter's Torque",ear1="Andoaa Earring",ear2="Mimir Earring",
+    sets.midcast['Enhancing Magic'] = {neck="Hoxne Torque",ear1="Andoaa Earring",ear2="Mimir Earring",
         ring1=gear.Lstikini,ring2=gear.Rstikini,waist="Olympus Sash"}
-    sets.phlx = {head=gear.taeon_head_phlx,body=gear.herc_body_phlx,
+    sets.phlx = {head=gear.herc_head_phlx,body=gear.herc_body_phlx,
         hands=gear.herc_hands_phlx,legs=gear.herc_legs_phlx,feet=gear.herc_feet_phlx}
     sets.midcast.Phalanx = set_combine(sets.midcast['Enhancing Magic'], sets.phlx)
     sets.midcast.Refresh = {waist="Gishdubar Sash"}
@@ -626,89 +665,98 @@ function init_gear_sets()
     sets.midcast.Soporific       = set_combine(sets.Enmity, {})
     sets.midcast.Jettatura       = set_combine(sets.Enmity, {})
 
+    sets.hachiya   = prioritize({feet="Hachiya Kyahan +4"})
+    sets.shneddick  = {ring1="Shneddick Ring +1"}
+    sets.Kiting    = sets.shneddick
+
     -- Sets to return to when not performing an action.
     sets.idle = prioritize({main=gear.fudoC,sub="Tsuru",ammo="Yamarang",
-        head="Null Masque",neck="Bathy Choker +1",ear1="Eabani Earring",ear2="Infused Earring",
-        body="Hizamaru Haramaki +2",hands="Nyame Gauntlets",ring1="Gelatinous Ring +1",ring2="Defending Ring",
-        back=gear.EnmCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Hachiya Kyahan +4"})
-    sets.idle.Rf  = prioritize(set_combine(sets.idle, {
-        neck="Sibyl Scarf",
-        body="Mekosuchinae Harness",hands=gear.herc_hands_rf,ring1=gear.Lstikini,ring2=gear.Rstikini,
-        legs=gear.herc_legs_rf}))
+        head="Null Masque",neck="Bathy Choker +1",ear1="Alabaster Earring",ear2="Infused Earring",
+        body="Hizamaru Haramaki +2",hands="Nyame Gauntlets",ring1="Shneddick Ring +1",ring2="Murky Ring",
+        back=gear.EnmCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
+    sets.idle.Hachiya  = prioritize(set_combine(sets.idle, {ring1="Shadow Ring"}, sets.hachiya))
+    sets.idle.Rf = prioritize({main=gear.fudoC,sub="Tsuru",ammo="Yamarang",
+        head="Null Masque",neck="Sibyl Scarf",ear1="Alabaster Earring",ear2="Infused Earring",
+        body="Mekosuchinae Harness",hands=gear.herc_hands_rf,ring1="Shneddick Ring +1",ring2=gear.Rstikini,
+        back=gear.EnmCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
+    sets.idle.Rf.Hachiya = prioritize(set_combine(sets.idle.Rf, {ring1=gear.Lstikini}, sets.hachiya))
     sets.idle.DW = prioritize({ammo="Yamarang",
-        head="Ryuo Somen +1",neck="Null Loop",ear1="Eabani Earring",ear2="Suppanomimi",
-        body="Mochizuki Chainmail +3",hands="Floral Gauntlets",ring1="Vocane Ring +1",ring2="Defending Ring",
+        head="Hattori Zukin +3",neck="Null Loop",ear1="Eabani Earring",ear2="Suppanomimi",
+        body="Mochizuki Chainmail +3",hands="Floral Gauntlets",ring1="Defending Ring",ring2="Murky Ring",
         back=gear.DWCape,waist="Reiki Yotai",legs="Mochizuki Hakama +3",feet="Hizamaru Sune-Ate +2"})
     sets.idle.BloodAggro = prioritize({main="Heishi Shorinken",sub="Kunimitsu",ammo="Date Shuriken",
         head="Malignance Chapeau",neck="Loricate Torque +1",ear1="Arete del Luna +1",ear2="Infused Earring",
-        body="Hizamaru Haramaki +2",hands="Shigure Tekko +1",ring1="Vocane Ring +1",ring2="Defending Ring",
-        back=gear.DWCape,waist="Null Belt",legs="Malignance Tights",feet="Hachiya Kyahan +4"})
+        body="Hizamaru Haramaki +2",hands="Shigure Tekko +1",ring1="Shneddick Ring +1",ring2="Murky Ring",
+        back=gear.DWCape,waist="Null Belt",legs="Malignance Tights",feet="Nyame Sollerets"})
+    sets.idle.BloodAggro.Hachiya = prioritize(set_combine(sets.idle.BloodAggro, {ring1="Shadow Ring"}, sets.hachiya))
+    sets.idle.Normal = sets.idle
+    sets.idle.Normal.Hachiya = sets.idle.Hachiya
 
     sets.defense.PDT = prioritize({main=gear.fudoC,sub="Tsuru",ammo="Yamarang",
-        head="Null Masque",neck="Bathy Choker +1",ear1="Cryptic Earring",ear2="Odnowa Earring +1",
+        head="Null Masque",neck="Bathy Choker +1",ear1="Alabaster Earring",ear2="Odnowa Earring +1",
         body="Mpaca's Doublet",hands="Nyame Gauntlets",ring1="Gere Ring",ring2="Epona's Ring",
-        back=gear.EnmCape,waist="Platinum Moogle Belt",legs="Mpaca's Hose",feet="Nyame Sollerets"})
-    -- FudoC/Shuriken: acc~1233/1209/1128, haste+25, da+9, ta+16 FIXME
-    -- pdt-50, dt-46, def~1468, eva~1208, meva+587, hp~3581, enm+14, rg+3, counter+23, killer+10
+        back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Mpaca's Hose",feet="Nyame Sollerets"})
+    -- FudoC/Shuriken: acc~1304/1304/1102, haste+26, da+11, ta+16
+    -- pdt-50, dt-35, def~1472, eva~1194, meva+579, hp~3315, enm+13, rg+8, counter+20, parry+5, killer+10
     sets.defense.EvaPDT = prioritize({main="Tancho +1",sub="Tsuru",ammo="Yamarang",
-        head="Null Masque",neck="Bathy Choker +1",ear1="Eabani Earring",ear2="Infused Earring",
-        body="Mpaca's Doublet",hands="Nyame Gauntlets",ring1="Hizamaru Ring",ring2="Defending Ring",
-        back=gear.ParryCape,waist="Kasiri Belt",legs="Mpaca's Hose",feet="Nyame Sollerets"})
-    -- FudoC/Shuriken: acc~1225/1201/1127, haste+26, stp+0, dw+4, da+6, ta+8 FIXME
-    -- pdt-50, dt-31, def~1454, eva~1260, meva+595, hp~3181, enm+16, rg+4, counter+20, parry+5, killer+10
+        head="Null Masque",neck="Bathy Choker +1",ear1="Alabaster Earring",ear2="Infused Earring",
+        body="Revelation Platemail",hands="Revelation Gauntlets",ring1="Gelatinous Ring +1",ring2="Murky Ring",
+        back=gear.ParryCape,waist="Null Belt",legs="Revelation Brais",feet="Hachiya Kyahan +4"})
+    -- FudoC/Shuriken: acc~1310/1310/1059, haste+26, stp+0, dw+4, da+4, ta+8
+    -- pdt-50, dt-43, def~150r, eva~1342, meva+522, hp~3038, enm+13, rg+9, counter+10, parry+5
     sets.defense.MDT = prioritize({main=gear.fudoC,sub="Tsuru",ammo="Yamarang",
-        head="Null Masque",neck="Warder's Charm +1",ear1="Eabani Earring",ear2="Cryptic Earring",
-        body="Nyame Mail",hands="Nyame Gauntlets",ring1="Shadow Ring",ring2="Defending Ring",
+        head="Null Masque",neck="Warder's Charm +1",ear1="Alabaster Earring",ear2="Cryptic Earring",
+        body="Nyame Mail",hands="Nyame Gauntlets",ring1="Shadow Ring",ring2="Murky Ring",
         back=gear.ParryCape,waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
-    -- FudoC/Shuriken: acc~1206/1182/1221, haste+20, dw+4, da+12 FIXME
-    -- dt-50, def~1457, eva~1200, meva+740, hp~3575, enm+14, parry+5
+    -- FudoC/Shuriken: acc~1264/1264/1193, haste+26, da+21
+    -- dt-50, def~1479, eva~1171, meva+706, hp~3303, enm+17, counter+3, parry+5
 
-    sets.danzo     = {feet="Danzo Sune-Ate"}
-    sets.hachiya   = prioritize({feet="Hachiya Kyahan +4"})
-    sets.Kiting    = sets.hachiya
     sets.buff.doom = prioritize({
-        head="Malignance Chapeau",neck="Nicander's Necklace",ear1="Telos Earring",ear2="Odnowa Earring +1",
-        body="Mpaca's Doublet",hands="Nyame Gauntlets",ring1="Eshmun's Ring",ring2="Defending Ring",
-        back=gear.TPCape,waist="Gishdubar Sash",legs="Malignance Tights",feet="Nyame Sollerets"})
-    sets.buff.sleep = {main="Dokoku"}
+        head="Null Masque",neck="Nicander's Necklace",ear1="Alabaster Earring",ear2="Odnowa Earring +1",
+        body="Mpaca's Doublet",hands="Nyame Gauntlets",ring1="Eshmun's Ring",ring2="Murky Ring",
+        back=gear.ParryCape,waist="Gishdubar Sash",legs="Mpaca's Hose",feet="Nyame Sollerets"})
 
     -- Engaged sets
     sets.engaged = prioritize({main=gear.fudoB,sub="Kunimitsu",ammo="Date Shuriken",
         head="Adhemar Bonnet +1",neck="Ninja Nodowa +2",ear1="Telos Earring",ear2="Brutal Earring",
         body="Kendatsuba Samue +1",hands="Adhemar Wristbands +1",ring1="Gere Ring",ring2="Epona's Ring",
         back="Null Shawl",waist="Windbuffet Belt +1",legs="Samnuha Tights",feet=gear.herc_feet_ta})
-    -- Heishi/Shuriken: acc~1216/1191/1062, haste+26, stp+47, da+12, ta+33, qa+2, pdt-12, sb=50, eva~902, meva+369 FIXME
-    sets.engaged.DW30 = prioritize(set_combine(sets.engaged, {ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"}))
-    sets.engaged.DW15 = prioritize(set_combine(sets.engaged.DW30, {ear2="Suppanomimi",body=gear.adh_body_ta}))
-    sets.engaged.DW00 = prioritize(set_combine(sets.engaged.DW30, {head="Ryuo Somen +1",body="Mochizuki Chainmail +3"}))
+    -- Heishi/Shuriken: acc~1340/1321/1191, haste+26, stp+34, da+12, ta+33, qa+2, pdt-2, sb=50, eva~1020, meva+419
+    sets.engaged.DW30 = set_combine(sets.engaged, prioritize({ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"}))
+    sets.engaged.DW15 = set_combine(sets.engaged.DW30, prioritize({ear2="Suppanomimi",body=gear.adh_body_ta}))
+    sets.engaged.DW00 = set_combine(sets.engaged.DW15, prioritize({head="Hattori Zukin +3"}))
 
     sets.engaged.PDef = prioritize({main=gear.fudoB,sub="Kunimitsu",ammo="Date Shuriken",
         head="Malignance Chapeau",neck="Ninja Nodowa +2",ear1="Telos Earring",ear2="Dignitary's Earring",
-        body="Malignance Tabard",hands="Malignance Gloves",ring1="Gere Ring",ring2="Defending Ring",
+        body="Malignance Tabard",hands="Malignance Gloves",ring1="Gere Ring",ring2="Murky Ring",
         back=gear.TPCape,waist="Windbuffet Belt +1",legs="Mpaca's Hose",feet=gear.herc_feet_ta})
-    -- Heishi/Shuriken: acc~1291/1266/1124, haste+26, stp+66, da+1, ta+17, qa+2, pdt-50, dt-30, sb=43+5, eva~1067, meva+545 FIXME
-    sets.engaged.DW30.PDef = prioritize(set_combine(sets.engaged.PDef, {ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"}))
-    sets.engaged.DW15.PDef = set_combine(sets.engaged.DW30.PDef, {ear2="Suppanomimi",feet="Hizamaru Sune-Ate +2"})
-    sets.engaged.DW00.PDef = set_combine(sets.engaged.DW15.PDef, {})
+    -- Heishi/Shuriken: acc~1407/1388/1202, haste+26, stp+56, da+1, ta+17, qa+2, pdt-50, dt-30, sb=43+5, eva~1135, meva+545
+    sets.engaged.DW30.PDef = set_combine(sets.engaged.PDef, prioritize({ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"}))
+    sets.engaged.DW15.PDef = set_combine(sets.engaged.DW30.PDef, prioritize({ear2="Suppanomimi",feet="Hizamaru Sune-Ate +2"}))
+    sets.engaged.DW00.PDef = set_combine(sets.engaged.DW15.PDef, prioritize({head="Hattori Zukin +3"}))
 
-    sets.engaged.EXP = prioritize(set_combine(sets.engaged.PDef, {ear2="Brutal Earring",body="Mpaca's Doublet",ring2="Epona's Ring"}))
-    sets.engaged.DW30.EXP = prioritize(set_combine(sets.engaged.DW30.PDef, {body="Mpaca's Doublet",ring2="Epona's Ring"}))
-    sets.engaged.DW15.EXP = set_combine(sets.engaged.DW30.EXP, {ear2="Suppanomimi",body=gear.adh_body_ta})
-    sets.engaged.DW00.EXP = set_combine(sets.engaged.DW00, {})
+    sets.engaged.EXP = prioritize({main=gear.fudoB,sub="Kunimitsu",ammo="Date Shuriken",
+        head="Mpaca's Cap",neck="Ninja Nodowa +2",ear1="Telos Earring",ear2="Brutal Earring",
+        body="Mpaca's Doublet",hands="Malignance Gloves",ring1="Gere Ring",ring2="Epona's Ring",
+        back=gear.TPCape,waist="Windbuffet Belt +1",legs="Mpaca's Hose",feet=gear.herc_feet_ta})
+    sets.engaged.DW30.EXP = set_combine(sets.engaged.EXP, prioritize({ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"}))
+    sets.engaged.DW15.EXP = set_combine(sets.engaged.DW30.EXP, prioritize({ear2="Suppanomimi",body=gear.adh_body_ta,ring2="Murky Ring"}))
+    sets.engaged.DW00.EXP = set_combine(sets.engaged.DW15.EXP, prioritize({head="Hattori Zukin +3"}))
 
     sets.engaged.MEVA = prioritize({main=gear.fudoB,sub="Kunimitsu",ammo="Date Shuriken",
         head="Kendatsuba Jinpachi +1",neck="Ninja Nodowa +2",ear1="Telos Earring",ear2="Brutal Earring",
-        body="Malignance Tabard",hands="Kendatsuba Tekko +1",ring1="Gere Ring",ring2="Defending Ring",
+        body="Malignance Tabard",hands="Kendatsuba Tekko +1",ring1="Gere Ring",ring2="Murky Ring",
         back="Null Shawl",waist="Windbuffet Belt +1",legs="Malignance Tights",feet="Kendatsuba Sune-Ate +1"})
-    -- Heishi/Shuriken: acc~1325/1300/1192, haste+26, stp+54, da+6, ta+19, qa+2, dt-26, sb=50, eva~1009, meva+619 FIXME
-    sets.engaged.DW30.MEVA = prioritize(set_combine(sets.engaged.MEVA, {ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"}))
-    sets.engaged.DW15.MEVA = set_combine(sets.engaged.DW30.MEVA, {ear2="Suppanomimi",body=gear.adh_body_ta})
-    sets.engaged.DW00.MEVA = set_combine(sets.engaged.DW15.MEVA, {head="Ryuo Somen +1"})
+    sets.engaged.DW30.MEVA = set_combine(sets.engaged.MEVA, prioritize({ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"}))
+    sets.engaged.DW15.MEVA = set_combine(sets.engaged.DW30.MEVA, prioritize({ear2="Suppanomimi",body=gear.adh_body_ta}))
+    sets.engaged.DW00.MEVA = set_combine(sets.engaged.DW15.MEVA, prioritize({head="Hattori Zukin +3"}))
 
-    sets.engaged.MEVA.PDef      = set_combine(sets.engaged.MEVA, {head="Malignance Chapeau",ring1="Vocane Ring +1",back=gear.TPCape})
-    sets.engaged.DW30.MEVA.PDef = prioritize(set_combine(sets.engaged.MEVA.PDef, {ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"}))
-    sets.engaged.DW15.MEVA.PDef = set_combine(sets.engaged.DW30.MEVA.PDef, {ear2="Suppanomimi"})
-    sets.engaged.DW00.MEVA.PDef = set_combine(sets.engaged.DW15.MEVA.PDef, {head="Ryuo Somen +1",feet="Malignance Boots"})
+    sets.engaged.MEVA.PDef = prioritize(set_combine(sets.engaged.MEVA, {
+        head="Malignance Chapeau",ring1="Defending Ring",back=gear.TPCape}))
+    sets.engaged.DW30.MEVA.PDef = set_combine(sets.engaged.MEVA.PDef, prioritize({
+        ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"}))
+    sets.engaged.DW15.MEVA.PDef = set_combine(sets.engaged.DW30.MEVA.PDef, prioritize({ear2="Suppanomimi"}))
+    sets.engaged.DW00.MEVA.PDef = set_combine(sets.engaged.DW15.MEVA.PDef, prioritize({head="Hattori Zukin +3",feet="Malignance Boots"}))
 
     sets.engaged.None      = sets.engaged.MEVA
     sets.engaged.DW30.None = sets.engaged.DW30.MEVA
@@ -718,32 +766,37 @@ function init_gear_sets()
     sets.engaged.Acc = prioritize({main=gear.fudoB,sub="Kunimitsu",ammo="Date Shuriken",
         head="Kendatsuba Jinpachi +1",neck="Ninja Nodowa +2",ear1="Telos Earring",ear2="Hattori Earring +1",
         body="Kendatsuba Samue +1",hands="Adhemar Wristbands +1",ring1="Gere Ring",ring2="Ephramad's Ring",
-        back="Null Shawl",waist="Windbuffet Belt +1",legs="Kendatsuba Hakama +1",feet="Kendatsuba Sune-Ate +1"})
-    sets.engaged.DW30.Acc = prioritize(set_combine(sets.engaged.Acc,      {ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"}))
-    sets.engaged.DW15.Acc = prioritize(set_combine(sets.engaged.DW30.Acc, {ear2="Suppanomimi",body=gear.adh_body_ta}))
-    sets.engaged.DW00.Acc = prioritize(set_combine(sets.engaged.DW15.Acc, {head="Ryuo Somen +1"}))
+        back="Null Shawl",waist="Windbuffet Belt +1",legs="Hattori Hakama +3",feet="Kendatsuba Sune-Ate +1"})
+    sets.engaged.DW30.Acc = set_combine(sets.engaged.Acc,      prioritize({ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"}))
+    sets.engaged.DW15.Acc = set_combine(sets.engaged.DW30.Acc, prioritize({ear2="Suppanomimi",body=gear.adh_body_ta}))
+    sets.engaged.DW00.Acc = set_combine(sets.engaged.DW15.Acc, prioritize({head="Hattori Zukin +3"}))
 
     sets.engaged.Acc.PDef = prioritize(set_combine(sets.engaged.Acc, {
-        head="Malignance Chapeau",body="Malignance Tabard",hands="Malignance Gloves",ring2="Defending Ring",
-        back=gear.TPCape,legs="Malignance Tights",feet="Malignance Boots"}))
-    sets.engaged.DW30.Acc.PDef = prioritize(set_combine(sets.engaged.Acc.PDef, {ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"}))
-    sets.engaged.DW15.Acc.PDef = set_combine(sets.engaged.DW30.Acc.PDef, {ear2="Suppanomimi"})
-    sets.engaged.DW00.Acc.PDef = set_combine(sets.engaged.DW15.Acc.PDef, {})
+        head="Malignance Chapeau",ear1="Alabaster Earring",
+        body="Malignance Tabard",hands="Malignance Gloves",
+        back=gear.TPCape,feet="Malignance Boots"}))
+    sets.engaged.DW30.Acc.PDef = set_combine(sets.engaged.Acc.PDef, prioritize({
+        ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"}))
+    sets.engaged.DW15.Acc.PDef = set_combine(sets.engaged.DW30.Acc.PDef, prioritize({ear2="Suppanomimi"}))
+    sets.engaged.DW00.Acc.PDef = set_combine(sets.engaged.DW15.Acc.PDef, prioritize({}))
 
-    sets.engaged.Crit      = prioritize(set_combine(sets.engaged.Acc,      {
-        ear1="Odr Earring",ear2="Brutal Earring",hands="Kendatsuba Tekko +1",back=gear.CritCape}))
-    sets.engaged.DW30.Crit = prioritize(set_combine(sets.engaged.DW30.Acc, {
-        ear1="Odr Earring",hands="Kendatsuba Tekko +1"}))
-    sets.engaged.DW15.Crit = prioritize(set_combine(sets.engaged.DW15.Acc, {hands="Kendatsuba Tekko +1"}))
-    sets.engaged.DW00.Crit = prioritize(set_combine(sets.engaged.DW00.Acc, {hands="Kendatsuba Tekko +1"}))
+    sets.engaged.Crit = prioritize({main=gear.fudoB,sub="Kunimitsu",ammo="Date Shuriken",
+        head="Kendatsuba Jinpachi +1",neck="Ninja Nodowa +2",ear1="Odr Earring",ear2="Brutal Earring",
+        body="Kendatsuba Samue +1",hands="Kendatsuba Tekko +1",ring1="Gere Ring",ring2="Ephramad's Ring",
+        back=gear.CritCape,waist="Windbuffet Belt +1",legs="Kendatsuba Hakama +1",feet="Kendatsuba Sune-Ate +1"})
+    sets.engaged.DW30.Crit = set_combine(sets.engaged.Crit, prioritize({
+        ear2="Suppanomimi",back=gear.DWCape,waist="Reiki Yotai"}))
+    sets.engaged.DW15.Crit = set_combine(sets.engaged.DW30.Crit, prioritize({ear1="Eabani Earring",body=gear.adh_body_ta}))
+    sets.engaged.DW00.Crit = set_combine(sets.engaged.DW15.Crit, prioritize({head="Hattori Zukin +3"}))
 
     sets.engaged.Crit.PDef = prioritize({main="Kannagi",sub="Gleti's Knife",ammo="Date Shuriken",
-        head="Malignance Chapeau",neck="Ninja Nodowa +2",ear1="Odr Earring",ear2="Brutal Earring",
-        body="Mpaca's Doublet",hands="Malignance Gloves",ring1="Gere Ring",ring2="Defending Ring",
-        back=gear.CritCape,waist="Windbuffet Belt +1",legs="Mpaca's Hose",feet="Kendatsuba Sune-Ate +1"})
-    sets.engaged.DW30.Crit.PDef = prioritize(set_combine(sets.engaged.Crit.PDef, {ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"}))
-    sets.engaged.DW15.Crit.PDef = set_combine(sets.engaged.DW30.Crit.PDef, {ear2="Suppanomimi"})
-    sets.engaged.DW00.Crit.PDef = set_combine(sets.engaged.DW15.Crit.PDef, {})
+        head="Revelation Masque",neck="Ninja Nodowa +2",ear1="Odr Earring",ear2="Brutal Earring",
+        body="Revelation Platemail",hands="Revelation Gauntlets",ring1="Gere Ring",ring2="Murky Ring",
+        back=gear.CritCape,waist="Windbuffet Belt +1",legs="Revelation Brais",feet="Revelation Sabatons"})
+    sets.engaged.DW30.Crit.PDef = set_combine(sets.engaged.Crit.PDef, prioritize({
+        ear1="Eabani Earring",back=gear.DWCape,waist="Reiki Yotai"}))
+    sets.engaged.DW15.Crit.PDef = set_combine(sets.engaged.DW30.Crit.PDef, prioritize({ear2="Suppanomimi"}))
+    sets.engaged.DW00.Crit.PDef = set_combine(sets.engaged.DW15.Crit.PDef, prioritize({head="Hattori Zukin +3"}))
 
     sets.engaged.H2H      = set_combine(sets.engaged,      {ear1="Mache Earring +1"})
     sets.engaged.H2H.MEVA = set_combine(sets.engaged.MEVA, {ear1="Mache Earring +1"})
@@ -753,9 +806,9 @@ function init_gear_sets()
     -- Spells default to a midcast of FastRecast before layering on the above sets
     sets.midcast.FastRecast = set_combine(sets.defense.PDT, {})
     sets.hpup = prioritize({main=gear.fudoC,sub="Tsuru",
-        head="Genmei Kabuto",neck="Unmoving Collar +1",ear1="Etiolation Earring",ear2="Odnowa Earring +1",
-        body="Ashera Harness",hands="Nyame Gauntlets",ring1="Gelatinous Ring +1",ring2="Regal Ring",
-        back="Moonbeam Cape",waist="Platinum Moogle Belt",legs="Nyame Flanchard",feet="Nyame Sollerets"})
+        head="Genmei Kabuto",neck="Unmoving Collar +1",ear1="Alabaster Earring",ear2="Odnowa Earring +1",
+        body="Ashera Harness",hands="Revelation Gauntlets",ring1="Gelatinous Ring +1",ring2="Regal Ring",
+        back="Moonbeam Cape",waist="Platinum Moogle Belt",legs="Revelation Brais",feet="Revelation Sabatons"})
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -848,6 +901,9 @@ function job_post_midcast(spell, action, spellMap, eventArgs)
             equip(sets.midcast.ElementalNinjutsu.MB)
         end
         equip(resolve_ele_belt(spell, sets.ele_obi, sets.nuke_belt, 2.5))
+        if world.time < 7*60 or 17*60 <= world.time then
+            equip(sets.lugraear)
+        end
         if state.OffenseMode.value == 'None' and spell.english:startswith('Raiton') then
             equip(sets.donargun)
         end
@@ -970,6 +1026,12 @@ function job_aftercast(spell, action, spellMap, eventArgs)
         end
     elseif spell.type == 'Rune' then
         eventArgs.handled = true
+    elseif spell.type == 'BlackMagic' then
+        if spell.english == 'Sleep' or spell.english == 'Sleepga' then
+            debuff_timer(spell, 60)
+        elseif spell.english == 'Sleep II' or spell.english == 'Sleepga II' then
+            debuff_timer(spell, 90)
+        end
     end
 end
 
@@ -1011,8 +1073,6 @@ function job_buff_change(buff, gain)
     elseif lbuff == 'yonin' then
         hud_update_on_state_change('Casting Mode')
     elseif lbuff == 'doom' and not midaction() then
-        handle_equipping_gear(player.status)
-    elseif lbuff == 'sleep' and not midaction() then
         handle_equipping_gear(player.status)
     end
     if gain and info.chat_notice_buffs:contains(lbuff) then
@@ -1138,13 +1198,13 @@ function customize_idle_set(idleSet)
         if state.OffenseMode.value ~= 'None' and state.IdleMode.value == 'Normal'
         and S{'Gokotai','GokoBow'}:contains(state.CombatWeapon.value) then
             idleSet = set_combine(idleSet, sets.idle.DW)
-        elseif 7*60 <= world.time and world.time < 17*60 then
-            if S{'Normal','Rf'}:contains(state.IdleMode.value) then
-                idleSet = set_combine(idleSet, sets.danzo)
+        elseif world.time < 7*60 or 17*60 <= world.time then
+            if sets.idle[state.IdleMode.value] and sets.idle[state.IdleMode.value].Hachiya then
+                idleSet = sets.idle[state.IdleMode.value].Hachiya
             end
-            sets.Kiting = sets.danzo
-        else
             sets.Kiting = sets.hachiya
+        else
+            sets.Kiting = sets.shneddick
         end
         if state.Fishing.value then
             idleSet = set_combine(idleSet, sets.Fishing)
@@ -1165,9 +1225,6 @@ function customize_idle_set(idleSet)
     end
     if state.Buff.doom then
         idleSet = set_combine(idleSet, sets.buff.doom)
-    end
-    if state.Buff.sleep then
-        idleSet = set_combine(idleSet, sets.buff.sleep)
     end
     if state.CombatWeapon.value:endswith('Bow') and state.OffenseMode.value ~= 'None' then
         idleSet = set_combine(idleSet, sets.weapons[state.CombatWeapon.value], {ammo=gear.arrow_tp})
@@ -1190,9 +1247,6 @@ function customize_defense_set(defenseSet)
     if state.Buff.doom then
         defenseSet = set_combine(defenseSet, sets.buff.doom)
     end
-    if state.Buff.sleep then
-        defenseSet = set_combine(defenseSet, sets.buff.sleep)
-    end
     return defenseSet
 end
 
@@ -1208,18 +1262,15 @@ function customize_melee_set(meleeSet)
             local ring2 = meleeSet.ring2 or meleeSet.rring or meleeSet.right_ring or nil
             if type(ring1) == 'table' then ring1 = ring1.name end
             if type(ring2) == 'table' then ring2 = ring2.name end
-            if     ring1 == "Vocane Ring +1" then
+            if     ring1 == "Defending Ring" then
                 meleeSet = set_combine(meleeSet, {ring1="Gere Ring"})
-            elseif ring2 == "Defending Ring" then
+            elseif ring2 == "Murky Ring" then
                 meleeSet = set_combine(meleeSet, {ring2="Epona's Ring"})
             end
         end
     end
     if state.Buff.doom then
         meleeSet = set_combine(meleeSet, sets.buff.doom)
-    end
-    if state.Buff.sleep then
-        meleeSet = set_combine(meleeSet, sets.buff.sleep)
     end
     if state.CombatWeapon.value:endswith('Bow') and state.OffenseMode.value ~= 'None' then
         meleeSet = set_combine(meleeSet, sets.weapons[state.CombatWeapon.value], {ammo=gear.arrow_tp})
@@ -1338,14 +1389,9 @@ end
 -- Utility functions specific to this job.
 -------------------------------------------------------------------------------------------------------------------
 
--- Select default macro book on initial load or subjob change.
---function select_default_macro_book()
---    set_macro_page(1,13)
---end
-
 -- returns a list for use with make_keybind_list
 function job_keybinds()
-    local bind_command_list = L{
+    return L{
         'bind !^l input /lockstyleset 6',
         'bind %`   gs c update user',
         'bind F9   gs c cycle OffenseMode',
@@ -1372,18 +1418,19 @@ function job_keybinds()
         'bind @w  gs c set   OffenseMode EXP',
         'bind !@w gs c set   OffenseMode None',
         'bind ~^q gs c altweap',
-        'bind !^q  gs c set CombatWeapon Kannagi',
+        'bind !^q  gs c set CombatWeapon FudoC',
         'bind ~!^q gs c set CombatWeapon Nagi',
-        'bind ^@q  gs c set CombatWeapon AEDagger',
+        'bind ^@q  gs c set CombatWeapon SCDagger',
         'bind ~^@q gs c set CombatWeapon Gokotai',
         'bind !^w  gs c set CombatWeapon Heishi',
-        'bind ~!^w gs c set CombatWeapon HeiSB',
+        'bind ~!^w gs c set CombatWeapon DokokuTP',
         'bind ^@w  gs c set CombatWeapon GKatana',
         'bind ~^@w gs c set CombatWeapon GSword',
-        'bind !^e  gs c set CombatWeapon FudoB',
-        'bind ~!^e gs c set CombatWeapon FudoC',
+        'bind !^e  gs c set CombatWeapon Kannagi',
+        'bind ~!^e gs c set CombatWeapon FudoB',
         'bind !^r  gs c set CombatWeapon NaegTP',
         'bind ~!^r gs c set CombatWeapon Kikoku',
+        -- unbound: H2H, Club, HeiSB
         'bind !-         gs c set RangedMode Tathlum',
         'bind !=         gs c set RangedMode Shuriken',
         'bind !backspace gs c set RangedMode Blink',
@@ -1449,31 +1496,35 @@ function job_keybinds()
         'bind !b input /ma "Myoshu: Ichi"',            -- sb+10
         'bind ~^x  input /ma "Monomi: Ichi" <me>',
         'bind ~!^x input /ma "Tonko: Ni" <me>'}
+end
 
+function sub_job_keybinds()
     if     player.sub_job == 'WAR' then
-        bind_command_list:extend(L{
+        return L{
             'bind !4 input /ja Berserk <me>',
             'bind !5 input /ja Aggressor <me>',
             'bind !6 input /ja Warcry <me>',           -- 1/300 per target
             'bind !d input /ja Provoke',               -- 0/1800
             'bind @d input /ja Provoke <stnpc>',
-            'bind !@d input /ja Defender <me>'})
+            'bind !@d input /ja Defender <me>'}
     elseif player.sub_job == 'DRG' then
-        bind_command_list:extend(L{
+        return L{
             'bind !4 input /ja "High Jump"',
             'bind !5 input /ja "Super Jump"',
-            'bind !6 input /ja "Ancient Circle" <me>'})
+            'bind !6 input /ja "Ancient Circle" <me>',
+            'bind !d input /ja Jump',
+            'bind @d input /ja Jump <stnpc>'}
     elseif player.sub_job == 'DRK' then
-        bind_command_list:extend(L{
+        return L{
             'bind !4 input /ja "Last Resort" <me>',    -- 1/1300
             'bind !5 input /ja Souleater <me>',        -- 1/1300, +25acc, +?/+? per hit
             'bind !6 input /ja "Arcane Circle" <me>',
             'bind !d input /ma Stun',                  -- 180/1280
             'bind @d input /ma Stun <stnpc>',
             'bind !@d input /ma Poisonga',
-            'bind ~!@d input /ma Poisonga <stnpc>'})
+            'bind ~!@d input /ma Poisonga <stnpc>'}
     elseif player.sub_job == 'RUN' then
-        bind_command_list:extend(L{
+        return L{
             'bind @1 input /ja Ignis <me>',            -- fire up,    ice down
             'bind @2 input /ja Gelus <me>',            -- ice up,     wind down
             'bind @3 input /ja Flabra <me>',           -- wind up,    earth down
@@ -1489,17 +1540,17 @@ function job_keybinds()
             'bind !d input /ma Flash',                 -- 180/1280
             'bind @d input /ma Flash <stnpc>',
             'bind !^v input /ma Aquaveil <me>',
-            'bind !6 input /ma Protect <stpc>'})
+            'bind !6 input /ma Protect <stpc>'}
     elseif player.sub_job == 'PLD' then
-        bind_command_list:extend(L{
+        return L{
             'bind !5 input /ja Cover <stpc>',
             'bind !6 input /ja "Holy Circle" <me>',
             'bind ^tab input /ja Sentinel <me>',       -- 0/900, enm+50 for 30s
             'bind !d input /ma Flash',                 -- 180/1280
             'bind @d input /ma Flash <stnpc>',
-            'bind !@d input /ma Banishga'})
+            'bind !@d input /ma Banishga'}
     elseif player.sub_job == 'BLU' then
-        bind_command_list:extend(L{
+        return L{
             'bind @1 input /ma "Sheep Song"',          -- (320/320), 6'
             'bind @2 input /ma "Geist Wall"',          -- (320/320), 6'
             'bind @3 input /ma "Stinking Gas"',        -- (320/320), 6'
@@ -1508,9 +1559,9 @@ function job_keybinds()
             -- wild carrot aliased to //wc
             'bind !6 input /ma "Healing Breeze" <me>',
             'bind !d input /ma "Blank Gaze"',          -- (320/320), 12'
-            'bind !@d input /ma Jettatura'})            -- (180/1020), 9'
+            'bind !@d input /ma Jettatura'}            -- (180/1020), 9'
     elseif player.sub_job == 'DNC' then
-        bind_command_list:extend(L{
+        return L{
             'bind !` input /ja "Curing Waltz III" <stpc>',
             'bind @F1 input /ja "Healing Waltz" <stpc>',
             'bind !4 input /ja "Box Step" <t>',
@@ -1519,30 +1570,30 @@ function job_keybinds()
             'bind !@f input /ja "Reverse Flourish" <me>',
             'bind !d input /ja "Animated Flourish"',
             'bind @d input /ja "Animated Flourish" <stnpc>',
-            'bind !@d input /ja "Violent Flourish" <stnpc>'})
+            'bind !@d input /ja "Violent Flourish" <stnpc>'}
     elseif player.sub_job == 'SAM' then
-        bind_command_list:extend(L{
+        return L{
             'bind !4 input /ja Meditate <me>',
             'bind !5 input /ja Sekkanoki <me>',
             'bind !6 input /ja "Warding Circle" <me>',
-            'bind !d input /ja "Third Eye" <me>'})
+            'bind !d input /ja "Third Eye" <me>'}
     elseif player.sub_job == 'RNG' then
-        bind_command_list:extend(L{
+        return L{
             'bind !4 input /ja Barrage <me>',
             'bind !5 input /ja Sharpshot <me>',
             'bind !6 input /ja "Scavenge" <me>',
-            'bind !d input /ja Shadowbind <stnpc>'})
+            'bind !d input /ja Shadowbind <stnpc>'}
     elseif player.sub_job == 'WHM' then
-        bind_command_list:extend(L{
+        return L{
             'bind !5 input /ma Haste <me>',
             'bind !6 input /ma Cura <me>',
             'bind !d input /ma Flash',
             'bind @d input /ma Flash <stnpc>',
             'bind !@d input /ma Banishga',
             'bind !^g input /ma Stoneskin <me>',
-            'bind !^v input /ma Aquaveil <me>'})
+            'bind !^v input /ma Aquaveil <me>'}
     elseif player.sub_job == 'RDM' then
-        bind_command_list:extend(L{
+        return L{
             'bind !4 input /ma Phalanx <me>',
             'bind !5 input /ma Haste <me>',
             'bind !6 input /ma Refresh <me>',
@@ -1550,26 +1601,27 @@ function job_keybinds()
             'bind !@d input /ma Diaga',
             'bind ~!@d input /ma Diaga <stnpc>',
             'bind !^g input /ma Stoneskin <me>',
-            'bind !^v input /ma Aquaveil <me>'})
+            'bind !^v input /ma Aquaveil <me>'}
     elseif player.sub_job == 'BLM' then
-        bind_command_list:extend(L{
-            'bind !4 input /ma "Sleep II" <stnpc>',
-            'bind !5 input /ma Sleep <stnpc>',
-            'bind !6 input /ma Sleepga',
+        return L{
+            'bind !4 input /ma "Sleep II"',
+            'bind !5 input /ma Sleepga',
+            'bind !6 input /ma Sleepga II',
+            'bind ~!4 input /ma "Sleep II" <stnpc>',
+            'bind ~!5 input /ma Sleepga <stnpc>',
+            'bind ~!6 input /ma Sleepga II <stnpc>',
             'bind !d input /ma Stun',
             'bind @d input /ma Stun <stnpc>',
             'bind !@d input /ma Poisonga',
-            'bind ~!@d input /ma Poisonga <stnpc>'})
+            'bind ~!@d input /ma Poisonga <stnpc>'}
     elseif player.sub_job == 'SMN' then
-        bind_command_list:extend(L{
+        return L{
             'bind !4 input /ma Diabolos <me>',
             'bind !5 input /pet Somnolence <t>',
             'bind !6 input /pet Release <me>',
             'bind !d input /pet Assault <t>',
-            'bind @d input /pet Retreat <me>'})
+            'bind @d input /pet Retreat <me>'}
     end
-
-    return bind_command_list
 end
 
 -- prints a message with counts of ninja tools

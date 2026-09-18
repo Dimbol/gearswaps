@@ -3,10 +3,6 @@
 
 texts = require('texts')
 
--------------------------------------------------------------------------------------------------------------------
--- Setup functions for this job.  Generally should not be modified.
--------------------------------------------------------------------------------------------------------------------
-
 -- Initialization function for this job file.
 function get_sets()
     mote_include_version = 2
@@ -15,7 +11,7 @@ function get_sets()
     include('Mote-Include.lua')
 end
 
--- Setup vars that are user-independent.  state.Buff vars initialized here will automatically be tracked.
+-- Non-gearset initializations.
 function job_setup()
     enable('main','sub','range','ammo','head','neck','ear1','ear2','body','hands','ring1','ring2','back','waist','legs','feet')
     state.Buff['Mana Wall'] = buffactive['Mana Wall'] or false
@@ -31,21 +27,14 @@ function job_setup()
     state.Buff.sleep = buffactive.sleep or false
 
     logout_event_id = windower.raw_register_event('logout', destroy_state_text)
-end
 
--------------------------------------------------------------------------------------------------------------------
--- User setup functions for this job.  Recommend that these be overridden in a sidecar file.
--------------------------------------------------------------------------------------------------------------------
-
--- Setup vars that are user-dependent.  Can override this function in a sidecar file.
-function user_setup()
     state.OffenseMode:options('None','Normal')                      -- Cycle with F9, locks current weapon
     state.HybridMode:options('Normal','PDef')                       -- Cycle with ^F9
     state.CastingMode:options('Normal','MAcc')                      -- Cycle with F10, set with !c, ^c
     state.IdleMode:options('Normal','MRf')                          -- Cycle with F11
     state.MagicalDefenseMode:options('MaxMP','MDT')                 -- Cycle with @z
     state.CombatWeapon = M{['description']='Combat Weapon'}
-    state.CombatWeapon:options('Laev','LaevK','Marin','MarinK','Pole','Dagger')
+    state.CombatWeapon:options('Laev','LaevK','Marin','MarinK','Pole','Rod','Club','Dagger')
 
     state.MWLock     = M(true,  'Mana Wall Locks') -- Toggle with ~^c
     state.SphereIdle = M(false, 'Sphere Idle')     -- Toggle with ^z
@@ -83,6 +72,7 @@ function user_setup()
 
     -- High MP items get tagged with priorities
     gear.mp = {}
+    setmetatable(gear.mp, {__newindex = function(t, k, v) if type(v) == 'number' then rawset(t, k, {name = k, priority = v}) end end})
     gear.mp["Acuity Belt +1"] = 35
     gear.mp["Agwu's Gages"] = 73
     gear.mp["Agwu's Pigaches"] = 44
@@ -92,10 +82,10 @@ function user_setup()
     gear.mp["Amalric Slops +1"] = 185
     gear.mp["Andoaa Earring"] = 30
     gear.mp["Archmage's Coat +3"] = 79
-    gear.mp["Archmage's Gloves +2"] = 34
+    gear.mp["Archmage's Gloves +4"] = 44
     gear.mp["Archmage's Petasos +3"] = 52
-    gear.mp["Archmage's Sabots +2"] = 34
-    gear.mp["Archmage's Tonban +3"] = 85
+    gear.mp["Archmage's Sabots +4"] = 44
+    gear.mp["Archmage's Tonban +4"] = 95
     gear.mp["Aurist's Cape +1"] = 45
     gear.mp["Bane Cape"] = 90
     gear.mp["Barkarole Earring"] = 25
@@ -145,11 +135,11 @@ function user_setup()
     gear.mp["Shamash Robe"] = 88
     gear.mp["Shinjutsu-no-Obi +1"] = 85
     gear.mp["Shrieker's Cuffs"] = 59
-    gear.mp["Spaekona's Coat +3"] = 98
-    gear.mp["Spaekona's Gloves +3"] = 106
+    gear.mp["Spaekona's Coat +4"] = 108
+    gear.mp["Spaekona's Gloves"] = 116
     gear.mp["Spaekona's Petasos +2"] = 48
     gear.mp["Spaekona's Sabots +3"] = 43
-    gear.mp["Spaekona's Tonban +3"] = 158
+    gear.mp["Spaekona's Tonban +4"] = 168
     gear.mp["Supershear Ring"] = 30
     gear.mp["Tantalic Cape"] = 50
     gear.mp["Thaumaturge's Cape"] = 25
@@ -165,15 +155,10 @@ function user_setup()
     gear.mp["Wicce Sabots +3"] = 50
     gear.mp["Zendik Robe"] = 61
     gear.mp["Zodiac Ring"] = 25
-    for k, v in pairs(gear.mp) do
-        gear.mp[k] = {name = k, priority = v}
-    end
-
-    gear.slots = S{'main','sub','range','ammo','head','neck','ear1','ear2','body','hands','ring1','ring2','back','waist','legs','feet'}
 
     function prioritize(set)
         for k, v in pairs(set) do
-            if gear.slots[k] and gear.mp[v] then
+            if gearswap.slot_map[k] and gear.mp[v] then
                 set[k] = gear.mp[v]
             end
         end
@@ -195,6 +180,16 @@ function user_setup()
             'bind !^5 input /ws "Starburst"',
             'bind !^6 input /ws "Cataclysm"',
             'bind !@e input /ws "Myrkr"'},
+        ['Club']=L{
+            'bind %1 input /ws "Brainshaker"',
+            'bind %2 input /ws "Shining Strike"',
+            'bind %3 input /ws "Black Halo"',
+            'bind !^1 input /ws "Brainshaker"',
+            'bind !^2 input /ws "Shining Strike"',
+            'bind !^3 input /ws "Black Halo"',
+            'bind !^4 input /ws "Realmrazer"',
+            'bind !^5 input /ws "True Strike"',
+            'bind !^6 input /ws "Skullbreaker"'},
         ['Dagger']=L{
             'bind %1 input /ws "Energy Drain"',
             'bind %2 input /ws "Wasp Sting"',
@@ -204,9 +199,17 @@ function user_setup()
             'bind !^3 input /ws "Gust Slash"',
             'bind !^4 input /ws "Shadowstitch"',
             'bind !^6 input /ws "Aeolian Edge"'}},
-        {['Marin']='Staff',['MarinK']='Staff',['Laev']='Staff',['LaevK']='Staff',['Pole']='Staff',['Dagger']='Dagger'})
+        {['Marin']='Staff',['MarinK']='Staff',['Laev']='Staff',['LaevK']='Staff',['Pole']='Staff',
+         ['Rod']='Club',['Club']='Club',['Dagger']='Dagger'})
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\ gs c ListWS')
+
+    job_sub_job_change()
+end
+
+function job_sub_job_change()
+    info.sj_binds = make_keybind_list(sub_job_keybinds())
+    info.sj_binds:bind()
 
     info.recast_ids = L{{name="Mana Wall",id=39},{name="Douse",id=34},{name="MWell",id=35}}
     if     player.sub_job == 'RDM' then
@@ -217,13 +220,13 @@ function user_setup()
         info.recast_ids:append({name="Strats",id=231})
     end
 
-    --select_default_macro_book()
+    hud_update_on_state_change()
 end
 
 -- Called when this job file is unloaded (eg: job change)
-function user_unload()
+function job_file_unload()
     info.keybinds:unbind()
-
+    info.sj_binds:unbind()
     info.ws_binds:unbind()
     send_command('unbind %\\\\')
 
@@ -239,6 +242,8 @@ function init_gear_sets()
     sets.weapons.Marin  = {main="Marin Staff +1",sub="Enki Strap"}
     sets.weapons.MarinK = {main="Marin Staff +1",sub="Khonsu"}
     sets.weapons.Pole   = {main="Malignance Pole",sub="Khonsu"}
+    sets.weapons.Rod    = {main="Wizard's Rod",sub="Ammurapi Shield"}
+    sets.weapons.Club   = {main="Maxentius",sub="Ammurapi Shield"}
     sets.weapons.Dagger = {main="Malevolence",sub="Ammurapi Shield"}
 
     sets.manawall = prioritize({feet="Wicce Sabots +3"})
@@ -282,7 +287,7 @@ function init_gear_sets()
         body="Wicce Coat +3",hands="Jhakri Cuffs +2",ring1="Chirich Ring +1",ring2="Rufescent Ring",
         back="Null Shawl",waist="Fotia Belt",legs="Wicce Chausses +3",feet="Wicce Sabots +3"})
 
-    sets.precast.WS['Rock Crusher'] = prioritize({ammo="Oshasha's Treatise",
+    sets.precast.WS['Rock Crusher'] = prioritize({ammo="Sroda Tathlum",
         head="Wicce Petasos +3",neck="Sibyl Scarf",ear1="Malignance Earring",ear2="Wicce Earring +2",
         body="Wicce Coat +3",hands="Wicce Gloves +3",ring1="Freke Ring",ring2="Medada's Ring",
         back=gear.NukeCape,waist="Orpheus's Sash",legs="Wicce Chausses +3",feet="Wicce Sabots +3"})
@@ -295,6 +300,7 @@ function init_gear_sets()
         body="Wicce Coat +3",hands="Amalric Gages +1",ring1="Mephitas's Ring +1",ring2="Archon Ring",
         back=gear.DeathCape,waist="Shinjutsu-no-Obi +1",legs="Amalric Slops +1",feet="Amalric Nails +1"})
     sets.precast.WS.Cataclysm        = set_combine(sets.precast.WS.Vidohunir,        {ear2="Moonshade Earring"})
+    sets.precast.WS['Shining Strike'] = set_combine(sets.precast.WS['Earth Crusher'], {})
     sets.precast.WS['Aeolian Edge']  = set_combine(sets.precast.WS['Earth Crusher'], {})
 
     sets.precast.WS['Shell Crusher'] = prioritize({ammo="Amar Cluster",
@@ -305,18 +311,18 @@ function init_gear_sets()
 
     sets.precast.WS.Myrkr = prioritize({ammo="Psilomene",
         head="Amalric Coif +1",neck="Sanctity Necklace",ear1="Moonshade Earring",ear2="Etiolation Earring",
-        body="Wicce Coat +3",hands="Spaekona's Gloves +3",ring1="Mephitas's Ring +1",ring2="Persis Ring",
+        body="Wicce Coat +3",hands="Spaekona's Gloves",ring1="Mephitas's Ring +1",ring2="Persis Ring",
         back="Bane Cape",waist="Shinjutsu-no-Obi +1",legs="Amalric Slops +1",feet="Amalric Nails +1"})
 
     ---- Midcast Sets ----
-    sets.midcast.Cure = prioritize({main="Malignance Pole",sub="Khonsu",ammo="Pemphredo Tathlum",
-        head="Vanya Hood",neck="Loricate Torque +1",ear1="Calamitous Earring",ear2="Etiolation Earring",
-        body="Nyame Mail",hands=gear.tel_hand_enh,ring1="Shneddick Ring +1",ring2="Defending Ring",
+    sets.midcast.Cure = prioritize({ammo="Crepuscular Pebble",
+        head="Vanya Hood",neck="Loricate Torque +1",ear1="Alabaster Earring",ear2="Etiolation Earring",
+        body="Nyame Mail",hands=gear.tel_hand_enh,ring1="Defending Ring",ring2="Murky Ring",
         back="Solemnity Cape",waist="Shinjutsu-no-Obi +1",legs="Gyve Trousers",feet="Vanya Clogs"})
     sets.midcast.Curaga = sets.midcast.Cure
     sets.midcast.Cursna = prioritize({main="Malignance Pole",sub="Khonsu",ammo="Sapience Orb",
-        head="Hike Khat +1",neck="Malison Medallion",ear1="Lugalbanda Earring",ear2="Etiolation Earring",
-        body="Zendik Robe",hands="Gazu Bracelets +1",ring1="Ephedra Ring",ring2="Menelaus's Ring",
+        head="Hike Khat +1",neck="Malison Medallion",ear1="Alabaster Earring",ear2="Etiolation Earring",
+        body="Zendik Robe",hands="Gazu Bracelets +1",ring1="Haoma's Ring",ring2="Menelaus's Ring",
         back=gear.DeathCape,waist="Embla Sash",legs="Gyve Trousers",feet="Vanya Clogs"})
     sets.cmp_belt  = prioritize({waist="Shinjutsu-no-Obi +1"})
     sets.gishdubar = prioritize({waist="Gishdubar Sash"})
@@ -341,28 +347,28 @@ function init_gear_sets()
     -- ML10/sch: 1920 mp
     sets.midcast.Klimaform = {}
 
-    sets.midcast['Elemental Magic'] = prioritize({main="Marin Staff +1",sub="Enki Strap",ammo="Ghastly Tathlum +1",
+    sets.midcast['Elemental Magic'] = prioritize({main="Wizard's Rod",sub="Ammurapi Shield",ammo="Ghastly Tathlum +1",
         head="Wicce Petasos +3",neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Wicce Earring +2",
         body="Wicce Coat +3",hands="Wicce Gloves +3",ring1="Freke Ring",ring2="Medada's Ring",
         back=gear.NukeCape,waist="Sacro Cord",legs="Wicce Chausses +3",feet="Wicce Sabots +3"})
     sets.midcast['Elemental Magic'].MAcc  = set_combine(sets.midcast['Elemental Magic'], prioritize({
         ring1="Metamorph Ring +1",waist="Acuity Belt +1"}))
-    sets.midcast['Elemental Magic'].LowMP = set_combine(sets.midcast['Elemental Magic'], prioritize({body="Spaekona's Coat +3"}))
+    sets.midcast['Elemental Magic'].LowMP = set_combine(sets.midcast['Elemental Magic'], prioritize({body="Spaekona's Coat +4"}))
     sets.midcast['Elemental Magic'].OA = prioritize({ammo="Seraphic Ampulla",
         head="Mallquis Chapeau +2",neck="Sorcerer's Stole +2",ear1="Telos Earring",ear2="Crepuscular Earring",
-        body="Spaekona's Coat +3",hands=gear.mer_hand_oa,ring1="Chirich Ring +1",ring2="Medada's Ring",
+        body="Spaekona's Coat +4",hands=gear.mer_hand_oa,ring1="Chirich Ring +1",ring2="Medada's Ring",
         back=gear.NukeCape,waist="Oneiros Rope",legs="Perdition Slops",feet=gear.mer_feet_oa})
 
-    sets.midcast['Elemental Magic'].MB = prioritize({main="Marin Staff +1",sub="Enki Strap",ammo="Ghastly Tathlum +1",
+    sets.midcast['Elemental Magic'].MB = prioritize({main="Wizard's Rod",sub="Ammurapi Shield",ammo="Ghastly Tathlum +1",
         head="Ea Hat +1",neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Wicce Earring +2",
         body="Ea Houppelande +1",hands="Amalric Gages +1",ring1="Mujin Band",ring2="Medada's Ring",
         back=gear.NukeCape,waist="Sacro Cord",legs="Ea Slops +1",feet="Wicce Sabots +3"})
     sets.midcast['Elemental Magic'].MAcc.MB  = set_combine(sets.midcast['Elemental Magic'].MB, prioritize({
-        sub="Khonsu",ear1="Regal Earring",hands="Spaekona's Gloves +3",ring1="Metamorph Ring +1",waist="Acuity Belt +1"}))
+        sub="Khonsu",ear1="Regal Earring",hands="Spaekona's Gloves",ring1="Metamorph Ring +1",waist="Acuity Belt +1"}))
     sets.midcast['Elemental Magic'].LowMP.MB = set_combine(sets.midcast['Elemental Magic'].MB, prioritize({
-        body="Spaekona's Coat +3",hands="Archmage's Gloves +3"}))
+        body="Spaekona's Coat +4",hands="Archmage's Gloves +4"}))
 
-    sets.midcast.LowTierNuke = prioritize({main="Bunzi's Rod",sub="Culminus",ammo="Ghastly Tathlum +1",
+    sets.midcast.LowTierNuke = prioritize({main="Wizard's Rod",sub="Culminus",ammo="Ghastly Tathlum +1",
         head="Wicce Petasos +3",neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Wicce Earring +2",
         body="Wicce Coat +3",hands="Wicce Gloves +3",ring1="Freke Ring",ring2="Medada's Ring",
         back=gear.NukeCape,waist="Sacro Cord",legs="Wicce Chausses +3",feet="Wicce Sabots +3"})
@@ -389,14 +395,14 @@ function init_gear_sets()
 
     sets.midcast.Impact = prioritize({main="Laevateinn",sub="Enki Strap",ammo="Ghastly Tathlum +1",
         head=empty,neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Wicce Earring +2",
-        body="Twilight Cloak",hands="Spaekona's Gloves +3",ring1="Metamorph Ring +1",ring2="Medada's Ring",
+        body="Twilight Cloak",hands="Spaekona's Gloves",ring1="Metamorph Ring +1",ring2="Medada's Ring",
         back=gear.NukeCape,waist="Acuity Belt +1",legs="Wicce Chausses +3",feet="Wicce Sabots +3"})
     sets.midcast.Impact.OA = set_combine(sets.midcast['Elemental Magic'].OA, sets.impact)
-    sets.midcast.Impact.MB = set_combine(sets.midcast.Impact, prioritize({hands="Archmage's Gloves +3"}))
+    sets.midcast.Impact.MB = set_combine(sets.midcast.Impact, prioritize({hands="Archmage's Gloves +4"}))
 
     sets.midcast.Death = prioritize({main="Laevateinn",sub="Khonsu",ammo="Psilomene",
         head="Pixie Hairpin +1",neck="Sorcerer's Stole +2",ear1="Malignance Earring",ear2="Static Earring",
-        body="Ea Houppelande +1",hands="Archmage's Gloves +3",ring1="Archon Ring",ring2="Medada's Ring",
+        body="Ea Houppelande +1",hands="Archmage's Gloves +4",ring1="Archon Ring",ring2="Medada's Ring",
         back=gear.DeathCape,waist="Shinjutsu-no-Obi +1",legs="Amalric Slops +1",feet="Amalric Nails +1"})
     -- ML10/sch: 2021 mp
     sets.midcast.Death.OA = set_combine(sets.midcast['Elemental Magic'].OA, {body=gear.mer_body_oa})
@@ -412,16 +418,16 @@ function init_gear_sets()
 
     sets.midcast.Drain = prioritize({main="Rubicundity",sub="Ammurapi Shield",ammo="Psilomene",
         head="Pixie Hairpin +1",neck="Erra Pendant",ear1="Regal Earring",ear2="Etiolation Earring",
-        body="Spaekona's Coat +3",hands="Spaekona's Gloves +3",ring1="Archon Ring",ring2="Evanescence Ring",
-        back=gear.DeathCape,waist="Fucho-no-Obi",legs="Spaekona's Tonban +3",feet="Agwu's Pigaches"})
+        body="Spaekona's Coat +4",hands="Spaekona's Gloves",ring1="Archon Ring",ring2="Evanescence Ring",
+        back=gear.DeathCape,waist="Fucho-no-Obi",legs="Spaekona's Tonban +4",feet="Agwu's Pigaches"})
     sets.midcast.Aspir = sets.midcast.Drain
     sets.midcast.Aspir.MAcc = set_combine(sets.midcast.Aspir, prioritize({
         head="Amalric Coif +1",ring1="Evanescence Ring",ring2="Medada's Ring",feet="Wicce Sabots +3"}))
     sets.drain_belt = prioritize({waist="Fucho-no-Obi"})
 
-    sets.midcast['Enfeebling Magic'] = prioritize({main="Bunzi's Rod",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
+    sets.midcast['Enfeebling Magic'] = prioritize({main="Wizard's Rod",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
         head="Wicce Petasos +3",neck="Null Loop",ear1="Regal Earring",ear2="Wicce Earring +2",
-        body="Spaekona's Coat +3",hands="Spaekona's Gloves +3",ring1="Stikini Ring +1",ring2="Medada's Ring",
+        body="Spaekona's Coat +4",hands="Spaekona's Gloves",ring1="Stikini Ring +1",ring2="Medada's Ring",
         back="Null Shawl",waist="Null Belt",legs="Wicce Chausses +3",feet="Wicce Sabots +3"})
     sets.midcast.Dispelga = set_combine(sets.midcast['Enfeebling Magic'], sets.dispelga)
     sets.midcast.Silence  = set_combine(sets.midcast['Enfeebling Magic'], {main="Daybreak",ring1="Kishar Ring"})
@@ -436,17 +442,17 @@ function init_gear_sets()
 
     sets.midcast.Stun = set_combine(sets.midcast['Enfeebling Magic'], prioritize({
         head="Amalric Coif +1",body="Zendik Robe",back=gear.DeathCape,waist="Cornelia's Belt"}))
-    sets.midcast.ElementalEnfeeble = prioritize({main="Bunzi's Rod",sub="Ammurapi Shield",ammo="Ghastly Tathlum +1",
+    sets.midcast.ElementalEnfeeble = prioritize({main="Wizard's Rod",sub="Ammurapi Shield",ammo="Ghastly Tathlum +1",
         head="Wicce Petasos +3",neck="Sorcerer's Stole +2",ear1="Regal Earring",ear2="Wicce Earring +2",
-        body="Spaekona's Coat +3",hands="Spaekona's Gloves +3",ring1="Metamorph Ring +1",ring2="Medada's Ring",
-        back="Aurist's Cape +1",waist="Acuity Belt +1",legs="Archmage's Tonban +3",feet="Archmage's Sabots +3"})
+        body="Spaekona's Coat +4",hands="Spaekona's Gloves",ring1="Metamorph Ring +1",ring2="Medada's Ring",
+        back="Aurist's Cape +1",waist="Acuity Belt +1",legs="Archmage's Tonban +4",feet="Archmage's Sabots +4"})
     sets.midcast['Dark Magic'] = set_combine(sets.midcast['Enfeebling Magic'], {})
     sets.midcast['Divine Magic'] = set_combine(sets.midcast['Enfeebling Magic'], {})
 
     ---- Sets to return to when not performing an action ----
     sets.idle = prioritize({main="Malignance Pole",sub="Khonsu",ammo="Crepuscular Pebble",
         head=gear.mer_head_rf,neck="Sibyl Scarf",ear1="Lugalbanda Earring",ear2="Etiolation Earring",
-        body="Wicce Coat +3",hands=gear.mer_hand_rf,ring1="Shneddick Ring +1",ring2="Defending Ring",
+        body="Wicce Coat +3",hands=gear.mer_hand_rf,ring1="Shneddick Ring +1",ring2="Murky Ring",
         back=gear.FCCape,waist="Shinjutsu-no-Obi +1",legs=gear.mer_legs_rf,feet=gear.mer_feet_rf})
     -- ML10/sch: 1754 mp
 	sets.idle.MRf  = set_combine(sets.idle, {ring1="Stikini Ring +1"})
@@ -460,7 +466,7 @@ function init_gear_sets()
     -- ML10/sch: 2109 mp
     sets.idle.MDT = prioritize({main="Malignance Pole",sub="Khonsu",ammo="Crepuscular Pebble",
         head="Wicce Petasos +3",neck="Warder's Charm +1",ear1="Lugalbanda Earring",ear2="Eabani Earring",
-        body="Wicce Coat +3",hands="Wicce Gloves +3",ring1="Shadow Ring",ring2="Defending Ring",
+        body="Wicce Coat +3",hands="Wicce Gloves +3",ring1="Shadow Ring",ring2="Murky Ring",
         back=gear.FCCape,waist="Platinum Moogle Belt",legs="Wicce Chausses +3",feet="Wicce Sabots +3"})
     -- ML10/sch: 1784 mp
     sets.latent_refresh   = prioritize({waist="Fucho-no-obi"})
@@ -468,7 +474,7 @@ function init_gear_sets()
     sets.sphere           = prioritize({body="Gyve Doublet"})
     sets.buff.Sublimation = {waist="Embla Sash"}
     sets.chrys_torque     = prioritize({neck="Chrysopoeia Torque"})
-    sets.buff.doom        = {neck="Nicander's Necklace",ring1="Saida Ring",ring2="Defending Ring",waist="Gishdubar Sash"}
+    sets.buff.doom        = {neck="Nicander's Necklace",ring1="Saida Ring",ring2="Murky Ring",waist="Gishdubar Sash"}
     sets.buff.sleep       = {main="Opashoro",sub="Khonsu"}
 
     -- Defense sets
@@ -480,9 +486,9 @@ function init_gear_sets()
     -- Engaged sets
     sets.engaged = prioritize({main="Malignance Pole",sub="Khonsu",ammo="Amar Cluster",
         head="Blistering Sallet +1",neck="Null Loop",ear1="Telos Earring",ear2="Crepuscular Earring",
-        body="Nyame Mail",hands="Gazu Bracelets +1",ring1="Chirich Ring +1",ring2="Defending Ring",
+        body="Nyame Mail",hands="Gazu Bracelets +1",ring1="Chirich Ring +1",ring2="Murky Ring",
         back="Null Shawl",waist="Null Loop",legs="Jhakri Slops +2",feet="Nyame Sollerets"})
-    sets.engaged.PDef = set_combine(sets.engaged, {head="Null Masque",ring2="Defending Ring",legs="Nyame Flanchard"})
+    sets.engaged.PDef = set_combine(sets.engaged, {head="Null Masque",ring2="Murky Ring",legs="Nyame Flanchard"})
 
     -- Sets depending upon idle sets
     sets.midcast.FastRecast = set_combine(sets.defense.MaxMP, {})
@@ -878,14 +884,9 @@ end
 -- Utility functions specific to this job.
 -------------------------------------------------------------------------------------------------------------------
 
--- Select default macro book on initial load or subjob change.
---function select_default_macro_book()
---    set_macro_page(1,4)
---end
-
 -- returns a list for use with make_keybind_list
 function job_keybinds()
-    local bind_command_list = L{
+    return L{
         'bind !^l input /lockstyleset 3',
         'bind %`   gs c update user',
         'bind F9   gs c cycle OffenseMode',
@@ -905,7 +906,7 @@ function job_keybinds()
         'bind !w   gs c set OffenseMode Normal',
         'bind !@w  gs c set OffenseMode None',
         'bind ~!^q gs c set CombatWeapon Dagger',
-        'bind !^q  gs c set CombatWeapon Pole',
+        'bind !^q  gs c set CombatWeapon Rod',
         'bind !^w  gs c set CombatWeapon Laev',
         'bind ~!^w gs c set CombatWeapon LaevK',
         'bind !^e  gs c set CombatWeapon Marin',
@@ -1026,9 +1027,11 @@ function job_keybinds()
         'bind ~^@d input /ma Drain',
 
         'bind @b input /ma Stonega'}
+end
 
+function sub_job_keybinds()
     if     player.sub_job == 'RDM' then
-        bind_command_list:extend(L{
+        return L{
             'bind ~^@tab input /ja Convert <me>',
             'bind ^tab input /ma Dispel',
             'bind  ^@1 input /ma "Dia II"',
@@ -1039,9 +1042,9 @@ function job_keybinds()
             'bind !f  input /ma Haste <me>',
             'bind !g  input /ma Phalanx <me>',
             'bind !b  input /ma Refresh <me>',
-            'bind ~!^d input /ma Gravity <stnpc>'})
+            'bind ~!^d input /ma Gravity <stnpc>'}
     elseif player.sub_job == 'WHM' then
-        bind_command_list:extend(L{
+        return L{
             'bind ^tab input /ja "Divine Seal" <me>',
             'bind  ^@1 input /ma "Dia II"',
             'bind ~^@1 input /ma Diaga <stnpc>',
@@ -1056,9 +1059,9 @@ function job_keybinds()
             'bind @2  input /ma Paralyna',
             'bind @3  input /ma Blindna',
             'bind @4  input /ma Silena',
-            'bind !f  input /ma Haste <me>'})
+            'bind !f  input /ma Haste <me>'}
     elseif player.sub_job == 'SCH' then
-        bind_command_list:extend(L{
+        return L{
             'bind @`    gs c scholar power',
             'bind @tab  gs c scholar cost',
             'bind @q    gs c scholar speed',
@@ -1072,10 +1075,8 @@ function job_keybinds()
             'bind @1  input /ma Poisona',
             'bind @2  input /ma Paralyna',
             'bind @3  input /ma Blindna',
-            'bind @4  input /ma Silena'})
+            'bind @4  input /ma Silena'}
     end
-
-    return bind_command_list
 end
 
 function init_state_text()

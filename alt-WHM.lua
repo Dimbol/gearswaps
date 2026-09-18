@@ -14,7 +14,7 @@ function get_sets()
     include('Mote-Include.lua')
 end
 
--- Setup vars that are user-independent.  state.Buff vars initialized here will automatically be tracked.
+-- Non-gearset initializations.
 function job_setup()
     enable('main','sub','range','ammo','head','neck','ear1','ear2','body','hands','ring1','ring2','back','waist','legs','feet')
     state.Buff['Afflatus Solace'] = buffactive['Afflatus Solace'] or false
@@ -28,14 +28,7 @@ function job_setup()
     state.Buff.sleep = buffactive.sleep or false
 
     logout_event_id = windower.raw_register_event('logout', destroy_state_text)
-end
 
--------------------------------------------------------------------------------------------------------------------
--- User setup functions for this job.  Recommend that these be overridden in a sidecar file.
--------------------------------------------------------------------------------------------------------------------
-
--- Setup vars that are user-dependent.  Can override this function in a sidecar file.
-function user_setup()
     state.OffenseMode:options('None','Normal','Acc')                    -- Cycle with F9, will swap weapon
     state.HybridMode:options('Normal','PDef')                           -- Cycle with ^F9
     state.WeaponskillMode:options('Normal','Acc','NoDmg')
@@ -43,13 +36,6 @@ function user_setup()
     state.IdleMode:options('Normal','PDT','MEVA','Rf')                  -- Cycle with F11, set to PDT with ^F11, reset with !F11
     state.MagicalDefenseMode:options('MRf','MEVA')                      -- Cycle with @z
     state.CombatWeapon = M{['description']='Combat Weapon'}
-    if S{'DNC','NIN'}:contains(player.sub_job) then
-        state.CombatWeapon:options('ClubDW','Staff','StaffMA')
-		state.CombatForm:set('DW')
-    else
-        state.CombatWeapon:options('Club','Staff','StaffMA')
-		state.CombatForm:reset()
-    end
 
     state.WSMsg      = M(false, 'WS Message')                           -- Toggle with ^\
     state.DiaMsg     = M(false, 'Dia Message')                          -- Toggle with ^@\
@@ -137,6 +123,23 @@ function user_setup()
     info.ws_binds:bind(state.CombatWeapon)
     send_command('bind %\\\\  gs c ListWS')
 
+    job_sub_job_change()
+end
+
+function job_sub_job_change()
+    if info.sj_binds then info.sj_binds:unbind() end
+    info.sj_binds = make_keybind_list(sub_job_keybinds())
+    info.sj_binds:bind()
+
+    if S{'DNC','NIN'}:contains(player.sub_job) then
+        state.CombatWeapon:options('ClubDW','Staff','StaffMA')
+		state.CombatForm:set('DW')
+    else
+        state.CombatWeapon:options('Club','Staff','StaffMA')
+		state.CombatForm:reset()
+    end
+    info.ws_binds:bind(state.CombatWeapon)
+
     info.recast_ids = L{{name="Sacro",id=33},{name="D.Seal",id=26},{name="Devotion",id=28}}
     if     player.sub_job == 'SCH' then
         info.recast_ids:append({name="Strats",id=231})
@@ -145,13 +148,12 @@ function user_setup()
     elseif player.sub_job == 'BLM' then
         info.recast_ids:append({name="E.Seal",id=38})
     end
-
-    --select_default_macro_book()
 end
 
 -- Called when this job file is unloaded (eg: job change)
-function user_unload()
+function job_file_unload()
     info.keybinds:unbind()
+    info.sj_binds:unbind()
 
     if state.AllyBinds.value then info.ally_keybinds:unbind() end
     send_command('unbind !^delete')
@@ -242,7 +244,7 @@ function init_gear_sets()
     sets.buff['Divine Caress'] = {hands="Ebers Mitts +1",back="Mending Cape"}
     sets.midcast.Cursna = {main="Ababinili +1",sub="Clemency Grip",ammo="Sapience Orb",
         head="Ebers Cap +1",neck="Malison Medallion",ear1="Malignance Earring",ear2="Etiolation Earring",
-        body="Ebers Bliaut +1",hands="Fanatic Gloves",ring1="Ephedra Ring",ring2="Menelaus's Ring",
+        body="Ebers Bliaut +1",hands="Fanatic Gloves",ring1="Haoma's Ring",ring2="Menelaus's Ring",
         back=gear.MACape,waist="Goading Belt",legs="Theophany Pantaloons +2",feet="Vanya Clogs"}
 
     sets.midcast.EnhancingDuration = {main="Gada",sub="Ammurapi Shield",ammo="Pemphredo Tathlum",
@@ -304,13 +306,13 @@ function init_gear_sets()
 
     -- Sets to return to when not performing an action.
 
-    sets.idle = {main="Mafic Cudgel",sub="Genmei Shield",ammo="Homiliary",
-        head="Null Masque",neck="Loricate Torque +1",ear1="Eabani Earring",ear2="Etiolation Earring",
-        body="Shamash Robe",hands="Inyanga Dastanas +2",ring1="Shneddick Ring +1",ring2="Defending Ring",
+    sets.idle = {main="Bolelabunga",sub="Genmei Shield",ammo="Homiliary",
+        head="Null Masque",neck="Sybil Scarf",ear1="Eabani Earring",ear2="Etiolation Earring",
+        body="Shamash Robe",hands="Inyanga Dastanas +2",ring1="Shneddick Ring +1",ring2="Murky Ring",
         back=gear.IdleCape,waist="Embla Sash",legs="Inyanga Shalwar +2",feet="Inyanga Crackows +2"}
     sets.idle.PDT  = set_combine(sets.idle, {ring1="Shadow Ring",waist="Platinum Moogle Belt"})
-    sets.idle.MEVA = set_combine(sets.idle, {main="Daybreak",sub="Genmei Shield",
-        neck="Warder's Charm +1",ring1="Shadow Ring",legs="Inyanga Shalwar +2",feet="Inyanga Crackows +2"})
+    sets.idle.MEVA = set_combine(sets.idle, {main="Daybreak",sub="Archduke's Shield",
+        neck="Warder's Charm +1",ring1="Shadow Ring"})
     sets.idle.Rf   = set_combine(sets.idle, {main="Daybreak",sub="Genmei Shield",feet="Inyanga Crackows +2"})
     sets.latent_refresh = {waist="Fucho-no-obi"}
     sets.buff.doom = {neck="Nicander's Necklace",ring1="Saida Ring",waist="Gishdubar Sash"}
@@ -319,7 +321,7 @@ function init_gear_sets()
     sets.defense.PDT  = set_combine(sets.idle.PDT, {})
     sets.defense.MEVA = set_combine(sets.idle.MEVA, {})
     sets.defense.MRf  = set_combine(sets.idle.Rf, {})
-    sets.Kiting = {feet="Herald's Gaiters"}
+    sets.Kiting = {ring1="Shneddick Ring +1"}
 
     sets.engaged = {ammo="Amar Cluster",
         head="Null Masque",neck="Null Loop",ear1="Telos Earring",ear2="Zennaroi Earring",
@@ -646,14 +648,9 @@ end
 -- Utility functions specific to this job.
 -------------------------------------------------------------------------------------------------------------------
 
--- Select default macro book on initial load or subjob change.
---function select_default_macro_book()
---    set_macro_page(1,2)
---end
-
 -- returns a list for use with make_keybind_list
 function job_keybinds()
-    local bind_command_list = L{
+    return L{
         'bind !^l input /lockstyleset 2',
         'bind %`   gs c update user',
         'bind F9   gs c cycle OffenseMode',
@@ -750,9 +747,11 @@ function job_keybinds()
         'bind !b input /ma Repose <t>',    -- for charmed people
         'bind !n input /ma "Holy II" <t>', -- for charmed people too
         'bind ^q input /ma Dispelga'}
+end
 
+function sub_job_keybinds()
     if     player.sub_job == 'SCH' then
-        bind_command_list:extend(L{
+        return L{
             'bind !6   input /ma Aurorastorm <me>',
             'bind !7   input /ma Klimaform <me>',
             'bind ^tab input /ja Sublimation <me>',
@@ -764,9 +763,9 @@ function job_keybinds()
             'bind !e   input /ma Sleep <stnpc>',
             'bind !d   input /ma Dispel',
             'bind @d   input /ma Aspir',
-            'bind !@d  input /ma Drain'})
+            'bind !@d  input /ma Drain'}
     elseif player.sub_job == 'RDM' then
-        bind_command_list:extend(L{
+        return L{
             'bind !6   input /ma Refresh <stpc>',
             'bind !7   input /ma Flurry <stpc>',
             'bind !@`  input /ja Convert <me>',
@@ -777,40 +776,38 @@ function job_keybinds()
             'bind !d   input /ma Distract',
             'bind @d   input /ma Frazzle',
             'bind !e   input /ma Sleep <stnpc>',
-            'bind !@e  input /ma "Sleep II" <stnpc>'})
+            'bind !@e  input /ma "Sleep II" <stnpc>'}
     elseif player.sub_job == 'BLM' then
-        bind_command_list:extend(L{
+        return L{
             'bind ^tab input /ja "Elemental Seal"',
             'bind @q   input /ma Bind <stnpc>',
             'bind ^@q  input /ma Sleepga <stnpc>',
             'bind !e   input /ma Sleep <stnpc>',
             'bind !@e  input /ma "Sleep II" <stnpc>',
-            'bind !d   input /ma Stun'})
+            'bind !d   input /ma Stun'}
     elseif player.sub_job == 'DNC' then
-        bind_command_list:extend(L{
+        return L{
             'bind !v  input /ja "Spectral Jig" <me>',
             'bind !d  input /ja "Violent Flourish"',
             'bind !@d input /ja "Animated Flourish"',
             'bind !f  input /ja "Haste Samba" <me>',
             'bind !@f input /ja "Reverse Flourish" <me>',
             'bind !e  input /ja "Box Step"',
-            'bind !@e input /ja Quickstep'})
+            'bind !@e input /ja Quickstep'}
     elseif player.sub_job == 'NIN' then
-        bind_command_list:extend(L{
+        return L{
             'bind !e  input /ma "Utsusemi: Ni" <me>',
-            'bind !@e input /ma "Utsusemi: Ichi" <me>'})
+            'bind !@e input /ma "Utsusemi: Ichi" <me>'}
     elseif player.sub_job == 'SMN' then
-        bind_command_list:extend(L{
+        return L{
             'bind !e  input /pet "Mewing Lullaby" <t>',
             'bind @e  input /pet "Aero II" <t>',
             'bind !d  input /pet Assault <t>',
             'bind @d  input /pet Retreat <me>',
             'bind !b  input /ma "Cait Sith" <me>',
             'bind @b  input /ma Garuda <me>',
-            'bind !@b input /pet Release <me>'})
+            'bind !@b input /pet Release <me>'}
     end
-
-    return bind_command_list
 end
 
 function init_state_text()

@@ -80,7 +80,7 @@ function make_keybind_list(binds, weapon_types)
         end
         function ws_keybind_list:unbind()
             if self.current_weapon_binds then
-                for bind_cmd in self.table[self.current_weapon_binds]:it() do send_command(bind_cmd:gsub('^(bind [^ ]+)','un%1')) end
+                for bind_cmd in self.table[self.current_weapon_binds]:it() do send_command('un'..bind_cmd:match('^bind +[^ ]+')) end
                 self.current_weapon_binds = nil
             end
         end
@@ -99,9 +99,9 @@ function make_keybind_list(binds, weapon_types)
         return ws_keybind_list
     else
         local keybind_list = {}
-        keybind_list.list = binds
+        keybind_list.list = binds or L{}
         function keybind_list:bind()   for bind_cmd in self.list:it() do send_command(bind_cmd) end end
-        function keybind_list:unbind() for bind_cmd in self.list:it() do send_command(bind_cmd:gsub('^(bind [^ ]+)','un%1')) end end
+        function keybind_list:unbind() for bind_cmd in self.list:it() do send_command('un'..bind_cmd:match('^bind +[^ ]+')) end end
         function keybind_list:print(header)
             if header then add_to_chat(122, header) end
             for bind_cmd in self.list:it() do
@@ -316,7 +316,7 @@ function custom_auto_change_target(spell, action, spellMap, eventArgs)
                 eventArgs.handled = true
             end
         elseif player.status ~= 'Engaged' then
-            if spell.target.type == 'MONSTER' then
+            if player.target.type == 'MONSTER' then
                 change_target('<me>')
                 eventArgs.handled = true
             else
@@ -324,16 +324,16 @@ function custom_auto_change_target(spell, action, spellMap, eventArgs)
                 eventArgs.handled = true
             end
         end
-    elseif spell.target.raw == '<stnpc>' then
-        if player.status ~= 'Engaged' then
-            if 'MONSTER' == player.target.type
-            or 'PLAYER'  == player.target.type and windower.ffxi.get_mob_by_index(player.target.index).charmed then
-                change_target('<t>')
-                eventArgs.handled = true
-            else
-                add_to_chat(121, '%s %s':format(spell.english, spell.target.raw))
-            end
-        end
+    --elseif spell.target.raw == '<stnpc>' then
+    --    if player.status ~= 'Engaged' then
+    --        if 'MONSTER' == player.target.type
+    --        or 'PLAYER'  == player.target.type and windower.ffxi.get_mob_by_index(player.target.index).charmed then
+    --            change_target('<t>')
+    --            eventArgs.handled = true
+    --        else
+    --            add_to_chat(121, '%s %s':format(spell.english, spell.target.raw))
+    --        end
+    --    end
     elseif spell.target.raw == '<t>' and spell.targets.Enemy and player.target.type ~= 'MONSTER' then
         if not player.target.name
         or 'SELF'   == player.target.type

@@ -27,7 +27,7 @@ function get_sets()
     include('Mote-Include.lua')
 end
 
--- Setup vars that are user-independent.  state.Buff vars initialized here will automatically be tracked.
+-- Non-gearset initializations.
 function job_setup()
     enable('main','sub','range','ammo','head','neck','ear1','ear2','body','hands','ring1','ring2','back','waist','legs','feet')
     state.Buff['Widened Compass']   = buffactive['widened compass'] or false
@@ -43,27 +43,13 @@ function job_setup()
     state.Buff.sleep = buffactive.sleep or false
 
     logout_event_id = windower.raw_register_event('logout', destroy_state_text)
-end
 
--------------------------------------------------------------------------------------------------------------------
--- User setup functions for this job.  Recommend that these be overridden in a sidecar file.
--------------------------------------------------------------------------------------------------------------------
-
--- Setup vars that are user-dependent.  Can override this function in a sidecar file.
-function user_setup()
     state.OffenseMode:options('None','Normal')                          -- Cycle with F9, will swap weapon
     state.HybridMode:options('Normal','PDef')                           -- Cycle with ^F9
     state.CastingMode:options('Normal','MAcc')                          -- Cycle with F10
     state.IdleMode:options('Normal','PDT','MEVA')                       -- Cycle with F11
     state.MagicalDefenseMode:options('MEVA')
     state.CombatWeapon = M{['description']='Combat Weapon'}
-    if S{'DNC','NIN'}:contains(player.sub_job) then
-        state.CombatWeapon:options('IdrisDW','MaxenDW','DayDW','Staff','Dagger')
-        state.CombatForm:set('DW')
-    else
-        state.CombatWeapon:options('Idris','Maxentius','Daybreak','Staff','Dagger')
-        state.CombatForm:reset()
-    end
 
     state.Seidr          = M(false, 'Seidr Nukes')                      -- Toggle with !@z
     state.AutoSeidr      = M(true,  'Seidr Sometimes')                  -- Toggle with ~!@z
@@ -202,6 +188,22 @@ function user_setup()
         'bind @backspace gs c ListBubs'})
     info.bubble_binds:bind()
 
+    job_sub_job_change()
+end
+
+function job_sub_job_change()
+    info.sj_binds = make_keybind_list(sub_job_keybinds())
+    info.sj_binds:bind()
+
+    if S{'DNC','NIN'}:contains(player.sub_job) then
+        state.CombatWeapon:options('IdrisDW','MaxenDW','DayDW','Staff','Dagger')
+        state.CombatForm:set('DW')
+    else
+        state.CombatWeapon:options('Idris','Maxentius','Daybreak','Staff','Dagger')
+        state.CombatForm:reset()
+    end
+    info.ws_binds:bind(state.CombatWeapon)
+
     info.recast_ids = L{{name="Entrust",id=93},{name="BoG",id=247},{name="EA",id=244},{name="Demat",id=248},
                         {name="Life Cycle",id=246},{name="Radial Arcana",id=252}}
     if     player.sub_job == 'RDM' then
@@ -214,13 +216,13 @@ function user_setup()
         info.recast_ids:append({name="Strats",id=231})
     end
 
-    --select_default_macro_book()
+    hud_update_on_state_change()
 end
 
 -- Called when this job file is unloaded (eg: job change)
-function user_unload()
+function job_file_unload()
     info.keybinds:unbind()
-
+    info.sj_binds:unbind()
     info.bubble_binds:unbind()
 
     if state.AllyBinds.value then info.ally_keybinds:unbind() end
@@ -250,7 +252,7 @@ function init_gear_sets()
 
     sets.precast.JA.Bolster             = {body="Bagua Tunic +3"}
     sets.precast.JA['Life Cycle']       = {body="Geomancy Tunic +3",back=gear.PetCape}
-    sets.precast.JA['Radial Arcana']    = {feet="Bagua Sandals +3"}
+    sets.precast.JA['Radial Arcana']    = {feet="Bagua Sandals +4"}
     sets.precast.JA['Mending Halation'] = {feet="Bagua Pants +3"}
     sets.precast.JA['Full Circle']      = {head="Azimuth Hood +3"}
     sets.precast.JA['Concentric Pulse'] = {head="Bagua Galero +3"}
@@ -302,7 +304,7 @@ function init_gear_sets()
     sets.midcast.Curaga = sets.midcast.Cure
     sets.midcast.Cursna = {main="Mafic Cudgel",sub="Genmei Shield",ammo="Sapience Orb",
         head="Hike Khat +1",neck="Malison Medallion",ear1="Malignance Earring",ear2="Lugalbanda Earring",
-        body="Zendik Robe",hands="Gazu Bracelets +1",ring1="Ephedra Ring",ring2="Menelaus's Ring",
+        body="Zendik Robe",hands="Gazu Bracelets +1",ring1="Haoma's Ring",ring2="Menelaus's Ring",
         back=gear.MACape,waist="Embla Sash",legs="Geomancy Pants +3",feet="Vanya Clogs"}
     sets.midcast.CureCheat = {main="Septoptic",sub="Culminus",range="Dunna",
         head="Vanya Hood",neck="Sanctity Necklace",ear1="Eabani Earring",ear2="Mendicant's Earring",
@@ -391,7 +393,7 @@ function init_gear_sets()
     sets.idle.Pet = {main="Idris",sub="Genmei Shield",
         head="Azimuth Hood +3",neck="Bagua Charm +2",ear1="Eabani Earring",ear2="Lugalbanda Earring",
         body="Shamash Robe",hands="Geomancy Mitaines +3",ring1="Shneddick Ring +1",ring2="Defending Ring",
-        back=gear.PetCape,waist="Isa Belt",legs=gear.mer_legs_rf,feet="Bagua Sandals +3"}
+        back=gear.PetCape,waist="Isa Belt",legs=gear.mer_legs_rf,feet="Bagua Sandals +4"}
     sets.idle.PDT = set_combine(sets.idle, {head="Azimuth Hood +3",legs="Nyame Flanchard",feet=gear.mer_feet_rf})
     sets.idle.PDT.Pet = set_combine(sets.idle.Pet, {legs="Nyame Flanchard"})
     sets.idle.MEVA = {main="Mafic Cudgel",sub="Genmei Shield",range="Dunna",
@@ -823,14 +825,9 @@ end
 -- Utility functions specific to this job.
 -------------------------------------------------------------------------------------------------------------------
 
--- Select default macro book on initial load or subjob change.
---function select_default_macro_book()
---    set_macro_page(1,1)
---end
-
 -- returns a list for use with make_keybind_list
 function job_keybinds()
-    local bind_command_list = L{
+    return L{
         'bind !^l input /lockstyleset 1',
         'bind %`   gs c update user',
         'bind F9   gs c cycle OffenseMode',
@@ -956,13 +953,15 @@ function job_keybinds()
         'bind @d input /ma "Aspir II"',
         'bind !d  input /ma "Aspir III"',
         'bind !@d input /ma Aspir'}
+end
 
+function sub_job_keybinds()
     if     player.sub_job == 'RDM' then
-        bind_command_list:extend(L{
+        return L{
             'bind !@`  input /ja Convert <me>',
-            'bind ^tab input /ma Dispel'})
+            'bind ^tab input /ma Dispel'}
     elseif player.sub_job == 'WHM' then
-        bind_command_list:extend(L{
+        return L{
             'bind ^tab input /ja "Divine Seal" <me>',
             'bind !@1 input /ma Curaga',
             'bind !@2 input /ma "Curaga II"',
@@ -974,18 +973,18 @@ function job_keybinds()
             'bind @5 input /ma Stona',
             'bind @6 input /ma Viruna',
             'bind @7 input /ma Cursna',
-            'bind @F1 input /ma Erase'})
+            'bind @F1 input /ma Erase'}
     elseif player.sub_job == 'BLM' then
-        bind_command_list:extend(L{
+        return L{
             'bind ^tab input /ja "Elemental Seal" <me>',
             'bind ~^@5 input /ma Sleepga',
-            'bind !e   input /ma Stun'})
+            'bind !e   input /ma Stun'}
     elseif player.sub_job == 'SCH' then
         -- TODO
     elseif player.sub_job == 'DRK' then
         -- TODO
     elseif player.sub_job == 'DNC' then
-        bind_command_list:extend(L{
+        return L{
             'bind !1 input /ja "Curing Waltz II" <stpc>',
             'bind !2 input /ja "Curing Waltz III" <stpc>',
             'bind @F1 input /ja "Healing Waltz" <stpc>',
@@ -994,14 +993,12 @@ function job_keybinds()
             'bind !f input /ja "Haste Samba" <me>',
             'bind !@f input /ja "Reverse Flourish" <me>',
             'bind !e input /ja "Box Step"',
-            'bind !@e input /ja Quickstep'})
+            'bind !@e input /ja Quickstep'}
     elseif player.sub_job == 'NIN' then
-        bind_command_list:extend(L{
+        return L{
             'bind !e  input /ma "Utsusemi: Ni" <me>',
-            'bind !@e input /ma "Utsusemi: Ichi" <me>'})
+            'bind !@e input /ma "Utsusemi: Ichi" <me>'}
     end
-
-    return bind_command_list
 end
 
 -- collimated fervor is +50% and geomancy galero +3 is +100% to this bonus
